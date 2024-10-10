@@ -38,4 +38,5 @@ out/
 
 ### aplication
 # Ignore all application.yml files
+application.yml
 application-*.yml
