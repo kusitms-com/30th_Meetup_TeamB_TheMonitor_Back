@@ -35,8 +35,11 @@ public class User extends BaseTimeEntity {
     @Column(name = "user_agreement")
     private boolean agreement;
 
+    @Column(name = "email_verified", nullable = false)
+    private boolean emailVerified = false;
+
     @Builder
-    public User(String email, String password, String companyName, String managerName, String managerPhone, boolean agreement) {
+    public User(String email, String password, String companyName, String managerName, String managerPhone, boolean agreement, boolean emailVerified) {
 
         this.email = email;
         this.password = password;
@@ -44,6 +47,7 @@ public class User extends BaseTimeEntity {
         this.managerName = managerName;
         this.managerPhone = managerPhone;
         this.agreement = agreement;
+        this.emailVerified = emailVerified;
 
     }
 
