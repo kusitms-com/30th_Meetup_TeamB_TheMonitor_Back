@@ -28,7 +28,7 @@ public class AccountServiceImpl implements AccountService {
     public String createAccount(AccountCreateRequest request) {
 
         accountRepository.save(request.toEntity());
-        return "계정 생성 완료";
+        return "계정 생성 완료. 이메일 인증을 완료해야 합니다.";
 
     }
 
