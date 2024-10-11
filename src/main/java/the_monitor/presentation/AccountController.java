@@ -30,11 +30,13 @@ public class AccountController {
         accountService.verifyEmail(certifiedKey, response);
 
     }
-
-    @GetMapping("/sendVerificationEmail")
-    public ApiResponse<String> sendVerificationEmail(@RequestParam("email") String email) {
-        return ApiResponse.onSuccess(accountService.sendVerificationEmail(email));
-    }
+//
+//    @GetMapping("/sendVerificationEmail")
+//    public ApiResponse<String> sendVerificationEmail(@RequestParam("email") String email) {
+//
+//        return ApiResponse.onSuccess(accountService.sendVerificationEmail(email));
+//
+//    }
 
 
 

@@ -33,7 +33,7 @@ public class JwtProvider {
     public JwtProvider(@Value("${jwt.secret_key}") String secretKey,
                        @Value("${jwt.access_token_expire}") Long accessTokenExpire,
                        @Value("${jwt.refresh_token_expire}") Long refreshTokenExpire) {
-        this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
+        this.key = Keys.secretKeyFor(SignatureAlgorithm.HS256);  // 안전한 256비트 비밀 키 생성
         this.ACCESS_TOKEN_EXPIRE_TIME = accessTokenExpire;
         this.REFRESH_TOKEN_EXPIRE_TIME = refreshTokenExpire;
     }
