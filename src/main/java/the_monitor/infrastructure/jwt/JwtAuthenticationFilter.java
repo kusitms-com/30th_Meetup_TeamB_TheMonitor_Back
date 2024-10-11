@@ -88,8 +88,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private boolean isPublicUrl(String requestUrl) {
         return requestUrl.equals("/api") ||
-                requestUrl.equals("/api/login") ||
-                requestUrl.equals("/api/signup") ||
+                requestUrl.equals("/api/v1/accounts") ||
+                requestUrl.equals("/api/v1/accounts/createAccount") ||
+                requestUrl.equals("/api/v1/accounts/verify") ||
                 requestUrl.startsWith("/api/kindergartens/**") ||
                 requestUrl.startsWith("/swagger-ui/**") ||
                 requestUrl.startsWith("/swagger-resources/**") ||
