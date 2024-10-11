@@ -2,6 +2,7 @@ package the_monitor.application.serviceImpl;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import the_monitor.application.dto.request.AccountCreateRequest;
@@ -15,6 +16,7 @@ import the_monitor.domain.repository.AccountRepository;
 import java.io.IOException;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -35,8 +37,10 @@ public class AccountServiceImpl implements AccountService {
 
         String certifiedKey = generateCertifiedKey();
         accountRepository.save(request.toEntity(certifiedKey));
+        log.info("계정 생성 완료. 이메일 발송 중...");
 
-        String verificationLink = "http://localhost:8080/api/v1/account/verify?certifiedKey=" + certifiedKey;
+        String verificationLink = "http://localhost:8080/api/v1/account/verify?certifiedKey=" + certifiedKey; // 이거 나중에 프론트 URL로 변경 필요
+        // 아래도 마찬가지로 링크 변경 필요.
         String emailContent = "<html>" +
                 "<body>" +
                 "<h1>이메일 인증 요청</h1>" +
@@ -65,22 +69,10 @@ public class AccountServiceImpl implements AccountService {
         account.setEmailVerified();
 
         // 인증 성공 후 리다이렉트할 URL
-        String redirectUrl = "http://localhost:3000/email-verification-success"; // 리다이렉트할 URL
+        String redirectUrl = "http://localhost:3000/email-verification-success"; // 리다이렉트할 URL 이후 수정 필요
         response.sendRedirect(redirectUrl);  // 사용자를 해당 URL로 리다이렉트
 
     }
-
-
-//    @Override
-//    public void registerUser() {
-//
-//        User user = new User();
-//        user.setUsername(signupRequest.getUsername());
-//        user.setEmail(signupRequest.getEmail());
-//        user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
-//        userRepository.save(user);
-//
-//    }
 
     private String generateCertifiedKey() {
         return UUID.randomUUID().toString();  // UUID 생성

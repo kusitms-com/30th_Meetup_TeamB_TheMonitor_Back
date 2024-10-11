@@ -22,6 +22,10 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
         ErrorStatus exception = (ErrorStatus) request.getAttribute("exception");
 
+        if (exception == null) {
+            log.info("No exception found, setting default error");
+            exception = ErrorStatus._JWT_UNKNOWN;  // 기본 예외 상태 설정
+        }
 
         log.info("===================== EntryPoint - Exception Control : " + exception);
 
@@ -32,6 +36,8 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
                 exceptionHandler(response, ErrorStatus._JWT_INVALID, HttpServletResponse.SC_UNAUTHORIZED);
             } else if (exception.equals(ErrorStatus._JWT_EXPIRED)) {
                 exceptionHandler(response, ErrorStatus._JWT_EXPIRED, HttpServletResponse.SC_UNAUTHORIZED);
+            } else {
+                exceptionHandler(response, ErrorStatus._JWT_UNKNOWN, HttpServletResponse.SC_UNAUTHORIZED);
             }
         } catch (JSONException e) {
             throw new RuntimeException(e);

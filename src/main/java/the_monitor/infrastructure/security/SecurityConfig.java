@@ -65,6 +65,7 @@ public class SecurityConfig {
                         authorize.requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                                 // 특정 경로에 대한 인증 여부는 JwtAuthenticationFilter에서 처리
                                 .anyRequest().authenticated())  // 나머지 요청은 인증 필요
+//                                .anyRequest().permitAll())
                 .exceptionHandling(handler ->
                         handler.authenticationEntryPoint(jwtAuthenticationEntryPoint)
                                 .accessDeniedHandler(jwtAccessDeniedHandler))
