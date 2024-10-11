@@ -1,14 +1,14 @@
 package the_monitor.presentation;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import the_monitor.application.dto.request.AccountCreateRequest;
 import the_monitor.application.service.AccountService;
 import the_monitor.common.ApiResponse;
+
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,6 +22,18 @@ public class AccountController {
 
         return ApiResponse.onSuccess(accountService.createAccount(request));
 
+    }
+
+    @GetMapping("/verify")
+    public void verifyEmail(@RequestParam("certifiedKey") String certifiedKey, HttpServletResponse response) throws IOException {
+
+        accountService.verifyEmail(certifiedKey, response);
+
+    }
+
+    @GetMapping("/sendVerificationEmail")
+    public ApiResponse<String> sendVerificationEmail(@RequestParam("email") String email) {
+        return ApiResponse.onSuccess(accountService.sendVerificationEmail(email));
     }
 
 

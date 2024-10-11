@@ -24,16 +24,16 @@ public class Account extends BaseTimeEntity {
     @Column(name = "account_password", nullable = false)
     private String password;
 
-    @Column(name = "account_company_name")
+    @Column(name = "account_company_name", nullable = false)
     private String companyName;
 
-    @Column(name = "account_manager_name")
+    @Column(name = "account_manager_name", nullable = false)
     private String managerName;
 
     @Column(name = "account_manager_phone")
     private String managerPhone;
 
-    @Column(name = "account_agreement")
+    @Column(name = "account_agreement", nullable = false)
     private boolean agreement;
 
     @Column(name = "account_email_certification_key")
