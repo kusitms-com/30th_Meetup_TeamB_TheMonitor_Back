@@ -9,37 +9,37 @@ import the_monitor.common.BaseTimeEntity;
 @Entity
 @NoArgsConstructor
 @Getter
-@Table(name = "user")
-public class User extends BaseTimeEntity {
+@Table(name = "accounts")
+public class Account extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
+    @Column(name = "account_id")
     private Long id;
 
-    @Column(name = "user_email", nullable = false)
+    @Column(name = "account_email", nullable = false)
     private String email;
 
-    @Column(name = "user_password", nullable = false)
+    @Column(name = "account_password", nullable = false)
     private String password;
 
-    @Column(name = "user_company_name")
+    @Column(name = "account_company_name")
     private String companyName;
 
-    @Column(name = "user_manager_name")
+    @Column(name = "account_manager_name")
     private String managerName;
 
-    @Column(name = "user_manager_phone")
+    @Column(name = "account_manager_phone")
     private String managerPhone;
 
-    @Column(name = "user_agreement")
+    @Column(name = "account_agreement")
     private boolean agreement;
 
-    @Column(name = "email_verified", nullable = false)
+    @Column(name = "account_email_verified", nullable = false)
     private boolean emailVerified = false;
 
     @Builder
-    public User(String email, String password, String companyName, String managerName, String managerPhone, boolean agreement, boolean emailVerified) {
+    public Account(String email, String password, String companyName, String managerName, String managerPhone, boolean agreement, boolean emailVerified) {
 
         this.email = email;
         this.password = password;

@@ -3,7 +3,7 @@ package the_monitor.common;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
-import the_monitor.application.ErrorReasonDto;
+import the_monitor.application.dto.ErrorReasonDto;
 import the_monitor.domain.BaseErrorCode;
 
 @Getter
@@ -11,7 +11,7 @@ import the_monitor.domain.BaseErrorCode;
 public enum ErrorStatus implements BaseErrorCode {
 
     // 일반 응답
-    _USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER404", "해당 유저를 찾을 수 없습니다."),
+    _ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "ACCOUNT404", "해당 계정을 찾을 수 없습니다."),
     _INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON500", "서버 에러, 관리자에게 문의 바랍니다."),
     _BAD_REQUEST(HttpStatus.BAD_REQUEST, "COMMON400", "잘못된 요청입니다."),
     _UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "COMMON401", "인증되지 않은 요청입니다."),

@@ -3,23 +3,23 @@ package the_monitor.application.serviceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import the_monitor.application.service.UserService;
+import the_monitor.application.service.AccountService;
 import the_monitor.common.ApiException;
 import the_monitor.common.ErrorStatus;
-import the_monitor.domain.model.User;
-import the_monitor.domain.repository.UserRepository;
+import the_monitor.domain.model.Account;
+import the_monitor.domain.repository.AccountRepository;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService {
+public class AccountServiceImpl implements AccountService {
 
-    private final UserRepository userRepository;
+    private final AccountRepository accountRepository;
 
     @Override
-    public User findUserById(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new ApiException(ErrorStatus._USER_NOT_FOUND));
+    public Account findAccountById(Long id) {
+        return accountRepository.findById(id)
+                .orElseThrow(() -> new ApiException(ErrorStatus._ACCOUNT_NOT_FOUND));
     }
 //    @Override
 //    public void registerUser() {

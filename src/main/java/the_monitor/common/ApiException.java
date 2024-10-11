@@ -1,6 +1,6 @@
 package the_monitor.common;
 
-import the_monitor.application.ErrorReasonDto;
+import the_monitor.application.dto.ErrorReasonDto;
 
 public class ApiException extends RuntimeException{
 
