@@ -36,7 +36,7 @@ public class Account extends BaseTimeEntity {
     private boolean agreement;
 
     @Column(name = "account_email_verified", nullable = false)
-    private boolean emailVerified = false;
+    private boolean emailVerified;
 
     @Builder
     public Account(String email, String password, String companyName, String managerName, String managerPhone, boolean agreement, boolean emailVerified) {
