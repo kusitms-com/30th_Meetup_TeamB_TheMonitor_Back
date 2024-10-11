@@ -1,64 +1,96 @@
 package the_monitor.infrastructure.security;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.CorsUtils;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import the_monitor.infrastructure.jwt.JwtAccessDeniedHandler;
+import the_monitor.infrastructure.jwt.JwtAuthenticationEntryPoint;
 import the_monitor.infrastructure.jwt.JwtAuthenticationFilter;
-import the_monitor.infrastructure.jwt.JwtService;
+import the_monitor.infrastructure.jwt.JwtExceptionFilter;
 
 @Configuration
-@Order(1)
-@RequiredArgsConstructor
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
-    public static final String PERMITTED_URI[] = {"/api/auth/**", "/login"};
-    private static final String PERMITTED_ROLES[] = {"USER", "ADMIN"};
-    private final CustomCorsConfigurationSource customCorsConfigurationSource;
-    private final JwtService jwtService;
-    private final UserService userService;
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+    private final JwtExceptionFilter jwtExceptionFilter;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public static BCryptPasswordEncoder bCryptPasswordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-        http.cors(corsCustomizer -> corsCustomizer
-                        .configurationSource(customCorsConfigurationSource)
-                )
-                .csrf(CsrfConfigurer::disable)
-                .httpBasic(HttpBasicConfigurer::disable)
-                // OAuth 사용으로 인한 form login 비활성화
-                .formLogin(FormLoginConfigurer::disable)
-                .authorizeHttpRequests(request -> request
-                        // 특정 권한이 있어야만 특정 API에 접근할 수 있도록 설정
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-                        // 특정 API들은 별도의 인증/인가 과정 없이도 접근이 가능하도록 설정
-                        .requestMatchers(PERMITTED_URI).permitAll()
-                        // 그 외의 요청들은 PERMITTED_ROLES 중 하나라도 가지고 있어야 접근이 가능하도록 설정
-                        .anyRequest().hasAnyRole(PERMITTED_ROLES))
+    private static final String[] WHITE_LIST_URL = {
+            // Application URLs
+            "/api/v1/**",
+            "/v3/api-docs/**",
+            "/swagger-resources/**",
+            "/swagger-ui/**",
+            "/favicon.ico"
+    };
 
-                // JWT 사용으로 인한 세션 미사용
-                .sessionManagement(configurer -> configurer
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web.ignoring()
+                .requestMatchers(WHITE_LIST_URL);
+    }
 
-                // JWT 검증 필터 추가
-                .addFilterBefore(new JwtAuthenticationFilter(jwtService, userService),
-                        UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new ExceptionHandlerFilter(), JwtAuthenticationFilter.class)
-
-                // OAuth 로그인 설정
-                .oauth2Login(customConfigurer -> customConfigurer
-                        .successHandler(successHandler)
-                        .failureHandler(failureHandler)
-                        .userInfoEndpoint(endpointConfig -> endpointConfig.userService(customOAuthService))
-                );
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(withDefaults())  // CORS 설정 적용
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(authorize ->
+                        authorize.requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
+                                // 특정 경로에 대한 인증 여부는 JwtAuthenticationFilter에서 처리
+                                .anyRequest().authenticated())  // 나머지 요청은 인증 필요
+                .exceptionHandling(handler ->
+                        handler.authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                                .accessDeniedHandler(jwtAccessDeniedHandler))
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOriginPatterns(List.of("*"));
+        // 모든 메서드 허용
+        configuration.setAllowedMethods(List.of("*"));
+        // 모든 헤더 허용
+        configuration.setAllowedHeaders(List.of("*"));
+        // 응답 헤더에서도 모든 헤더를 노출
+        configuration.addExposedHeader("*");
+        // 자격 증명 허용
+        configuration.setAllowCredentials(true);
+        // 캐시 시간 설정
+        configuration.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
