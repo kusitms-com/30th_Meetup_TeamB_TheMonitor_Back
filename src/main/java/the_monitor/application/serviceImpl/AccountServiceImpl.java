@@ -10,6 +10,8 @@ import the_monitor.common.ErrorStatus;
 import the_monitor.domain.model.Account;
 import the_monitor.domain.repository.AccountRepository;
 
+import java.util.UUID;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -27,7 +29,7 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     public String createAccount(AccountCreateRequest request) {
 
-        accountRepository.save(request.toEntity());
+        accountRepository.save(request.toEntity(generateCertifiedKey()));
         return "계정 생성 완료. 이메일 인증을 완료해야 합니다.";
 
     }
@@ -42,5 +44,9 @@ public class AccountServiceImpl implements AccountService {
 //        userRepository.save(user);
 //
 //    }
+
+    private String generateCertifiedKey() {
+        return UUID.randomUUID().toString();  // UUID 생성
+    }
 
 }

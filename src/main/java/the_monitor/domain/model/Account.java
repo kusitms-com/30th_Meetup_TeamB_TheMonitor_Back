@@ -1,15 +1,16 @@
 package the_monitor.domain.model;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import the_monitor.common.BaseTimeEntity;
 
 @Entity
-@NoArgsConstructor
 @Getter
 @Table(name = "accounts")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Account extends BaseTimeEntity {
 
     @Id
@@ -35,11 +36,14 @@ public class Account extends BaseTimeEntity {
     @Column(name = "account_agreement")
     private boolean agreement;
 
+    @Column(name = "account_email_certification_key")
+    private String emailCertificationKey;
+
     @Column(name = "account_email_verified", nullable = false)
-    private boolean emailVerified;
+    private boolean emailVerified = false;
 
     @Builder
-    public Account(String email, String password, String companyName, String managerName, String managerPhone, boolean agreement, boolean emailVerified) {
+    public Account(String email, String password, String companyName, String managerName, String managerPhone, boolean agreement, String emailCertificationKey) {
 
         this.email = email;
         this.password = password;
@@ -47,8 +51,12 @@ public class Account extends BaseTimeEntity {
         this.managerName = managerName;
         this.managerPhone = managerPhone;
         this.agreement = agreement;
-        this.emailVerified = emailVerified;
+        this.emailCertificationKey = emailCertificationKey;
 
+    }
+
+    public void setEmailVerified() {
+        this.emailVerified = true;
     }
 
 }

@@ -46,7 +46,7 @@ public class AccountCreateRequest {
 
     }
 
-    public Account toEntity() {
+    public Account toEntity(String CertificationKey) {
 
         return Account.builder()
                 .email(email)
@@ -55,7 +55,7 @@ public class AccountCreateRequest {
                 .managerName(managerName)
                 .managerPhone(managerPhone)
                 .agreement(agreement)
-                .emailVerified(false)
+                .emailCertificationKey(CertificationKey)
                 .build();
 
     }
