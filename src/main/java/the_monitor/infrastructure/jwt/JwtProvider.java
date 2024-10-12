@@ -20,7 +20,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import the_monitor.common.ApiException;
 import the_monitor.common.ErrorStatus;
-import the_monitor.domain.model.User;
+import the_monitor.domain.model.Account;
 
 @Component
 public class JwtProvider {
@@ -33,7 +33,7 @@ public class JwtProvider {
     public JwtProvider(@Value("${jwt.secret_key}") String secretKey,
                        @Value("${jwt.access_token_expire}") Long accessTokenExpire,
                        @Value("${jwt.refresh_token_expire}") Long refreshTokenExpire) {
-        this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
+        this.key = Keys.secretKeyFor(SignatureAlgorithm.HS256);  // 안전한 256비트 비밀 키 생성
         this.ACCESS_TOKEN_EXPIRE_TIME = accessTokenExpire;
         this.REFRESH_TOKEN_EXPIRE_TIME = refreshTokenExpire;
     }
@@ -41,23 +41,23 @@ public class JwtProvider {
     /**
      * JWT 토큰 생성 (회원가입 또는 로그인 후 호출)
      */
-    public String generateAccessToken(User user) {
+    public String generateAccessToken(Account account) {
         Date expiredAt = new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRE_TIME);
 
         return Jwts.builder()
-                .claim("user_id", user.getId())  // User의 ID를 포함
-                .claim("email", user.getEmail())  // User의 이메일 포함
+                .claim("account_id", account.getId())  // User의 ID를 포함
+                .claim("email", account.getEmail())  // User의 이메일 포함
                 .setIssuedAt(Date.from(ZonedDateTime.now().toInstant()))
                 .setExpiration(expiredAt)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public String generateRefreshToken(User user) {
+    public String generateRefreshToken(Account account) {
         Date expiredAt = new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRE_TIME);
         return Jwts.builder()
-                .claim("user_id", user.getId())  // User의 ID를 포함
-                .claim("email", user.getEmail())  // User의 이메일 포함
+                .claim("account_id", account.getId())  // User의 ID를 포함
+                .claim("email", account.getEmail())  // User의 이메일 포함
                 .setIssuedAt(Date.from(ZonedDateTime.now().toInstant()))
                 .setExpiration(expiredAt)
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -67,8 +67,8 @@ public class JwtProvider {
     /**
      * JWT 토큰에서 User ID 추출
      */
-    public Long getUserId(String token) {
-        return parseClaims(token).get("user_id", Long.class);
+    public Long getAccountId(String token) {
+        return parseClaims(token).get("account_id", Long.class);
     }
 
     /**
@@ -107,7 +107,7 @@ public class JwtProvider {
         Claims claims = parseClaims(token);
 
         // JWT에서 클레임을 가져옵니다.
-        Long userId = claims.get("user_id", Long.class);
+        Long accountId = claims.get("account_id", Long.class);
         String email = claims.get("email", String.class);
 
         // 사용자 정보 기반으로 Authentication 객체 생성

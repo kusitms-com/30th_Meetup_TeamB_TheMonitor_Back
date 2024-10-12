@@ -11,9 +11,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import the_monitor.application.service.UserService;
+import the_monitor.application.service.AccountService;
 import the_monitor.common.ErrorStatus;
-import the_monitor.domain.model.User;
+import the_monitor.domain.model.Account;
 
 import java.io.IOException;
 
@@ -23,7 +23,7 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
-    private final UserService userService;  // 이메일 인증 확인을 위해 UserService 추가
+    private final AccountService accountService;  // 이메일 인증 확인을 위해 UserService 추가
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -45,10 +45,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 Authentication authentication = jwtProvider.getAuthentication(accessToken);
 
                 // JWT 토큰에서 사용자 정보 추출 후 이메일 인증 확인
-                Long userId = jwtProvider.getUserId(accessToken);
-                User user = userService.findUserById(userId);  // UserService를 통해 사용자 정보 조회
+                Long accountId = jwtProvider.getAccountId(accessToken);
+                Account account = accountService.findAccountById(accountId);  // UserService를 통해 사용자 정보 조회
 
-                if (!user.isEmailVerified()) {  // 이메일 인증이 안된 경우
+                if (!account.isEmailVerified()) {  // 이메일 인증이 안된 경우
                     log.info("===================== EMAIL NOT VERIFIED");
                     response.sendError(HttpServletResponse.SC_FORBIDDEN, "이메일 인증이 필요합니다.");
                     return;  // 이메일 인증이 안되었으므로 필터 체인을 중단
@@ -88,8 +88,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private boolean isPublicUrl(String requestUrl) {
         return requestUrl.equals("/api") ||
-                requestUrl.equals("/api/login") ||
-                requestUrl.equals("/api/signup") ||
+                requestUrl.equals("/api/v1/accounts") ||
+                requestUrl.equals("/api/v1/accounts/createAccount") ||
+                requestUrl.equals("/api/v1/accounts/verify") ||
                 requestUrl.startsWith("/api/kindergartens/**") ||
                 requestUrl.startsWith("/swagger-ui/**") ||
                 requestUrl.startsWith("/swagger-resources/**") ||
