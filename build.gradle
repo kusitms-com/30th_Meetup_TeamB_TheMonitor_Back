@@ -60,6 +60,10 @@ dependencies {
     //mail
     implementation 'org.springframework.boot:spring-boot-starter-mail'
 
+    //swagger
+    implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.2.0'
+
+
 }
 
 tasks.named('test') {
