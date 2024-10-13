@@ -62,8 +62,6 @@ dependencies {
 
     //swagger
     implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.2.0'
-
-
 }
 
 tasks.named('test') {
@@ -74,4 +72,11 @@ tasks.named('test') {
 tasks.named('asciidoctor') {
     inputs.dir snippetsDir
     dependsOn test
+}
+
+jar {
+    // 고정된 파일 이름 설정
+    archiveBaseName = 'the_monitor'
+    archiveVersion = '0.0.1'
+    archiveClassifier = ''
 }
