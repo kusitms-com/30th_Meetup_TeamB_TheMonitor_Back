@@ -39,22 +39,27 @@ public class SecurityConfig {
     }
 
     private static final String[] WHITE_LIST_URL = {
+
             // Application URLs
             "/api/v1/**",
             "/v3/api-docs/**",
             "/swagger-resources/**",
             "/swagger-ui/**",
             "/favicon.ico"
+
     };
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
+
         return web -> web.ignoring()
                 .requestMatchers(WHITE_LIST_URL);
+
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
         http
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
@@ -73,10 +78,12 @@ public class SecurityConfig {
                 .addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class);
 
         return http.build();
+
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOriginPatterns(List.of("*"));
         // 모든 메서드 허용
@@ -93,5 +100,7 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
+
     }
+
 }
