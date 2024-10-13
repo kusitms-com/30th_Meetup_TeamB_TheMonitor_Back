@@ -1,17 +1,20 @@
 package the_monitor.application.serviceImpl;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import the_monitor.application.dto.request.AccountCreateRequest;
+import the_monitor.application.dto.request.AccountLoginRequest;
 import the_monitor.application.service.AccountService;
 import the_monitor.application.service.EmailService;
 import the_monitor.common.ApiException;
 import the_monitor.common.ErrorStatus;
 import the_monitor.domain.model.Account;
 import the_monitor.domain.repository.AccountRepository;
+import the_monitor.infrastructure.jwt.JwtProvider;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -24,6 +27,7 @@ public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository accountRepository;
     private final EmailService emailService;
+    private final JwtProvider jwtProvider;
 
     @Override
     public Account findAccountById(Long id) {
@@ -72,6 +76,25 @@ public class AccountServiceImpl implements AccountService {
         String redirectUrl = "http://localhost:3000/email-verification-success"; // 리다이렉트할 URL 이후 수정 필요
         response.sendRedirect(redirectUrl);  // 사용자를 해당 URL로 리다이렉트
 
+    }
+
+    @Override
+    public String accountLogin(AccountLoginRequest request, HttpServletResponse response) {
+
+        Account account = accountRepository.findByEmail(request.getEmail());
+
+        if (account == null) throw new ApiException(ErrorStatus._ACCOUNT_NOT_FOUND);
+
+        if (!account.getPassword().equals(request.getPassword())) throw new ApiException(ErrorStatus._WRONG_PASSWORD);
+
+        if (account.isEmailVerified()) {
+
+            jwtProvider.setAddCookieToken(account, response);
+
+            return "로그인 성공";
+        }
+
+        return "이메일 인증 필요";
     }
 
     private String generateCertifiedKey() {

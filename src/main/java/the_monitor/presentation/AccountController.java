@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import the_monitor.application.dto.request.AccountCreateRequest;
+import the_monitor.application.dto.request.AccountLoginRequest;
 import the_monitor.application.service.AccountService;
 import the_monitor.common.ApiResponse;
 
@@ -30,14 +31,12 @@ public class AccountController {
         accountService.verifyEmail(certifiedKey, response);
 
     }
-//
-//    @GetMapping("/sendVerificationEmail")
-//    public ApiResponse<String> sendVerificationEmail(@RequestParam("email") String email) {
-//
-//        return ApiResponse.onSuccess(accountService.sendVerificationEmail(email));
-//
-//    }
 
+    @GetMapping("/login")
+    public ApiResponse<String> Login(@RequestBody @Valid AccountLoginRequest request, HttpServletResponse response) {
 
+        return ApiResponse.onSuccess(accountService.accountLogin(request, response));
+
+    }
 
 }

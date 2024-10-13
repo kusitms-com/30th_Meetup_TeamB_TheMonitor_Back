@@ -7,4 +7,6 @@ public interface AccountRepository extends JpaAccountRepository {
 
     Account findByEmailCertificationKey(String certifiedKey);
 
+    Account findByEmail(String email);
+
 }

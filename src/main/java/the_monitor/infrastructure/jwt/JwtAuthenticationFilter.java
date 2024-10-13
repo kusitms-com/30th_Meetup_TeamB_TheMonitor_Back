@@ -28,12 +28,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+
         if (isPublicUrl(request.getRequestURI())) {
             filterChain.doFilter(request, response);
             return;
         }
 
         String accessToken = resolveTokenFromCookie(request);  // 쿠키에서 JWT 토큰 추출
+
         if (accessToken == null) {
             request.setAttribute("exception", ErrorStatus._JWT_NOT_FOUND);
             filterChain.doFilter(request, response);
@@ -67,6 +69,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 log.info("===================== EXPIRED ACCESS-TOKEN");
                 request.setAttribute("exception", ErrorStatus._JWT_EXPIRED);
                 break;
+
         }
 
         filterChain.doFilter(request, response);
@@ -91,6 +94,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 requestUrl.equals("/api/v1/accounts") ||
                 requestUrl.equals("/api/v1/accounts/createAccount") ||
                 requestUrl.equals("/api/v1/accounts/verify") ||
+                requestUrl.equals("/api/v1/accounts/login") ||
                 requestUrl.startsWith("/api/kindergartens/**") ||
                 requestUrl.startsWith("/swagger-ui/**") ||
                 requestUrl.startsWith("/swagger-resources/**") ||
