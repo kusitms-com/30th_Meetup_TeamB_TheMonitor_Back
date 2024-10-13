@@ -5,8 +5,4 @@ import the_monitor.infrastructure.persistence.JpaAccountRepository;
 
 public interface AccountRepository extends JpaAccountRepository {
 
-    Account findByEmailCertificationKey(String certifiedKey);
-
-    Account findByEmail(String email);
-
 }
