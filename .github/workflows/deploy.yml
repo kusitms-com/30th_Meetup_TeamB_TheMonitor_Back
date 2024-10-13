@@ -43,25 +43,25 @@ jobs:
     needs: build
 
     steps:
-      - name: Connect to EC2 and deploy
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ec2-user
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
-          script: |
-            docker pull ${{ secrets.DOCKER_USERNAME }}/the_monitor:latest
-            docker stop the_monitor-container || true
-            docker rm the_monitor-container || true
-            docker run -d -p 8080:8080 --name the_monitor-container \
-              -e SPRING_PROFILES_ACTIVE=prod \
-              -e SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} \
-              -e SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} \
-              -e SPRING_MAIL_HOST=smtp.gmail.com \
-              -e SPRING_MAIL_PORT=587 \
-              -e SPRING_MAIL_USERNAME=${{ secrets.SPRING_MAIL_USERNAME }} \
-              -e SPRING_MAIL_PASSWORD=${{ secrets.SPRING_MAIL_PASSWORD }} \
-              -e JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }} \
-              -e JWT_ACCESS_TOKEN_EXPIRE=${{ secrets.JWT_ACCESS_TOKEN_EXPIRE }} \
-              -e JWT_REFRESH_TOKEN_EXPIRE=${{ secrets.JWT_REFRESH_TOKEN_EXPIRE }} \
-              ${{ secrets.DOCKER_USERNAME }}/the_monitor:latest
+    - name: Connect to EC2 and deploy
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ec2-user
+        key: ${{ secrets.EC2_PRIVATE_KEY }}
+        script: |
+          docker pull luready/the_monitor:latest
+          docker stop the_monitor-container || true
+          docker rm the_monitor-container || true
+          docker run -d -p 8080:8080 --name the_monitor-container \
+            -e SPRING_PROFILES_ACTIVE=prod \
+            -e SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} \
+            -e SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} \
+            -e SPRING_MAIL_HOST=smtp.gmail.com \
+            -e SPRING_MAIL_PORT=587 \
+            -e SPRING_MAIL_USERNAME=${{ secrets.SPRING_MAIL_USERNAME }} \
+            -e SPRING_MAIL_PASSWORD=${{ secrets.SPRING_MAIL_PASSWORD }} \
+            -e JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }} \
+            -e JWT_ACCESS_TOKEN_EXPIRE=${{ secrets.JWT_ACCESS_TOKEN_EXPIRE }} \
+            -e JWT_REFRESH_TOKEN_EXPIRE=${{ secrets.JWT_REFRESH_TOKEN_EXPIRE }} \
+            luready/the_monitor:latest
