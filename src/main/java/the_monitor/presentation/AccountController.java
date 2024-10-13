@@ -37,7 +37,7 @@ public class AccountController {
     }
 
     @Operation(summary = "로그인", description = "로그인을 진행합니다.")
-    @GetMapping("/login")
+    @GetMapping("/signIn")
     public ApiResponse<String> Login(@RequestBody @Valid AccountLoginRequest request, HttpServletResponse response) {
 
         return ApiResponse.onSuccess(accountService.accountLogin(request, response));
