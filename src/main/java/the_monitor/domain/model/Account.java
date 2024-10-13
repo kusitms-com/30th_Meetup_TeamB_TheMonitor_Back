@@ -36,14 +36,9 @@ public class Account extends BaseTimeEntity {
     @Column(name = "account_agreement", nullable = false)
     private boolean agreement;
 
-    @Column(name = "account_email_certification_key")
-    private String emailCertificationKey;
-
-    @Column(name = "account_email_verified", nullable = false)
-    private boolean emailVerified = false;
 
     @Builder
-    public Account(String email, String password, String companyName, String managerName, String managerPhone, boolean agreement, String emailCertificationKey) {
+    public Account(String email, String password, String companyName, String managerName, String managerPhone, boolean agreement ) {
 
         this.email = email;
         this.password = password;
@@ -51,12 +46,7 @@ public class Account extends BaseTimeEntity {
         this.managerName = managerName;
         this.managerPhone = managerPhone;
         this.agreement = agreement;
-        this.emailCertificationKey = emailCertificationKey;
 
-    }
-
-    public void setEmailVerified() {
-        this.emailVerified = true;
     }
 
 }
