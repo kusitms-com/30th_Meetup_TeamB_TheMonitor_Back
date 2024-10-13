@@ -68,6 +68,7 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize ->
                         authorize.requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
+//                                .requestMatchers("/api/v1/accounts/sendEmailConfirm", "/api/v1/accounts/verifyCode", "/api/v1/accounts/createAccount").permitAll()
                                 // 특정 경로에 대한 인증 여부는 JwtAuthenticationFilter에서 처리
                                 .anyRequest().authenticated())  // 나머지 요청은 인증 필요
 //                                .anyRequest().permitAll())

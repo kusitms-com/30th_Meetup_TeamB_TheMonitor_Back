@@ -23,13 +23,14 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
-    private final AccountService accountService;  // 이메일 인증 확인을 위해 UserService 추가
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
         if (isPublicUrl(request.getRequestURI())) {
+            log.info("공개 URL 접근: {}", request.getRequestURI());
+
             filterChain.doFilter(request, response);
             return;
         }
@@ -45,16 +46,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         switch (jwtProvider.validateToken(accessToken)) {
             case "VALID":
                 Authentication authentication = jwtProvider.getAuthentication(accessToken);
-
-                // JWT 토큰에서 사용자 정보 추출 후 이메일 인증 확인
-                Long accountId = jwtProvider.getAccountId(accessToken);
-                Account account = accountService.findAccountById(accountId);  // UserService를 통해 사용자 정보 조회
-
-                if (!account.isEmailVerified()) {  // 이메일 인증이 안된 경우
-                    log.info("===================== EMAIL NOT VERIFIED");
-                    response.sendError(HttpServletResponse.SC_FORBIDDEN, "이메일 인증이 필요합니다.");
-                    return;  // 이메일 인증이 안되었으므로 필터 체인을 중단
-                }
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);  // 인증 설정
                 log.info("===================== LOGIN SUCCESS");
@@ -92,8 +83,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private boolean isPublicUrl(String requestUrl) {
         return requestUrl.equals("/api") ||
                 requestUrl.equals("/api/v1/accounts") ||
+                requestUrl.equals("/api/v1/accounts/sendEmailConfirm") ||
+                requestUrl.equals("/api/v1/accounts/verifyCode") ||
                 requestUrl.equals("/api/v1/accounts/createAccount") ||
-                requestUrl.equals("/api/v1/accounts/verify") ||
                 requestUrl.equals("/api/v1/accounts/login") ||
                 requestUrl.startsWith("/api/kindergartens/**") ||
                 requestUrl.startsWith("/swagger-ui/**") ||
