@@ -51,6 +51,7 @@ jobs:
           docker rm the_monitor-container || true
           docker run -d -p 8080:8080 --name the_monitor-container \
             -e SPRING_PROFILES_ACTIVE=prod \
+            -e SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }} \
             -e SPRING_DATASOURCE_USERNAME="${{ secrets.SPRING_DATASOURCE_USERNAME }}" \
             -e SPRING_DATASOURCE_PASSWORD="${{ secrets.SPRING_DATASOURCE_PASSWORD }}" \
             -e SPRING_MAIL_HOST="smtp.gmail.com" \
