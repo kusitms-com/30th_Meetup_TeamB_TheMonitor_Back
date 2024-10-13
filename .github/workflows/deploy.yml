@@ -63,5 +63,4 @@ jobs:
             -e SPRING_MAIL_PASSWORD=${{ secrets.SPRING_MAIL_PASSWORD }} \
             -e JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }} \
             -e JWT_ACCESS_TOKEN_EXPIRE=${{ secrets.JWT_ACCESS_TOKEN_EXPIRE }} \
-            -e JWT_REFRESH_TOKEN_EXPIRE=${{ secrets.JWT_REFRESH_TOKEN_EXPIRE }} \
-            luready/the_monitor:latest
+            -e JWT_REFRESH_TOKEN_EXPIRE=${{ secrets.JWT_REFRESH_TOKEN_EXPIRE }}/the_monitor:latest

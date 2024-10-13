@@ -73,10 +73,3 @@ tasks.named('asciidoctor') {
     inputs.dir snippetsDir
     dependsOn test
 }
-
-jar {
-    // 고정된 파일 이름 설정
-    archiveBaseName = 'the_monitor'
-    archiveVersion = '0.0.1'
-    archiveClassifier = ''
-}
