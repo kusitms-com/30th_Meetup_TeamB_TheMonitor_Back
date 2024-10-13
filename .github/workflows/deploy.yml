@@ -46,8 +46,8 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
-            # Create a custom network
-            docker network create the_monitor_network || true
+            # Create a custom network if it doesn't exist
+            docker network inspect the_monitor_network >/dev/null 2>&1 || docker network create the_monitor_network
             
             # Run Redis in the custom network
             docker run -d --name redis-server --network the_monitor_network \
@@ -73,6 +73,6 @@ jobs:
               -e JWT_SECRET_KEY="${{ secrets.JWT_SECRET_KEY }}" \
               -e JWT_ACCESS_TOKEN_EXPIRE="${{ secrets.JWT_ACCESS_TOKEN_EXPIRE }}" \
               -e JWT_REFRESH_TOKEN_EXPIRE="${{ secrets.JWT_REFRESH_TOKEN_EXPIRE }}" \
-              -e SPRING_REDIS_HOST="${{ secrets.SPRING_REDIS_HOST }}" \ 
-              -e SPRING_REDIS_PORT="${{ secrets.SPRING_REDIS_PORT }}" \
+              -e SPRING_REDIS_HOST="redis-server" \
+              -e SPRING_REDIS_PORT=6379 \
               ${{ secrets.DOCKER_USERNAME }}/the_monitor:latest
