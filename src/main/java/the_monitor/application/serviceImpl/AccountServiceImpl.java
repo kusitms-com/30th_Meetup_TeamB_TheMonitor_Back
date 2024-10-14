@@ -5,9 +5,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import the_monitor.application.dto.request.AccountCreateRequest;
+import the_monitor.application.dto.request.AccountSignUpRequest;
 import the_monitor.application.dto.request.AccountEmailCertifyRequest;
-import the_monitor.application.dto.request.AccountLoginRequest;
+import the_monitor.application.dto.request.AccountSignInRequest;
 import the_monitor.application.service.AccountService;
 import the_monitor.application.service.CertifiedKeyService;
 import the_monitor.application.service.EmailService;
@@ -16,9 +16,6 @@ import the_monitor.common.ErrorStatus;
 import the_monitor.domain.model.Account;
 import the_monitor.domain.repository.AccountRepository;
 import the_monitor.infrastructure.jwt.JwtProvider;
-
-import java.io.IOException;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -45,12 +42,6 @@ public class AccountServiceImpl implements AccountService {
                 "</body>" +
                 "</html>";
 
-//        try {
-//            emailService.sendEmail(email, "The Monitor 회원가입 인증 메일입니다.", emailContent);
-//            certifiedKeyService.saveCertifiedKey(email, certifiedKey);
-//        } catch (Exception e) {
-//            throw new ApiException(ErrorStatus._EMAIL_SEND_FAIL);
-//        }
         try {
             emailService.sendEmail(email, "The Monitor 회원가입 인증 메일입니다.", emailContent);
             log.info("이메일 전송 성공: {}", email);
@@ -80,7 +71,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public String createAccount(AccountCreateRequest request) {
+    public String accountSignUp(AccountSignUpRequest request) {
 
         accountRepository.save(request.toEntity());
 
@@ -89,23 +80,17 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public String accountLogin(AccountLoginRequest request, HttpServletResponse response) {
+    public String accountSignIn(AccountSignInRequest request, HttpServletResponse response) {
 
-//        Account account = accountRepository.findByEmail(request.getEmail());
-//
-//        if (account == null) throw new ApiException(ErrorStatus._ACCOUNT_NOT_FOUND);
-//
-//        if (!account.getPassword().equals(request.getPassword())) throw new ApiException(ErrorStatus._WRONG_PASSWORD);
-//
-//        if (account.isEmailVerified()) {
-//
-//            jwtProvider.setAddCookieToken(account, response);
-//
-//            return "로그인 성공";
-//        }
+        Account account = accountRepository.findAccountByEmail(request.getEmail());
 
-        return "이메일 인증 필요";
+        if (account == null) throw new ApiException(ErrorStatus._ACCOUNT_NOT_FOUND);
+        if (!account.getPassword().equals(request.getPassword())) throw new ApiException(ErrorStatus._WRONG_PASSWORD);
+
+        jwtProvider.setAddCookieToken(account, response);
+
+        return "로그인 성공";
+
     }
-
 
 }

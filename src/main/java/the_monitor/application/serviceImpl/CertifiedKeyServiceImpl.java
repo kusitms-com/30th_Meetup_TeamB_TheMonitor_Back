@@ -28,7 +28,7 @@ public class CertifiedKeyServiceImpl implements CertifiedKeyService {
     @Override
     public void saveCertifiedKey(String email, String key) {
         // 인증 코드를 Redis에 저장, 10분 후 자동 삭제
-        redisTemplate.opsForValue().set(email, key, 10, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(email, key, 3, TimeUnit.MINUTES);
     }
 
     @Override

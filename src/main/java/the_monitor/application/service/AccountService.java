@@ -1,12 +1,9 @@
 package the_monitor.application.service;
 
 import jakarta.servlet.http.HttpServletResponse;
-import the_monitor.application.dto.request.AccountCreateRequest;
+import the_monitor.application.dto.request.AccountSignUpRequest;
 import the_monitor.application.dto.request.AccountEmailCertifyRequest;
-import the_monitor.application.dto.request.AccountLoginRequest;
-import the_monitor.domain.model.Account;
-
-import java.io.IOException;
+import the_monitor.application.dto.request.AccountSignInRequest;
 
 public interface AccountService {
 
@@ -14,8 +11,8 @@ public interface AccountService {
 
     String verifyCode(AccountEmailCertifyRequest request);
 
-    String createAccount(AccountCreateRequest request);
+    String accountSignUp(AccountSignUpRequest request);
 
-    String accountLogin(AccountLoginRequest request, HttpServletResponse response);
+    String accountSignIn(AccountSignInRequest request, HttpServletResponse response);
 
 }
