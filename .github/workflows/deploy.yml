@@ -73,6 +73,6 @@ jobs:
               -e JWT_SECRET_KEY="${{ secrets.JWT_SECRET_KEY }}" \
               -e JWT_ACCESS_TOKEN_EXPIRE="${{ secrets.JWT_ACCESS_TOKEN_EXPIRE }}" \
               -e JWT_REFRESH_TOKEN_EXPIRE="${{ secrets.JWT_REFRESH_TOKEN_EXPIRE }}" \
-              -e SPRING_REDIS_HOST="redis-server" \
+              -e SPRING_REDIS_HOST=redis-server \
               -e SPRING_REDIS_PORT=6379 \
               ${{ secrets.DOCKER_USERNAME }}/the_monitor:latest
