@@ -49,6 +49,10 @@ jobs:
             # Create a custom network if it doesn't exist
             docker network inspect the_monitor_network >/dev/null 2>&1 || docker network create the_monitor_network
             
+            # Stop and remove any existing Redis container
+            docker stop redis-server || true
+            docker rm redis-server || true
+            
             # Run Redis in the custom network
             docker run -d --name redis-server --network the_monitor_network \
               -p 6379:6379 redis
