@@ -25,7 +25,7 @@ jobs:
           echo "DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}" >> $GITHUB_ENV
 
       - name: Build and push Docker image with JIB
-        run: ./gradlew jib --image=${{ secrets.DOCKER_USERNAME }}/the_monitor:latest
+        run: ./gradlew jib -Pprod --image=${{ secrets.DOCKER_USERNAME }}/the_monitor:latest
 
   deploy:
     runs-on: ubuntu-latest
