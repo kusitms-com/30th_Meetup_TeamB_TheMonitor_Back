@@ -93,13 +93,7 @@ afterEvaluate {
             }
             container {
                 ports = ['8080']
-                entrypoint = ['java', '-jar', '/app/the_monitor.jar']
-            }
-            extraDirectories {
-                paths = file('build/libs')
-                permissions = [
-                        "/the_monitor-0.0.1.jar": "755"
-                ]
+                entrypoint = ['java', '-jar', '/app/the_monitor.jar']  // jar 경로가 명확한 경우만 사용
             }
         }
     }
