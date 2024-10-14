@@ -8,7 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import the_monitor.application.dto.ErrorReasonDto;
 import the_monitor.common.ApiException;
+import the_monitor.common.ErrorStatus;
 
 import java.io.IOException;
 
@@ -21,7 +23,6 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-
         try {
             filterChain.doFilter(request, response);
         } catch (ApiException e) {

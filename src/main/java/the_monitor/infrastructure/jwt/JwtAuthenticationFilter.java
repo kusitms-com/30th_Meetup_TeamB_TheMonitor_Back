@@ -28,12 +28,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        if (isPublicUrl(request.getRequestURI())) {
-            log.info("공개 URL 접근: {}", request.getRequestURI());
-
-            filterChain.doFilter(request, response);
-            return;
-        }
+//        if (isPublicUrl(request.getRequestURI())) {
+//            log.info("공개 URL 접근: {}", request.getRequestURI());
+//
+//            filterChain.doFilter(request, response);
+//            return;
+//        }
 
         String accessToken = resolveTokenFromCookie(request);  // 쿠키에서 JWT 토큰 추출
 
@@ -79,19 +79,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         return null;
     }
-
-    private boolean isPublicUrl(String requestUrl) {
-        return requestUrl.equals("/api") ||
-                requestUrl.equals("/api/v1/accounts") ||
-                requestUrl.equals("/api/v1/accounts/sendEmailConfirm") ||
-                requestUrl.equals("/api/v1/accounts/verifyCode") ||
-                requestUrl.equals("/api/v1/accounts/signUp") ||
-                requestUrl.equals("/api/v1/accounts/signIn") ||
-                requestUrl.startsWith("/api/kindergartens/**") ||
-                requestUrl.startsWith("/swagger-ui/**") ||
-                requestUrl.startsWith("/swagger-resources/**") ||
-                requestUrl.startsWith("/v3/api-docs/**") ||
-                requestUrl.startsWith("/favicon.ico");
-    }
+//
+//    private boolean isPublicUrl(String requestUrl) {
+//        return requestUrl.equals("/api") ||
+//                requestUrl.equals("/api/v1/accounts") ||
+//                requestUrl.equals("/api/v1/accounts/sendEmailConfirm") ||
+//                requestUrl.equals("/api/v1/accounts/verifyCode") ||
+//                requestUrl.equals("/api/v1/accounts/signUp") ||
+//                requestUrl.equals("/api/v1/accounts/signIn") ||
+//                requestUrl.startsWith("/api/kindergartens/**") ||
+//                requestUrl.startsWith("/swagger-ui/**") ||
+//                requestUrl.startsWith("/swagger-resources/**") ||
+//                requestUrl.startsWith("/v3/api-docs/**") ||
+//                requestUrl.startsWith("/favicon.ico");
+//    }
 
 }
