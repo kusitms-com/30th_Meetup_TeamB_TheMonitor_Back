@@ -12,14 +12,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableJpaAuditing  // Auditing 기능을 활성화
 public class TheMonitorApplication {
 
-    @Value("${spring.redis.host}")
-    private String redisHost;
-
-    @PostConstruct
-    public void logRedisHost() {
-        log.info("Redis host: " + redisHost);
-    }
-
     public static void main(String[] args) {
 
         SpringApplication.run(TheMonitorApplication.class, args);
