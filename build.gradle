@@ -93,7 +93,7 @@ afterEvaluate {
             }
             container {
                 ports = ['8080']
-                entrypoint = ['java', '-jar', '/app/the_monitor.jar']  // jar 경로가 명확한 경우만 사용
+                mainClass = 'the_monitor.TheMonitorApplication'
             }
         }
     }
