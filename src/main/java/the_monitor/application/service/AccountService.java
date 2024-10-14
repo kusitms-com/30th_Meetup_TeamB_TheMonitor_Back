@@ -22,5 +22,5 @@ public interface AccountService {
 
     String sendPasswordChangeEmail(String email) throws UnsupportedEncodingException;
 
-    String resetPassword(AccountPasswordResetRequest request) throws UnsupportedEncodingException;
+//    String resetPassword(AccountPasswordResetRequest request) throws UnsupportedEncodingException;
 }
