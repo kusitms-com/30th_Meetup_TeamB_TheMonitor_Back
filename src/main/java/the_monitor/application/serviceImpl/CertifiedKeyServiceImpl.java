@@ -41,4 +41,5 @@ public class CertifiedKeyServiceImpl implements CertifiedKeyService {
         redisTemplate.delete(email);
     }
 
+
 }
