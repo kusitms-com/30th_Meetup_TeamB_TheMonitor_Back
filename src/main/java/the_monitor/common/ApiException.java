@@ -1,7 +1,9 @@
 package the_monitor.common;
 
+import lombok.Getter;
 import the_monitor.application.dto.ErrorReasonDto;
 
+@Getter
 public class ApiException extends RuntimeException{
 
     private final ErrorStatus errorStatus;
@@ -19,7 +21,4 @@ public class ApiException extends RuntimeException{
         return this.errorStatus.getReasonHttpStatus();
     }
 
-    public ErrorStatus getErrorStatus() {
-        return errorStatus;
-    }
 }

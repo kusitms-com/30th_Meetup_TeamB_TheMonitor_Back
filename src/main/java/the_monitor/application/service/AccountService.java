@@ -1,12 +1,12 @@
 package the_monitor.application.service;
 
 import jakarta.servlet.http.HttpServletResponse;
-import the_monitor.application.dto.request.AccountCreateRequest;
+import the_monitor.application.dto.request.AccountPasswordResetRequest;
+import the_monitor.application.dto.request.AccountSignUpRequest;
 import the_monitor.application.dto.request.AccountEmailCertifyRequest;
-import the_monitor.application.dto.request.AccountLoginRequest;
-import the_monitor.domain.model.Account;
+import the_monitor.application.dto.request.AccountSignInRequest;
 
-import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 public interface AccountService {
 
@@ -14,8 +14,13 @@ public interface AccountService {
 
     String verifyCode(AccountEmailCertifyRequest request);
 
-    String createAccount(AccountCreateRequest request);
+    String accountSignUp(AccountSignUpRequest request);
 
-    String accountLogin(AccountLoginRequest request, HttpServletResponse response);
+    String accountSignIn(AccountSignInRequest request, HttpServletResponse response);
 
+    String checkEmail(String email);
+
+    String sendPasswordChangeEmail(String email) throws UnsupportedEncodingException;
+
+    String resetPassword(AccountPasswordResetRequest request) throws UnsupportedEncodingException;
 }

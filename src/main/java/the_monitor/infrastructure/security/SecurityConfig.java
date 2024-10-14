@@ -57,6 +57,14 @@ public class SecurityConfig {
 
     }
 
+    // URL 패턴을 배열로 관리
+    private static final String[] PUBLIC_URLS = {
+            "/api/v1/accounts/signUp",
+            "/api/v1/accounts/signIn",
+            "/api/v1/accounts/sendEmailConfirm",
+            "/api/v1/accounts/verifyCode"
+    };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
@@ -64,14 +72,11 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(withDefaults())  // CORS 설정 적용
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(authorize ->
-                        authorize.requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-//                                .requestMatchers("/api/v1/accounts/sendEmailConfirm", "/api/v1/accounts/verifyCode", "/api/v1/accounts/createAccount").permitAll()
-                                // 특정 경로에 대한 인증 여부는 JwtAuthenticationFilter에서 처리
-                                .anyRequest().authenticated())  // 나머지 요청은 인증 필요
-//                                .anyRequest().permitAll())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(PUBLIC_URLS).permitAll()  // 배열로 관리되는 공개 URL 패턴
+                        .anyRequest().authenticated()  // 나머지 모든 요청은 인증 필요
+                )
                 .exceptionHandling(handler ->
                         handler.authenticationEntryPoint(jwtAuthenticationEntryPoint)
                                 .accessDeniedHandler(jwtAccessDeniedHandler))
@@ -79,9 +84,7 @@ public class SecurityConfig {
                 .addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class);
 
         return http.build();
-
     }
-
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
 

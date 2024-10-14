@@ -49,4 +49,8 @@ public class Account extends BaseTimeEntity {
 
     }
 
+    public void resetPassword(String password) {
+        this.password = password;
+    }
+
 }

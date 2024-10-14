@@ -9,7 +9,7 @@ import the_monitor.domain.model.Account;
 
 @Getter
 @NoArgsConstructor
-public class AccountCreateRequest {
+public class AccountSignUpRequest {
 
     @NotBlank(message = "email은 필수입니다.")
     private String email;
@@ -29,7 +29,7 @@ public class AccountCreateRequest {
     private boolean agreement;
 
     @Builder
-    public AccountCreateRequest(
+    public AccountSignUpRequest(
             String email,
             String password,
             String companyName,
@@ -58,6 +58,5 @@ public class AccountCreateRequest {
                 .build();
 
     }
-
 
 }

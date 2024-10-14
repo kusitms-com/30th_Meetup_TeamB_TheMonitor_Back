@@ -13,6 +13,7 @@ public enum ErrorStatus implements BaseErrorCode {
     // 일반 응답
     _ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "ACCOUNT404", "해당 계정을 찾을 수 없습니다."),
     _WRONG_PASSWORD(HttpStatus.BAD_REQUEST, "ACCOUNT400", "비밀번호가 일치하지 않습니다."),
+    _SAME_PASSWORD(HttpStatus.BAD_REQUEST, "ACCOUNT400", "기존 비밀번호와 동일합니다."),
     _INVALID_CERTIFIED_KEY(HttpStatus.BAD_REQUEST, "ACCOUNT400", "유효하지 않은 인증키입니다."),
     _INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON500", "서버 에러, 관리자에게 문의 바랍니다."),
     _BAD_REQUEST(HttpStatus.BAD_REQUEST, "COMMON400", "잘못된 요청입니다."),
@@ -24,7 +25,8 @@ public enum ErrorStatus implements BaseErrorCode {
     _JWT_INVALID(HttpStatus.UNAUTHORIZED, "JWT400", "유효하지 않는 토큰입니다"),
     _JWT_EXPIRED(HttpStatus.UNAUTHORIZED, "JWT400", "만료된 토큰입니다"),
     _JWT_BLACKLIST(HttpStatus.UNAUTHORIZED, "JWT400", "접근 불가능한 토큰입니다"),
-    _JWT_UNKNOWN(HttpStatus.UNAUTHORIZED, "JWT400", "JWT 인증 중 알 수 없는 오류가 발생했습니다.");
+    _JWT_UNKNOWN(HttpStatus.UNAUTHORIZED, "JWT400", "JWT 인증 중 알 수 없는 오류가 발생했습니다."),
+    _UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON500", "알 수 없는 오류가 발생했습니다.");
 
 
 
