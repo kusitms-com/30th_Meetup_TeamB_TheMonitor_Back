@@ -10,4 +10,6 @@ public interface CertifiedKeyService {
 
     public void deleteCertifiedKey(String email);
 
+    public boolean isCertifiedKeyExpired(String email);
+
 }

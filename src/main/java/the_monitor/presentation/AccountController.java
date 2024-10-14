@@ -53,7 +53,7 @@ public class AccountController {
 
     }
 
-    @Operation(summary = "이메일 존재 확인", description = "비밀번호 변경 전, 이메일 존재 여부를 확인합니다.")
+    @Operation(summary = "이메일 존재 확인", description = "이메일 존재 여부를 확인합니다.")
     @GetMapping("/checkEmail")
     public ApiResponse<String> checkEmail(@RequestParam("email") String email) {
 
@@ -69,12 +69,12 @@ public class AccountController {
 
     }
 
-    @Operation(summary = "비밀번호 재설정", description = "비밀번호를 재설정합니다.")
-    @PostMapping("/resetPassword")
-    public ApiResponse<String> resetPassword(@RequestBody @Valid AccountPasswordResetRequest request) throws UnsupportedEncodingException {
-
-        return ApiResponse.onSuccess(accountService.resetPassword(request));
-
-    }
+//    @Operation(summary = "비밀번호 재설정", description = "비밀번호를 재설정합니다.")
+//    @PostMapping("/resetPassword")
+//    public ApiResponse<String> resetPassword(@RequestBody @Valid AccountPasswordResetRequest request) throws UnsupportedEncodingException {
+//
+//        return ApiResponse.onSuccess(accountService.resetPassword(request));
+//
+//    }
 
 }
