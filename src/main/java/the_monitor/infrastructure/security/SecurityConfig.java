@@ -92,9 +92,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
 
         CorsConfiguration configuration = new CorsConfiguration();
-//        configuration.setAllowedOriginPatterns(List.of("*"));
-        // 특정 출처를 명시적으로 설정
-        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        configuration.setAllowedOriginPatterns(List.of("*"));
         // 모든 메서드 허용
         configuration.setAllowedMethods(List.of("*"));
         // 모든 헤더 허용
