@@ -5,10 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import the_monitor.application.dto.request.AccountPasswordResetRequest;
-import the_monitor.application.dto.request.AccountSignUpRequest;
-import the_monitor.application.dto.request.AccountEmailCertifyRequest;
-import the_monitor.application.dto.request.AccountSignInRequest;
+import the_monitor.application.dto.request.*;
 import the_monitor.application.service.AccountService;
 import the_monitor.common.ApiResponse;
 
@@ -22,10 +19,10 @@ public class AccountController {
     private final AccountService accountService;
 
     @Operation(summary = "이메일 인증 요청", description = "이메일 인증 요청을 보냅니다.")
-    @GetMapping("/sendEmailConfirm")
-    public ApiResponse<String> sendEmailConfirm(@RequestParam("email") String email) {
+    @PostMapping("/sendEmailConfirm")
+    public ApiResponse<String> sendEmailConfirm(@RequestBody @Valid AccountEmailRequest request) {
 
-        return ApiResponse.onSuccess(accountService.sendEmailConfirm(email));
+        return ApiResponse.onSuccess(accountService.sendEmailConfirm(request));
 
     }
 
@@ -62,10 +59,10 @@ public class AccountController {
     }
 
     @Operation(summary = "비밀번호 변경 메일 발송", description = "비밀번호 변경 메일을 발송합니다.")
-    @GetMapping("/sendPasswordChangeEmail")
-    public ApiResponse<String> sendPasswordChangeEmail(@RequestParam("email") String email) throws UnsupportedEncodingException {
+    @PostMapping("/sendPasswordChangeEmail")
+    public ApiResponse<String> sendPasswordChangeEmail(@RequestBody @Valid AccountEmailRequest request) throws UnsupportedEncodingException {
 
-        return ApiResponse.onSuccess(accountService.sendPasswordChangeEmail(email));
+        return ApiResponse.onSuccess(accountService.sendPasswordChangeEmail(request));
 
     }
 
