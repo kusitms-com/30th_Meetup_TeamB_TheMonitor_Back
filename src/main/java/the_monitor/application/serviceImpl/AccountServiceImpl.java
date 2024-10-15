@@ -12,6 +12,7 @@ import the_monitor.application.dto.request.AccountSignInRequest;
 import the_monitor.application.service.AccountService;
 import the_monitor.application.service.CertifiedKeyService;
 import the_monitor.application.service.EmailService;
+import the_monitor.application.service.TemporaryPasswordGenerateService;
 import the_monitor.common.ApiException;
 import the_monitor.common.ErrorStatus;
 import the_monitor.domain.model.Account;
@@ -29,12 +30,17 @@ import java.net.URLEncoder;
 public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository accountRepository;
+
     private final EmailService emailService;
     private final CertifiedKeyService certifiedKeyService;
+    private final TemporaryPasswordGenerateService temporaryPasswordGenerateService;
+
     private final JwtProvider jwtProvider;
 
     @Override
     public String sendEmailConfirm(String email) {
+
+        if (accountRepository.findAccountByEmail(email) != null) throw new ApiException(ErrorStatus._ACCOUNT_ALREADY_EXIST);
 
         String certifiedKey = certifiedKeyService.generateCertifiedKey();
 
@@ -67,10 +73,12 @@ public class AccountServiceImpl implements AccountService {
 
         if (storedKey != null && storedKey.equals(request.getVerifyCode())) {
             certifiedKeyService.deleteCertifiedKey(request.getEmail());
-            return "인증 성공";
+            return "인증이 완료되었습니다.";
         }
 
-        else return "인증 실패";
+        else if (certifiedKeyService.isCertifiedKeyExpired(request.getEmail())) {
+            return "입력 가능한 시간이 초과되었습니다.";
+        } else return "인증 번호가 일치하지 않습니다.";
 
     }
 
@@ -110,9 +118,14 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public String sendPasswordChangeEmail(String email) throws UnsupportedEncodingException {
+    @Transactional
+    public String sendPasswordChangeEmail(String email) {
 
-        String resetUrl = "https://????/reset-password?email=" + URLEncoder.encode(email, "UTF-8"); // 비밀번호 재설정 URL
+        String temporaryPassword = temporaryPasswordGenerateService.generateTemporaryPassword();
+
+        Account account = accountRepository.findAccountByEmail(email);
+        account.resetPassword(temporaryPassword);
+        accountRepository.save(account);
 
         String emailContent = "<!DOCTYPE html>" +
                 "<html lang=\"ko\">" +
@@ -138,13 +151,10 @@ public class AccountServiceImpl implements AccountService {
                 "</div>" +
                 "<div class=\"message\">" +
                 "안녕하세요, 더모니터입니다.<br>" +
-                "<strong>" + email + "</strong> 계정의 비밀번호를 재설정해주세요." +
+                "<strong>" + email + "</strong> 계정의 임시 비밀번호를 보내드립니다." +
                 "</div>" +
-                "<a href=\"" + resetUrl + "\" class=\"button\">비밀번호 변경하기</a>" +
+                "<strong>" + temporaryPassword + "</strong>" +
                 "<div class=\"help-text\">" +
-                "<strong>Q. 버튼을 클릭해도 반응이 없나요?</strong><br>" +
-                "아래 URL로 복사하여 브라우저에 붙여넣고 사이트에 접속해주세요.<br>" +
-                "<a href=\"" + resetUrl + "\" class=\"url-link\">" + resetUrl + "</a>" +
                 "</div>" +
                 "<div class=\"footer\">" +
                 "도움이 필요하시면 <a href=\"mailto:themonitor2024@gmail.com\">themonitor2024@gmail.com</a>로 문의해주세요." +
@@ -155,29 +165,28 @@ public class AccountServiceImpl implements AccountService {
 
         try {
             emailService.sendEmail(email, "The Monitor 비밀번호 재설정 요청", emailContent);
-            log.info("비밀번호 재설정 이메일 전송 성공: {}", email);
+            log.info("임시 비밀번호 이메일 전송 성공: {}", email);
+            log.info("임시 비밀번호: {}", account.getPassword());
         } catch (Exception e) {
-            log.error("비밀번호 재설정 이메일 전송 중 오류 발생: {}", e.getMessage(), e);
+            log.error("임시 비밀번호 이메일 전송 중 오류 발생: {}", e.getMessage(), e);
             throw new ApiException(ErrorStatus._EMAIL_SEND_FAIL);
         }
 
-        return "비밀번호 재설정 이메일을 발송했습니다.";
+        return "임시 비밀번호를 발송했습니다.";
 
     }
 
-    @Override
-    public String resetPassword(AccountPasswordResetRequest request) throws UnsupportedEncodingException {
-
-        String decodedEmail = URLDecoder.decode(request.getEncodedEmail(), "UTF-8");
-
-        Account account = accountRepository.findAccountByEmail(decodedEmail);
-
-        if (account.getPassword().equals(request.getPassword())) throw new ApiException(ErrorStatus._SAME_PASSWORD);
-        account.resetPassword(request.getPassword());
-        accountRepository.save(account);
-
-        return "비밀번호 재설정 완료";
-
-    }
+//    @Override
+//    public String resetPassword(AccountPasswordResetRequest request) throws UnsupportedEncodingException {
+//
+//        Account account = accountRepository.findAccountByEmail(request.getEmail());
+//
+//        if (account.getPassword().equals(request.getPassword())) throw new ApiException(ErrorStatus._SAME_PASSWORD);
+//        account.resetPassword(request.getPassword());
+//        accountRepository.save(account);
+//
+//        return "비밀번호 재설정 완료";
+//
+//    }
 
 }

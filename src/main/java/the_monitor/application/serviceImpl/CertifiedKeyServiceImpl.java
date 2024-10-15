@@ -41,5 +41,10 @@ public class CertifiedKeyServiceImpl implements CertifiedKeyService {
         redisTemplate.delete(email);
     }
 
+    // 인증 코드가 존재하는지 확인하는 메서드 추가
+    @Override
+    public boolean isCertifiedKeyExpired(String email) {
+        return !redisTemplate.hasKey(email);
+    }
 
 }

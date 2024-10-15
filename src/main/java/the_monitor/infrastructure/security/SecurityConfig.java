@@ -38,6 +38,16 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    // 공개 URL
+    private static final String[] PUBLIC_URLS = {
+            "/api/v1/accounts/sendEmailConfirm",
+            "/api/v1/accounts/verifyCode",
+            "/api/v1/accounts/signUp",
+            "/api/v1/accounts/signIn",
+            "/api/v1/accounts/checkEmail",
+            "/api/v1/accounts/sendPasswordChangeEmail",
+    };
+
     private static final String[] WHITE_LIST_URL = {
 
             // Application URLs
@@ -56,14 +66,6 @@ public class SecurityConfig {
                 .requestMatchers(WHITE_LIST_URL);
 
     }
-
-    // URL 패턴을 배열로 관리
-    private static final String[] PUBLIC_URLS = {
-            "/api/v1/accounts/signUp",
-            "/api/v1/accounts/signIn",
-            "/api/v1/accounts/sendEmailConfirm",
-            "/api/v1/accounts/verifyCode"
-    };
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {

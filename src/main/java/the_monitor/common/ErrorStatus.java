@@ -12,6 +12,7 @@ public enum ErrorStatus implements BaseErrorCode {
 
     // 일반 응답
     _ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "ACCOUNT404", "해당 계정을 찾을 수 없습니다."),
+    _ACCOUNT_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "ACCOUNT400", "이미 존재하는 계정입니다."),
     _WRONG_PASSWORD(HttpStatus.BAD_REQUEST, "ACCOUNT400", "비밀번호가 일치하지 않습니다."),
     _SAME_PASSWORD(HttpStatus.BAD_REQUEST, "ACCOUNT400", "기존 비밀번호와 동일합니다."),
     _INVALID_CERTIFIED_KEY(HttpStatus.BAD_REQUEST, "ACCOUNT400", "유효하지 않은 인증키입니다."),
