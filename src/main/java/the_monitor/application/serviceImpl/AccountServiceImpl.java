@@ -5,10 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import the_monitor.application.dto.request.AccountPasswordResetRequest;
-import the_monitor.application.dto.request.AccountSignUpRequest;
-import the_monitor.application.dto.request.AccountEmailCertifyRequest;
-import the_monitor.application.dto.request.AccountSignInRequest;
+import the_monitor.application.dto.request.*;
 import the_monitor.application.service.AccountService;
 import the_monitor.application.service.CertifiedKeyService;
 import the_monitor.application.service.EmailService;
@@ -38,7 +35,9 @@ public class AccountServiceImpl implements AccountService {
     private final JwtProvider jwtProvider;
 
     @Override
-    public String sendEmailConfirm(String email) {
+    public String sendEmailConfirm(AccountEmailRequest request) {
+
+        String email = request.getEmail();
 
         if (accountRepository.findAccountByEmail(email) != null) throw new ApiException(ErrorStatus._ACCOUNT_ALREADY_EXIST);
 
@@ -119,7 +118,9 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public String sendPasswordChangeEmail(String email) {
+    public String sendPasswordChangeEmail(AccountEmailRequest request) {
+
+        String email = request.getEmail();
 
         String temporaryPassword = temporaryPasswordGenerateService.generateTemporaryPassword();
 
