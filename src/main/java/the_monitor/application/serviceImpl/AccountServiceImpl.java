@@ -75,9 +75,8 @@ public class AccountServiceImpl implements AccountService {
             return "인증이 완료되었습니다.";
         }
 
-        else if (certifiedKeyService.isCertifiedKeyExpired(request.getEmail())) {
-            return "입력 가능한 시간이 초과되었습니다.";
-        } else return "인증 번호가 일치하지 않습니다.";
+        else if (certifiedKeyService.isCertifiedKeyExpired(request.getEmail())) throw new ApiException(ErrorStatus._CERTIFIED_KEY_EXPIRED);
+        else throw new ApiException(ErrorStatus._INVALID_CERTIFIED_KEY);
 
     }
 
