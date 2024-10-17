@@ -110,7 +110,7 @@ public class AccountServiceImpl implements AccountService {
 
         Account account = accountRepository.findAccountByEmail(email);
 
-        if (account == null) return "이메일이 존재하지 않습니다.";
+        if (account == null) throw new ApiException(ErrorStatus._ACCOUNT_NOT_EXIST);
 
         return "이메일이 존재합니다.";
 
