@@ -63,16 +63,20 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public String verifyCode(AccountEmailCertifyRequest request) {
+        String email = request.getEmail();
 
-        String storedKey = certifiedKeyService.getCertifiedKey(request.getEmail());
-
-        if (storedKey != null && storedKey.equals(request.getVerifyCode())) {
-            certifiedKeyService.deleteCertifiedKey(request.getEmail());
-            return "인증이 완료되었습니다.";
+        // 이메일 검증
+        if (!certifiedKeyService.existsCertifiedKey(email)) {
+            throw new ApiException(ErrorStatus._INVALID_CERTIFIED_KEY); // 이메일이 존재하지 않는 경우
+        } else if (certifiedKeyService.isCertifiedKeyExpired(email)) {
+            throw new ApiException(ErrorStatus._CERTIFIED_KEY_EXPIRED); // 인증번호 만료 예외
+        } else if (!certifiedKeyService.getCertifiedKey(email).equals(request.getVerificationCode())) {
+            throw new ApiException(ErrorStatus._INVALID_CERTIFIED_KEY); // 인증번호 불일치 예외
         }
 
-        else if (certifiedKeyService.isCertifiedKeyExpired(request.getEmail())) throw new ApiException(ErrorStatus._CERTIFIED_KEY_EXPIRED);
-        else throw new ApiException(ErrorStatus._INVALID_CERTIFIED_KEY);
+        // 인증 성공, 인증 키 삭제
+        certifiedKeyService.deleteCertifiedKey(request.getEmail());
+        return "인증이 완료되었습니다."; // 인증 완료 메시지
 
     }
 

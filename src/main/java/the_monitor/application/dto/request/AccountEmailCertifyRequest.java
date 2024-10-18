@@ -12,6 +12,6 @@ public class AccountEmailCertifyRequest {
     private String email;
 
     @NotBlank(message = "인증코드는 필수입니다.")
-    private String verifyCode;
+    private String verificationCode;
 
 }
