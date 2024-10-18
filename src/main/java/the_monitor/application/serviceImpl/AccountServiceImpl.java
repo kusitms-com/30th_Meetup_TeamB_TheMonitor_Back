@@ -16,10 +16,6 @@ import the_monitor.domain.model.Account;
 import the_monitor.domain.repository.AccountRepository;
 import the_monitor.infrastructure.jwt.JwtProvider;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-
 @Slf4j
 @Service
 @Transactional(readOnly = true)
