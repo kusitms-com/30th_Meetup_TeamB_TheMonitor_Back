@@ -121,10 +121,14 @@ public class AccountServiceImpl implements AccountService {
 
         String email = request.getEmail();
 
+        Account account = accountRepository.findAccountByEmail(email);
+
+        if (account == null) {
+            throw new ApiException(ErrorStatus._ACCOUNT_NOT_EXIST);
+        }
+
         String temporaryPassword = temporaryPasswordGenerateService.generateTemporaryPassword();
 
-        Account account = accountRepository.findAccountByEmail(email);
-        if (account == null) throw new ApiException(ErrorStatus._ACCOUNT_NOT_FOUND);
         account.resetPassword(temporaryPassword);
         accountRepository.save(account);
 

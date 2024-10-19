@@ -50,13 +50,13 @@ public class AccountController {
 
     }
 
-    @Operation(summary = "이메일 존재 확인", description = "이메일 존재 여부를 확인합니다.")
-    @GetMapping("/checkEmail")
-    public ApiResponse<String> checkEmail(@RequestParam("email") String email) {
-
-        return ApiResponse.onSuccess(accountService.checkEmail(email));
-
-    }
+//    @Operation(summary = "이메일 존재 확인", description = "이메일 존재 여부를 확인합니다.")
+//    @GetMapping("/checkEmail")
+//    public ApiResponse<String> checkEmail(@RequestParam("email") String email) {
+//
+//        return ApiResponse.onSuccess(accountService.checkEmail(email));
+//
+//    }
 
     @Operation(summary = "비밀번호 변경 메일 발송", description = "비밀번호 변경 메일을 발송합니다.")
     @PostMapping("/sendPasswordChangeEmail")
