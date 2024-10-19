@@ -25,7 +25,7 @@ public class TemporaryPasswordGenerateServiceImpl implements TemporaryPasswordGe
         password.insert(randomPosition, specialChar);
 
         // 나머지 문자 무작위 선택
-        for (int i = 0; i < PASSWORD_LENGTH - 1; i++) {
+        for (int i = 0; i < PASSWORD_LENGTH - 2; i++) {
             int index = random.nextInt(CHARACTERS.length());
             password.insert(i < randomPosition ? i : i + 1, CHARACTERS.charAt(index)); // 특수문자 삽입 위치보다 큰 위치에는 1을 더해줌
         }
