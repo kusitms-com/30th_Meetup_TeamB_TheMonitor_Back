@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import the_monitor.common.BaseTimeEntity;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Table(name = "accounts")
@@ -36,9 +38,16 @@ public class Account extends BaseTimeEntity {
     @Column(name = "account_agreement", nullable = false)
     private boolean agreement;
 
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Client> clients;
 
     @Builder
-    public Account(String email, String password, String companyName, String managerName, String managerPhone, boolean agreement ) {
+    public Account(String email,
+                   String password,
+                   String companyName,
+                   String managerName,
+                   String managerPhone,
+                   boolean agreement ) {
 
         this.email = email;
         this.password = password;
