@@ -32,6 +32,7 @@ public class TemporaryPasswordGenerateServiceImpl implements TemporaryPasswordGe
         password.insert(randomPosition, specialChar); // 특수문자 삽입
 
         return password.toString();
+
     }
 
 }
