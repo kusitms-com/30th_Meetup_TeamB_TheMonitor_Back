@@ -24,7 +24,7 @@ public class Category extends BaseTimeEntity {
     @Column(name = "category_type", nullable = false)
     private CategoryType categoryType;
 
-    @OneToMany(mappedBy = "keyword_id", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Keyword> keywords;
 
     @ManyToOne
