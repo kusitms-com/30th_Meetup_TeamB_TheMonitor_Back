@@ -38,8 +38,8 @@ public class Article extends BaseTimeEntity {
     @Column(name = "article_reporter_name", nullable = false)
     private String reporterName;
 
-    @Column(name = "article_published_at", nullable = false)
-    private String publishedAt;
+    @Column(name = "article_publish_date", nullable = false)
+    private String publishDate;
 
     @Column(name = "article_is_read", nullable = false)
     private boolean isRead;
@@ -73,7 +73,7 @@ public class Article extends BaseTimeEntity {
                    String url,
                    String publisherName,
                    String reporterName,
-                   String publishedAt,
+                   String publishDate,
                    boolean isRead,
                    boolean isDuplicate,
                    boolean portalNaver,
@@ -88,7 +88,7 @@ public class Article extends BaseTimeEntity {
         this.url = url;
         this.publisherName = publisherName;
         this.reporterName = reporterName;
-        this.publishedAt = publishedAt;
+        this.publishDate = publishDate;
         this.isRead = isRead;
         this.isDuplicate = isDuplicate;
         this.portalNaver = portalNaver;
