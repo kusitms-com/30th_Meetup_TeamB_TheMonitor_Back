@@ -25,7 +25,6 @@ public class ArticleServiceImpl {
     private final int ARTICLE_SAVE_START_TIME = 9;
     private final int ARTICLE_SAVE_END_TIME = 7;
 
-    private final ObjectMapper objectMapper;
     private final NaverSearchService naverSearchService;
     private final GoogleSearchService googleSearchService;
     private final AccountService accountService;
