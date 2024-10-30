@@ -16,6 +16,8 @@ import the_monitor.domain.model.Account;
 import the_monitor.domain.repository.AccountRepository;
 import the_monitor.infrastructure.jwt.JwtProvider;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @Transactional(readOnly = true)
@@ -178,6 +180,13 @@ public class AccountServiceImpl implements AccountService {
         }
 
         return "임시 비밀번호를 발송했습니다.";
+
+    }
+
+    @Override
+    public List<Account> getAccountList() {
+
+        return accountRepository.findAll();
 
     }
 
