@@ -44,5 +44,7 @@ public class Keyword extends BaseTimeEntity {
         this.category = category;
 
     }
-
+    public void setCategory(Category category) {
+        this.category = category;
+    }
 }
