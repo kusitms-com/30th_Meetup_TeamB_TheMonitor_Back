@@ -39,5 +39,11 @@ public class Category extends BaseTimeEntity {
         this.client = client;
 
     }
+    public void addKeywords(List<Keyword> newKeywords) {
+        this.keywords.addAll(newKeywords); // Category의 keywords 리스트에 추가
+        for (Keyword keyword : newKeywords) {
+            keyword.setCategory(this); // 각 Keyword의 카테고리도 현재 Category로 설정
+        }
+    }
 
 }
