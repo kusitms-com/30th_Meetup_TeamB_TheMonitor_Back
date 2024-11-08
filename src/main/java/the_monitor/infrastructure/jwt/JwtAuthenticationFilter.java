@@ -1,10 +1,11 @@
 package the_monitor.infrastructure.jwt;
 
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -12,7 +13,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import the_monitor.application.service.AccountService;
-import the_monitor.common.ErrorStatus;
 import the_monitor.domain.model.Account;
 
 import java.io.IOException;
@@ -23,75 +23,42 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
+    private final AccountService accountService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+        String authorizationHeader = request.getHeader("Authorization");
+        String accessToken = null;
 
-//        if (isPublicUrl(request.getRequestURI())) {
-//            log.info("공개 URL 접근: {}", request.getRequestURI());
-//
-//            filterChain.doFilter(request, response);
-//            return;
-//        }
-
-        String accessToken = resolveTokenFromCookie(request);  // 쿠키에서 JWT 토큰 추출
-
-        if (accessToken == null) {
-            request.setAttribute("exception", ErrorStatus._JWT_NOT_FOUND);
-            filterChain.doFilter(request, response);
-            return;
+        // "Bearer " 접두어를 제거하고 실제 토큰 값만 가져오기
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            accessToken = authorizationHeader.substring(7);
         }
 
-        switch (jwtProvider.validateToken(accessToken)) {
-            case "VALID":
-                Authentication authentication = jwtProvider.getAuthentication(accessToken);
+        if (accessToken != null && "VALID".equals(jwtProvider.validateToken(accessToken))) {
+            // `accessToken`이 유효한 경우, 사용자 인증 정보를 설정
+            Authentication authentication = jwtProvider.getAuthenticationFromToken(accessToken);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        } else if (session != null) {
+            // `refreshToken`을 세션에서 가져와 새 `accessToken` 발급
+            String refreshToken = (String) session.getAttribute("refreshToken");
+            if (refreshToken != null && "VALID".equals(jwtProvider.validateToken(refreshToken))) {
+                // 사용자 정보 조회 (예: 세션이나 데이터베이스에서 `Account` 조회)
+                Long accountId = jwtProvider.getAccountId(refreshToken);  // `refreshToken`의 클레임에서 ID 추출
+                Account account = accountService.findAccountById(accountId);     // `accountService`를 통해 DB에서 조회
 
-                SecurityContextHolder.getContext().setAuthentication(authentication);  // 인증 설정
-                log.info("===================== LOGIN SUCCESS");
-                break;
+                // 새 `accessToken` 발급
+                String newAccessToken = jwtProvider.generateAccessToken(account);
 
-            case "INVALID":
-                log.info("===================== INVALID ACCESS-TOKEN");
-                request.setAttribute("exception", ErrorStatus._JWT_INVALID);
-                break;
+                // 새 `accessToken`을 응답 헤더에 설정하여 프론트엔드로 전달
+                response.setHeader("Authorization", "Bearer " + newAccessToken);
 
-            case "EXPIRED":
-                log.info("===================== EXPIRED ACCESS-TOKEN");
-                request.setAttribute("exception", ErrorStatus._JWT_EXPIRED);
-                break;
-
-        }
-
-        filterChain.doFilter(request, response);
-
-    }
-
-    // 쿠키에서 토큰을 추출하는 메서드
-    private String resolveTokenFromCookie(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("jwtToken".equals(cookie.getName())) {
-                    return cookie.getValue();
-                }
+                Authentication authentication = jwtProvider.getAuthenticationFromToken(newAccessToken);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
-        return null;
+        filterChain.doFilter(request, response);
     }
-//
-//    private boolean isPublicUrl(String requestUrl) {
-//        return requestUrl.equals("/api") ||
-//                requestUrl.equals("/api/v1/accounts") ||
-//                requestUrl.equals("/api/v1/accounts/sendEmailConfirm") ||
-//                requestUrl.equals("/api/v1/accounts/verifyCode") ||
-//                requestUrl.equals("/api/v1/accounts/signUp") ||
-//                requestUrl.equals("/api/v1/accounts/signIn") ||
-//                requestUrl.startsWith("/api/kindergartens/**") ||
-//                requestUrl.startsWith("/swagger-ui/**") ||
-//                requestUrl.startsWith("/swagger-resources/**") ||
-//                requestUrl.startsWith("/v3/api-docs/**") ||
-//                requestUrl.startsWith("/favicon.ico");
-//    }
 
 }

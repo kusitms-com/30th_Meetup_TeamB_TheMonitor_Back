@@ -74,10 +74,10 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(withDefaults())  // CORS 설정 적용
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS)) // 세션 사용 방식
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(PUBLIC_URLS).permitAll()  // 배열로 관리되는 공개 URL 패턴
-                        .anyRequest().authenticated()  // 나머지 모든 요청은 인증 필요
+                        .requestMatchers(PUBLIC_URLS).permitAll()  // 공개 URL 허용
+                        .anyRequest().authenticated()  // 나머지 요청은 인증 필요
                 )
                 .exceptionHandling(handler ->
                         handler.authenticationEntryPoint(jwtAuthenticationEntryPoint)
@@ -86,6 +86,7 @@ public class SecurityConfig {
                 .addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class);
 
         return http.build();
+
     }
 
 //    @Bean
