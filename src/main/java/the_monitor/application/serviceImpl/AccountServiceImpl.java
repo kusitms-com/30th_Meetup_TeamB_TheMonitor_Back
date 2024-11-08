@@ -104,19 +104,21 @@ public class AccountServiceImpl implements AccountService {
     public String accountSignIn(AccountSignInRequest request, HttpServletResponse response, HttpSession session) {
 
         Account account = accountRepository.findAccountByEmail(request.getEmail());
-        if (account == null) throw new ApiException(ErrorStatus._ACCOUNT_NOT_FOUND);
 
+        if (account == null) throw new ApiException(ErrorStatus._ACCOUNT_NOT_FOUND);
         if (!account.getPassword().equals(request.getPassword())) throw new ApiException(ErrorStatus._WRONG_PASSWORD);
 
         // AccessToken 발급 및 응답 헤더에 추가
         String accessToken = jwtProvider.generateAccessToken(account);
-        response.setHeader("Authorization", "Bearer " + accessToken);
+        jwtProvider.setAccessTokenInCookie(account, accessToken, response);
 
         // RefreshToken 발급 및 세션에 저장
         jwtProvider.storeRefreshTokenInSession(account, session);
 
         return "로그인 성공";
+
     }
+
     @Override
     public String checkEmail(String email) {
 

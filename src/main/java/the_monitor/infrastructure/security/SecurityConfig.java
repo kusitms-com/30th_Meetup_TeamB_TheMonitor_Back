@@ -89,26 +89,4 @@ public class SecurityConfig {
 
     }
 
-//    @Bean
-//    public CorsConfigurationSource corsConfigurationSource() {
-//
-//        CorsConfiguration configuration = new CorsConfiguration();
-//        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
-//        // 모든 메서드 허용
-//        configuration.setAllowedMethods(List.of("*"));
-//        // 모든 헤더 허용
-//        configuration.setAllowedHeaders(List.of("*"));
-//        // 응답 헤더에서도 모든 헤더를 노출
-//        configuration.addExposedHeader("*");
-//        // 자격 증명 허용
-//        configuration.setAllowCredentials(true);
-//        // 캐시 시간 설정
-//        configuration.setMaxAge(3600L);
-//
-//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//        source.registerCorsConfiguration("/**", configuration);
-//        return source;
-//
-//    }
-
 }

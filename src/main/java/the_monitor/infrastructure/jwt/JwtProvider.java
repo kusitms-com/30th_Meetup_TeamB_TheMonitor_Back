@@ -11,12 +11,17 @@ import java.security.Key;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
+
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import the_monitor.application.service.AccountService;
 import the_monitor.common.ApiException;
 import the_monitor.common.ErrorStatus;
 import the_monitor.domain.model.Account;
@@ -28,13 +33,18 @@ public class JwtProvider {
     private final Long ACCESS_TOKEN_EXPIRE_TIME;
     private final Long REFRESH_TOKEN_EXPIRE_TIME;
 
+    private final AccountService accountService;
+
     public JwtProvider(@Value("${jwt.secret_key}") String secretKey,
                        @Value("${jwt.access_token_expire}") Long accessTokenExpire,
-                       @Value("${jwt.refresh_token_expire}") Long refreshTokenExpire) {
+                       @Value("${jwt.refresh_token_expire}") Long refreshTokenExpire,
+                       AccountService accountService) {
 
         this.key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
         this.ACCESS_TOKEN_EXPIRE_TIME = accessTokenExpire;
         this.REFRESH_TOKEN_EXPIRE_TIME = refreshTokenExpire;
+
+        this.accountService = accountService;
 
     }
 
@@ -63,6 +73,15 @@ public class JwtProvider {
     public Long getAccountId(String token) {
         Claims claims = getClaimsFromToken(token);
         return claims.get("account_id", Long.class);
+    }
+
+    public void setAccessTokenInCookie(Account account, String accessToken, HttpServletResponse response) {
+        // accessToken을 쿠키에 설정
+        Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
+        accessTokenCookie.setHttpOnly(true);   // 클라이언트 측 접근 방지
+        accessTokenCookie.setSecure(false);     // HTTPS에서만 전송
+        accessTokenCookie.setPath("/");        // 전체 경로에서 접근 가능
+        response.addCookie(accessTokenCookie); // 쿠키 설정 추가
     }
 
     public void storeRefreshTokenInSession(Account account, HttpSession session) {
@@ -99,6 +118,21 @@ public class JwtProvider {
 
         UserDetails userDetails = new org.springframework.security.core.userdetails.User(email, "", new ArrayList<>());
         return new UsernamePasswordAuthenticationToken(userDetails, token, userDetails.getAuthorities());
+    }
+
+    public Authentication refreshAccessToken(String refreshToken, HttpServletResponse response) {
+        if ("VALID".equals(validateToken(refreshToken))) {
+            Long accountId = getAccountId(refreshToken);
+            Account account = accountService.findAccountById(accountId);
+
+            // 새 accessToken 생성
+            String newAccessToken = generateAccessToken(account);
+            setAccessTokenInCookie(account, newAccessToken, response);
+
+            // 인증 객체 생성 및 반환
+            return getAuthenticationFromToken(newAccessToken);
+        }
+        return null;
     }
 
 }
