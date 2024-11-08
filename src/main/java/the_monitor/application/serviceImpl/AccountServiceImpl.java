@@ -1,6 +1,7 @@
 package the_monitor.application.serviceImpl;
 
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,13 @@ public class AccountServiceImpl implements AccountService {
     private final TemporaryPasswordGenerateService temporaryPasswordGenerateService;
 
     private final JwtProvider jwtProvider;
+
+    @Override
+    public Account findAccountById(Long id) {
+
+        return accountRepository.findById(id).orElseThrow(() -> new ApiException(ErrorStatus._ACCOUNT_NOT_FOUND));
+
+    }
 
     @Override
     public String sendEmailConfirm(AccountEmailRequest request) {
@@ -93,14 +101,19 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public String accountSignIn(AccountSignInRequest request, HttpServletResponse response) {
+    public String accountSignIn(AccountSignInRequest request, HttpServletResponse response, HttpSession session) {
 
         Account account = accountRepository.findAccountByEmail(request.getEmail());
 
         if (account == null) throw new ApiException(ErrorStatus._ACCOUNT_NOT_FOUND);
         if (!account.getPassword().equals(request.getPassword())) throw new ApiException(ErrorStatus._WRONG_PASSWORD);
 
-        jwtProvider.setAddCookieToken(account, response);
+        // AccessToken 발급 및 응답 헤더에 추가
+        String accessToken = jwtProvider.generateAccessToken(account);
+        jwtProvider.setAccessTokenInCookie(account, accessToken, response);
+
+        // RefreshToken 발급 및 세션에 저장
+        jwtProvider.storeRefreshTokenInSession(account, session);
 
         return "로그인 성공";
 

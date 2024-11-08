@@ -74,10 +74,10 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(withDefaults())  // CORS 설정 적용
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS)) // 세션 사용 방식
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(PUBLIC_URLS).permitAll()  // 배열로 관리되는 공개 URL 패턴
-                        .anyRequest().authenticated()  // 나머지 모든 요청은 인증 필요
+                        .requestMatchers(PUBLIC_URLS).permitAll()  // 공개 URL 허용
+                        .anyRequest().authenticated()  // 나머지 요청은 인증 필요
                 )
                 .exceptionHandling(handler ->
                         handler.authenticationEntryPoint(jwtAuthenticationEntryPoint)
@@ -86,28 +86,7 @@ public class SecurityConfig {
                 .addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class);
 
         return http.build();
-    }
 
-//    @Bean
-//    public CorsConfigurationSource corsConfigurationSource() {
-//
-//        CorsConfiguration configuration = new CorsConfiguration();
-//        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
-//        // 모든 메서드 허용
-//        configuration.setAllowedMethods(List.of("*"));
-//        // 모든 헤더 허용
-//        configuration.setAllowedHeaders(List.of("*"));
-//        // 응답 헤더에서도 모든 헤더를 노출
-//        configuration.addExposedHeader("*");
-//        // 자격 증명 허용
-//        configuration.setAllowCredentials(true);
-//        // 캐시 시간 설정
-//        configuration.setMaxAge(3600L);
-//
-//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//        source.registerCorsConfiguration("/**", configuration);
-//        return source;
-//
-//    }
+    }
 
 }

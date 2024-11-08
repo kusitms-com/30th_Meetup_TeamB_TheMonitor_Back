@@ -2,6 +2,7 @@ package the_monitor.presentation;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -44,9 +45,9 @@ public class AccountController {
 
     @Operation(summary = "로그인", description = "로그인을 진행합니다.")
     @PostMapping("/signIn")
-    public ApiResponse<String> Login(@RequestBody @Valid AccountSignInRequest request, HttpServletResponse response) {
+    public ApiResponse<String> Login(@RequestBody @Valid AccountSignInRequest request, HttpServletResponse response, HttpSession session) {
 
-        return ApiResponse.onSuccess(accountService.accountSignIn(request, response));
+        return ApiResponse.onSuccess(accountService.accountSignIn(request, response, session));
 
     }
 
