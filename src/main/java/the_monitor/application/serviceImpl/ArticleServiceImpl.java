@@ -80,7 +80,7 @@ public class ArticleServiceImpl implements ArticleService {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal(); // CustomUserDetails 캐스팅
 
         Long accountId = userDetails.getAccountId();  // accountId 추출
-        Page<Article> articles = articleRepository.findAllByAccountIdAndAndCategoryId(accountId, 1L, pageable);
+        Page<Article> articles = articleRepository.findAllByAccount_IdAndCategoryId(accountId, 1L, pageable);
 
         return getArticlePageResponse(articles);
 

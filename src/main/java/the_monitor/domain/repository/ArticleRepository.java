@@ -7,7 +7,6 @@ import org.springframework.data.jdbc.repository.query.Query;
 import the_monitor.domain.model.Article;
 import the_monitor.infrastructure.persistence.JpaArticleRepository;
 
-import java.util.List;
 
 public interface ArticleRepository extends JpaArticleRepository {
 
@@ -16,9 +15,9 @@ public interface ArticleRepository extends JpaArticleRepository {
             "JOIN k.category c " +
             "JOIN c.client cl " +
             "JOIN cl.account ac " +
-            "WHERE ac.accountId = :accountId " +
+            "WHERE ac.id = :accountId " +
             "AND (:categoryId IS NULL OR c.categoryId = :categoryId)")
-    Page<Article> findAllByAccountIdAndAndCategoryId(
+    Page<Article> findAllByAccount_IdAndCategoryId(
             @Param("accountId") Long accountId,
             @Param("categoryId") Long categoryId,
             Pageable pageable);
