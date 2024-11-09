@@ -71,20 +71,20 @@ public class ArticleServiceImpl implements ArticleService {
 
     }
 
-    @Override
-    public PageResponse<ArticleResponse> getDefaultArticles(int page) {
-
-        Pageable pageable = PageRequest.of(page - 1, 10);
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal(); // CustomUserDetails 캐스팅
-
-        Long accountId = userDetails.getAccountId();  // accountId 추출
-        Page<Article> articles = articleRepository.findAllByAccount_IdAndCategoryId(accountId, 1L, pageable);
-
-        return getArticlePageResponse(articles);
-
-    }
+//    @Override
+//    public PageResponse<ArticleResponse> getDefaultArticles(int page) {
+//
+//        Pageable pageable = PageRequest.of(page - 1, 10);
+//
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal(); // CustomUserDetails 캐스팅
+//
+//        Long accountId = userDetails.getAccountId();  // accountId 추출
+//        Page<Article> articles = articleRepository.findAllByAccount_IdAndCategoryId(accountId, 1L, pageable);
+//
+//        return getArticlePageResponse(articles);
+//
+//    }
 
     @Override
     public PageResponse<ArticleResponse> getArticlesBySearch(String dateRestrict, String keyword, Long categoryId, int page) {

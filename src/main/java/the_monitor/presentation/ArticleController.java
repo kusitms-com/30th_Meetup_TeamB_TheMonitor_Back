@@ -17,12 +17,12 @@ public class ArticleController {
 
     private final ArticleService articleService;
 
-    @GetMapping()
-    public ApiResponse<PageResponse<ArticleResponse>> getArticles(@RequestParam("page") int page) {
-
-        return ApiResponse.onSuccessData("default 기사", articleService.getDefaultArticles(page));
-
-    }
+//    @GetMapping()
+//    public ApiResponse<PageResponse<ArticleResponse>> getArticles(@RequestParam("page") int page) {
+//
+//        return ApiResponse.onSuccessData("default 기사", articleService.getDefaultArticles(page));
+//
+//    }
 
     @PostMapping("/search")
     public ApiResponse<PageResponse<ArticleResponse>> getArticlesBySearch(@RequestParam("keyword") String keyword,
