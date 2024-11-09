@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import the_monitor.domain.model.Article;
+import the_monitor.domain.model.Keyword;
 
 @Getter
 @NoArgsConstructor
@@ -39,9 +40,10 @@ public class ArticleGoogleDto {
     }
 
     // Article 엔티티로 변환하는 메서드
-    public Article toEntity() {
+    public Article toEntity(Keyword keyword) {
 
         return Article.builder()
+                .keyword(keyword)
                 .title(title)
                 .body(body)
                 .url(url)
