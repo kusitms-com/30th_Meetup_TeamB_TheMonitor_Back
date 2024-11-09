@@ -33,18 +33,15 @@ public class JwtProvider {
     private final Long ACCESS_TOKEN_EXPIRE_TIME;
     private final Long REFRESH_TOKEN_EXPIRE_TIME;
 
-    private final AccountService accountService;
 
     public JwtProvider(@Value("${jwt.secret_key}") String secretKey,
                        @Value("${jwt.access_token_expire}") Long accessTokenExpire,
-                       @Value("${jwt.refresh_token_expire}") Long refreshTokenExpire,
-                       AccountService accountService) {
+                       @Value("${jwt.refresh_token_expire}") Long refreshTokenExpire) {
 
         this.key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
         this.ACCESS_TOKEN_EXPIRE_TIME = accessTokenExpire;
         this.REFRESH_TOKEN_EXPIRE_TIME = refreshTokenExpire;
 
-        this.accountService = accountService;
 
     }
 
@@ -120,10 +117,10 @@ public class JwtProvider {
         return new UsernamePasswordAuthenticationToken(userDetails, token, userDetails.getAuthorities());
     }
 
-    public Authentication refreshAccessToken(String refreshToken, HttpServletResponse response) {
+
+    public Authentication refreshAccessToken(String refreshToken, HttpServletResponse response, Account account) {
+
         if ("VALID".equals(validateToken(refreshToken))) {
-            Long accountId = getAccountId(refreshToken);
-            Account account = accountService.findAccountById(accountId);
 
             // 새 accessToken 생성
             String newAccessToken = generateAccessToken(account);
