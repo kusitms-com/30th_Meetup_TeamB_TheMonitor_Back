@@ -7,9 +7,9 @@ import the_monitor.common.PageResponse;
 
 public interface ArticleService {
 
-    PageResponse<ArticleResponse> getDefaultArticles(String token, ArticleRequest request);
+    PageResponse<ArticleResponse> getDefaultArticles(int page);
 
-    PageResponse<ArticleResponse> getArticlesBySearch(String token, ArticleSearchRequest request);
+    PageResponse<ArticleResponse> getArticlesBySearch(String dateRestrict, String keyword, Long categoryId, int page);
 
 
 

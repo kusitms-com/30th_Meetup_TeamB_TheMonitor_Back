@@ -4,12 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import the_monitor.application.dto.ArticleGoogleDto;
-import the_monitor.application.dto.request.ArticleRequest;
-import the_monitor.application.dto.request.ArticleSearchRequest;
 import the_monitor.application.dto.response.ArticleResponse;
 import the_monitor.application.service.ArticleService;
 import the_monitor.application.service.GoogleSearchService;
@@ -19,6 +18,7 @@ import the_monitor.domain.model.Article;
 import the_monitor.domain.model.Keyword;
 import the_monitor.domain.repository.ArticleRepository;
 import the_monitor.infrastructure.jwt.JwtProvider;
+import the_monitor.infrastructure.security.CustomUserDetails;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -37,17 +37,19 @@ public class ArticleServiceImpl implements ArticleService {
     private static final int ARTICLE_SAVE_START_TIME = 9;
     private static final int ARTICLE_SAVE_END_TIME = 7;
 
-    @Scheduled(cron = "0 0 7 * * *")
-    @Transactional
-    public void dailyMonitoring() {
-
-        List<Keyword> keywords = keywordService.getAllKeywords();
-
-        for (Keyword keyword : keywords) {
-            saveArticlesFromGoogle(keyword);
-        }
-
-    }
+//    @Scheduled(cron = "0 0 7 * * *")
+//    @Transactional
+//    public void dailyMonitoring() {
+//
+//        List<Keyword> keywords = keywordService.getAllKeywords();
+//
+//        for (Keyword keyword : keywords) {
+//
+//            saveArticlesFromGoogle(keyword);
+//
+//        }
+//
+//    }
 
     private void saveArticlesFromGoogle(Keyword keyword) {
 
@@ -70,10 +72,14 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public PageResponse<ArticleResponse> getDefaultArticles(String token, ArticleRequest request) {
+    public PageResponse<ArticleResponse> getDefaultArticles(int page) {
 
-        Pageable pageable = PageRequest.of(request.getPage() - 1, request.getSize());
-        Long accountId = jwtProvider.getAccountId(token);
+        Pageable pageable = PageRequest.of(page - 1, 10);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal(); // CustomUserDetails 캐스팅
+
+        Long accountId = userDetails.getAccountId();  // accountId 추출
         Page<Article> articles = articleRepository.findAllByAccountIdAndAndCategoryId(accountId, 1L, pageable);
 
         return getArticlePageResponse(articles);
@@ -81,10 +87,10 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public PageResponse<ArticleResponse> getArticlesBySearch(String token, ArticleSearchRequest request) {
+    public PageResponse<ArticleResponse> getArticlesBySearch(String dateRestrict, String keyword, Long categoryId, int page) {
 
         List<ArticleResponse> articles = googleSearchService.searchArticlesWithoutSaving(
-                request.getKeyword(), request.getDateRestrict(), request.getPage(), request.getSize());
+                keyword, dateRestrict, page, 10);
 
         return PageResponse.<ArticleResponse>builder()
                 .listPageResponse(articles)
