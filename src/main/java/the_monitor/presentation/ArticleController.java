@@ -24,7 +24,7 @@ public class ArticleController {
 //
 //    }
 
-    @PostMapping("/search")
+    @GetMapping("/search")
     public ApiResponse<PageResponse<ArticleResponse>> getArticlesBySearch(@RequestParam("keyword") String keyword,
                                                                           @RequestParam("categoryId") Long categoryId,
                                                                           @RequestParam("page") int page) {
