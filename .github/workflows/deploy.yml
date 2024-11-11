@@ -69,6 +69,7 @@ jobs:
               -e CLOUD_AWS_REGION_STATIC="${{ secrets.CLOUD_AWS_REGION_STATIC }}" \
               -e CLOUD_AWS_CREDENTIALS_ACCESS_KEY="${{ secrets.CLOUD_AWS_CREDENTIALS_ACCESS_KEY }}" \
               -e CLOUD_AWS_CREDENTIALS_SECRET_KEY="${{ secrets.CLOUD_AWS_CREDENTIALS_SECRET_KEY }}" \
+              -e CLOUD_AWS_S3_BUCKET="${{ secrets.CLOUD_AWS_S3_BUCKET }}" \
               -e SPRING_MAIL_HOST="smtp.gmail.com" \
               -e SPRING_MAIL_PORT="587" \
               -e SPRING_MAIL_USERNAME="${{ secrets.SPRING_MAIL_USERNAME }}" \
