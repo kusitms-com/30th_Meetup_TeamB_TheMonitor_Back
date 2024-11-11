@@ -12,5 +12,4 @@ public interface ArticleService {
     PageResponse<ArticleResponse> getArticlesBySearch(String dateRestrict, String keyword, Long categoryId, int page);
 
 
-
 }
