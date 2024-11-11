@@ -94,10 +94,24 @@ public class GoogleSearchServiceImpl implements GoogleSearchService {
                 String title = item.path("title").asText();
                 String snippet = item.path("snippet").asText();
                 String link = item.path("link").asText();
-                String imageUrl = item.path("pagemap").path("cse_image").get(0).path("src").asText();
-                String publisher = item.path("pagemap").path("metatags").get(0).path("og:site_name").asText();
-                String publishDate = item.path("pagemap").path("metatags").get(0).path("article:published_time").asText();
-                String reporter = item.path("pagemap").path("metatags").get(0).path("dable:author").asText();
+
+                // 이미지 URL 가져오기 (cse_image 노드가 있을 경우)
+                String imageUrl = "";
+                JsonNode cseImageNode = item.path("pagemap").path("cse_image");
+                if (cseImageNode.isArray() && cseImageNode.has(0)) {
+                    imageUrl = cseImageNode.get(0).path("src").asText();
+                }
+
+                // 출판사와 날짜 정보 가져오기 (metatags 노드가 있을 경우)
+                String publisher = "";
+                String publishDate = "";
+                String reporter = "";
+                JsonNode metatagsNode = item.path("pagemap").path("metatags");
+                if (metatagsNode.isArray() && metatagsNode.has(0)) {
+                    publisher = metatagsNode.get(0).path("og:site_name").asText("");
+                    publishDate = metatagsNode.get(0).path("article:published_time").asText("");
+                    reporter = metatagsNode.get(0).path("dable:author").asText("");
+                }
 
                 ArticleGoogleDto dto = ArticleGoogleDto.builder()
                         .title(title)
