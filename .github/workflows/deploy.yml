@@ -42,7 +42,7 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
-#             Create a custom network if it doesn't exist
+            # Create a custom network if it doesn't exist
             docker network inspect the_monitor_network >/dev/null 2>&1 || docker network create the_monitor_network
             
             # Stop and remove any existing Redis container
