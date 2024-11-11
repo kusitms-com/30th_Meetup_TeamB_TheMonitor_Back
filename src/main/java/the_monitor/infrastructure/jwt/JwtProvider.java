@@ -17,6 +17,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -39,7 +40,7 @@ public class JwtProvider {
     public JwtProvider(@Value("${jwt.secret_key}") String secretKey,
                        @Value("${jwt.access_token_expire}") Long accessTokenExpire,
                        @Value("${jwt.refresh_token_expire}") Long refreshTokenExpire,
-                       AccountService accountService) {
+                       @Lazy AccountService accountService) {
 
         this.key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
         this.ACCESS_TOKEN_EXPIRE_TIME = accessTokenExpire;

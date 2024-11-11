@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import the_monitor.application.dto.request.*;
@@ -31,6 +32,7 @@ public class AccountServiceImpl implements AccountService {
     private final CertifiedKeyService certifiedKeyService;
     private final TemporaryPasswordGenerateService temporaryPasswordGenerateService;
 
+    @Lazy
     private final JwtProvider jwtProvider;
 
     @Override

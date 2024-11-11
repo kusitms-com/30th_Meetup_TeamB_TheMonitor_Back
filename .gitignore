@@ -40,3 +40,4 @@ out/
 # Ignore all application.yml files
 application.yml
 application-*.yml
+application.properties

@@ -1,5 +1,6 @@
 package the_monitor.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -23,6 +24,7 @@ public class ClientMailRecipient extends BaseTimeEntity {
 
     @ManyToOne
     @JoinColumn(name = "client_id", nullable = false)
+    @JsonBackReference
     private Client client;
 
     @Builder
