@@ -26,7 +26,6 @@ import the_monitor.application.service.AccountService;
 import the_monitor.common.ApiException;
 import the_monitor.common.ErrorStatus;
 import the_monitor.domain.model.Account;
-import the_monitor.infrastructure.security.CustomUserDetails;
 
 @Component
 public class JwtProvider {
@@ -35,7 +34,6 @@ public class JwtProvider {
     private final Long ACCESS_TOKEN_EXPIRE_TIME;
     private final Long REFRESH_TOKEN_EXPIRE_TIME;
 
-    private final AccountService accountService;
 
     public JwtProvider(@Value("${jwt.secret_key}") String secretKey,
                        @Value("${jwt.access_token_expire}") Long accessTokenExpire,
@@ -46,7 +44,6 @@ public class JwtProvider {
         this.ACCESS_TOKEN_EXPIRE_TIME = accessTokenExpire;
         this.REFRESH_TOKEN_EXPIRE_TIME = refreshTokenExpire;
 
-        this.accountService = accountService;
 
     }
 
@@ -116,16 +113,16 @@ public class JwtProvider {
 
     public Authentication getAuthenticationFromToken(String token) {
         Claims claims = getClaimsFromToken(token);
-        Long accountId = claims.get("account_id", Long.class);
         String email = claims.get("email", String.class);
 
-        CustomUserDetails userDetails = new CustomUserDetails(accountId, email, new ArrayList<>());
+        UserDetails userDetails = new org.springframework.security.core.userdetails.User(email, "", new ArrayList<>());
         return new UsernamePasswordAuthenticationToken(userDetails, token, userDetails.getAuthorities());
     }
-    public Authentication refreshAccessToken(String refreshToken, HttpServletResponse response) {
+
+
+    public Authentication refreshAccessToken(String refreshToken, HttpServletResponse response, Account account) {
+
         if ("VALID".equals(validateToken(refreshToken))) {
-            Long accountId = getAccountId(refreshToken);
-            Account account = accountService.findAccountById(accountId);
 
             // 새 accessToken 생성
             String newAccessToken = generateAccessToken(account);
