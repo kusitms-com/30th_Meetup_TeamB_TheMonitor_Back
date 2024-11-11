@@ -13,6 +13,7 @@ public class ClientResponse {
     private String name;
     private String managerName;
     private String logoUrl;
+    private List<String> keywords;
     private String categoryType;
     private List<String> clientMailRecipients; // 수신자 주소만 포함
     private List<String> clientMailCCs; // 참조인 주소만 포함
@@ -22,6 +23,7 @@ public class ClientResponse {
                           String name,
                           String managerName,
                           String logoUrl,
+                          List<String> keywords,
                           String categoryType,
                           List<String> clientMailRecipients,
                           List<String> clientMailCCs) {
@@ -30,6 +32,7 @@ public class ClientResponse {
         this.name = name;
         this.managerName = managerName;
         this.logoUrl = logoUrl;
+        this.keywords = keywords;
         this.categoryType = categoryType;
         this.clientMailRecipients = clientMailRecipients;
         this.clientMailCCs = clientMailCCs;

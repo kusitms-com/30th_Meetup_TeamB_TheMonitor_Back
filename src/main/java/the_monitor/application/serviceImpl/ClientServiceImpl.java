@@ -273,12 +273,19 @@ public class ClientServiceImpl implements ClientService {
         // 이메일 수신자와 참조인 저장
         saveEmailRecipients(clientRequest.getRecipientEmails(), clientRequest.getCcEmails(), client);
 
+        // `keywords`를 문자열 리스트로 변환
+        List<String> keywordList = keywords.stream()
+                .map(Keyword::getKeyword)
+                .collect(Collectors.toList());
+
+
         // ClientResponse 반환
         return ClientResponse.builder()
                 .clientId(client.getId())
                 .name(client.getName())
                 .managerName(client.getManagerName())
                 .logoUrl(client.getLogo())
+                .keywords(keywordList)
                 .categoryType(clientRequest.getCategoryType().toString())
                 .clientMailRecipients(client.getClientMailRecipients().stream()
                         .map(ClientMailRecipient::getAddress)
