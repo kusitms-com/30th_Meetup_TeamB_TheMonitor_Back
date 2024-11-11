@@ -1,5 +1,6 @@
 package the_monitor.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -8,6 +9,7 @@ import lombok.NoArgsConstructor;
 import the_monitor.common.BaseTimeEntity;
 import the_monitor.domain.enums.CategoryType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -25,10 +27,11 @@ public class Category extends BaseTimeEntity {
     private CategoryType categoryType;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Keyword> keywords;
+    private List<Keyword> keywords = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "client_id", nullable = false)
+    @JsonIgnore
     private Client client;
 
     @Builder
