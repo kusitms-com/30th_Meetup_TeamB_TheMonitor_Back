@@ -1,5 +1,7 @@
 package the_monitor.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -7,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import the_monitor.common.BaseTimeEntity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -26,21 +29,24 @@ public class Client extends BaseTimeEntity {
     @Column(name = "client_manager_name", nullable = false)
     private String managerName;
 
-    @Column(name = "client_logo", nullable = false)
+    @Column(name = "client_logo", nullable = true)
     private String logo;
 
     @ManyToOne
     @JoinColumn(name = "account_id", nullable = false)
+    @JsonBackReference
     private Account account;
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<ClientMailRecipient> clientMailRecipients;
+    @JsonManagedReference
+    private List<ClientMailRecipient> clientMailRecipients = new ArrayList<>();
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<ClientMailCC> clientMailCCs;
+    @JsonManagedReference
+    private List<ClientMailCC> clientMailCCs = new ArrayList<>();
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Category> categories;
+    private List<Category> categories = new ArrayList<>();
 
     @Builder
     public Client(String name,
@@ -52,7 +58,20 @@ public class Client extends BaseTimeEntity {
         this.managerName = managerName;
         this.logo = logo;
         this.account = account;
+        this.categories = new ArrayList<>();
 
     }
 
+    public void setCategory(Category category) {
+        this.categories.add(category); // 카테고리 추가
+    }
+    // clientMailRecipients 설정 메서드
+    public void setClientMailRecipients(List<ClientMailRecipient> clientMailRecipients) {
+        this.clientMailRecipients = clientMailRecipients;
+    }
+
+    // clientMailCCs 설정 메서드
+    public void setClientMailCCs(List<ClientMailCC> clientMailCCs) {
+        this.clientMailCCs = clientMailCCs;
+    }
 }
