@@ -62,7 +62,6 @@ jobs:
             
             # Run the application in the custom network
             docker run -d --network the_monitor_network -p 8080:8080 --name the_monitor-container \
-              -e SPRING_PROFILES_ACTIVE=prod \
               -e SPRING_DATASOURCE_URL="${{ secrets.SPRING_DATASOURCE_URL }}" \
               -e SPRING_DATASOURCE_USERNAME="${{ secrets.SPRING_DATASOURCE_USERNAME }}" \
               -e SPRING_DATASOURCE_PASSWORD="${{ secrets.SPRING_DATASOURCE_PASSWORD }}" \
@@ -83,6 +82,6 @@ jobs:
               -e NAVER_API_CLIENT_SECRET="${{ secrets.NAVER_API_CLIENT_SECRET }}" \
               -e NAVER_API_BASE_URL="${{ secrets.NAVER_API_BASE_URL }}" \
               -e GOOGLE_API_KEY="${{ secrets.GOOGLE_API_KEY }}" \
-              -e GOOGLE_SEARCH_ENGINE_ID="${{ secrets.GOOGLE_SEARCH_ENGINE_ID }}" \
+              -e GOOGLE_API_SEARCH_ENGINE_ID="${{ secrets.GOOGLE_API_SEARCH_ENGINE_ID }}" \
               -e GOOGLE_API_BASE_URL="${{ secrets.GOOGLE_API_BASE_URL }}" \
               ${{ secrets.DOCKER_USERNAME }}/the_monitor:latest
