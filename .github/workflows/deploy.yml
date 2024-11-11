@@ -42,7 +42,7 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
-            # Create a custom network if it doesn't exist
+#             Create a custom network if it doesn't exist
             docker network inspect the_monitor_network >/dev/null 2>&1 || docker network create the_monitor_network
             
             # Stop and remove any existing Redis container
@@ -66,6 +66,9 @@ jobs:
               -e SPRING_DATASOURCE_URL="${{ secrets.SPRING_DATASOURCE_URL }}" \
               -e SPRING_DATASOURCE_USERNAME="${{ secrets.SPRING_DATASOURCE_USERNAME }}" \
               -e SPRING_DATASOURCE_PASSWORD="${{ secrets.SPRING_DATASOURCE_PASSWORD }}" \
+              -e CLOUD_AWS_REGION_STATIC="${{ secrets.CLOUD_AWS_REGION_STATIC }}" \
+              -e CLOUD_AWS_CREDENTIALS_ACCESS_KEY="${{ secrets.CLOUD_AWS_CREDENTIALS_ACCESS_KEY }}" \
+              -e CLOUD_AWS_CREDENTIALS_SECRET_KEY="${{ secrets.CLOUD_AWS_CREDENTIALS_SECRET_KEY }}" \
               -e SPRING_MAIL_HOST="smtp.gmail.com" \
               -e SPRING_MAIL_PORT="587" \
               -e SPRING_MAIL_USERNAME="${{ secrets.SPRING_MAIL_USERNAME }}" \
