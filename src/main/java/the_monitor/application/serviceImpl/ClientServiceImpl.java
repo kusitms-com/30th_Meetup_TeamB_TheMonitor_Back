@@ -235,7 +235,7 @@ public class ClientServiceImpl implements ClientService {
 
     @Transactional
     public ClientResponse createClient(ClientRequest clientRequest, MultipartFile logo) {
-        // JWT에서 accountId를 추출
+        // JWT에서 accountId를 추출하는 과정
         Long extractedAccountId = getAccountIdFromJwt();
         Account account = accountRepository.findById(extractedAccountId)
                 .orElseThrow(() -> new RuntimeException("Account not found"));
