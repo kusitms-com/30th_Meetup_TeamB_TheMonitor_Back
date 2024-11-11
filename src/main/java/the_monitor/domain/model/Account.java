@@ -1,5 +1,6 @@
 package the_monitor.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -40,7 +41,7 @@ public class Account extends BaseTimeEntity {
     private boolean agreement;
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference
+    @JsonIgnore
     private List<Client> clients;
 
     @Builder
