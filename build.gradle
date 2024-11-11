@@ -69,35 +69,25 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
-// JAR 생성 설정
-jar {
-    enabled = false
-}
-
 bootJar {
     archiveFileName = 'the_monitor-0.0.1.jar'
 }
 
-// 배포 시에만 JIB 플러그인을 적용
-afterEvaluate {
-    if (project.hasProperty('prod')) {
-        apply plugin: 'com.google.cloud.tools.jib'
+apply plugin: 'com.google.cloud.tools.jib'
 
-        jib {
-            from {
-                image = 'openjdk:21-jdk-slim'
-            }
-            to {
-                image = "${System.getenv('DOCKER_USERNAME')}/the_monitor:latest"
-                auth {
-                    username = System.getenv('DOCKER_USERNAME')
-                    password = System.getenv('DOCKER_PASSWORD')
-                }
-            }
-            container {
-                ports = ['8080']
-                mainClass = 'the_monitor.TheMonitorApplication'
-            }
+jib {
+    from {
+        image = 'openjdk:21-jdk-slim'
+    }
+    to {
+        image = "${System.getenv('DOCKER_USERNAME')}/the_monitor:latest"
+        auth {
+            username = "${System.getenv('DOCKER_USERNAME')}"
+            password = "${System.getenv('DOCKER_PASSWORD')}"
         }
+    }
+    container {
+        ports = ['8080']
+        mainClass = 'the_monitor.TheMonitorApplication'
     }
 }

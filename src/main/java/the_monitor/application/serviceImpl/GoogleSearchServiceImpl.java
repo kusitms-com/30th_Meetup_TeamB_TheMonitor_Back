@@ -24,13 +24,13 @@ public class GoogleSearchServiceImpl implements GoogleSearchService {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
-    @Value("${GOOGLE_API_KEY}")
+    @Value("${google.api.key}")
     private String apiKey;
 
-    @Value("${GOOGLE_SEARCH_ENGINE_ID}")
+    @Value("${google.api.search-engine-id}")
     private String searchEngineId;
 
-    @Value("${GOOGLE_API_BASE_URL:https://www.googleapis.com/customsearch/v1}")
+    @Value("${google.api.base-url:https://www.googleapis.com/customsearch/v1}")
     private String baseUrl;
 
     @Override
