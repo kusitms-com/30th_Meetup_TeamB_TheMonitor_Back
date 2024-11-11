@@ -17,21 +17,20 @@ public class ArticleController {
 
     private final ArticleService articleService;
 
+//    @GetMapping()
+//    public ApiResponse<PageResponse<ArticleResponse>> getArticles(@RequestParam("page") int page) {
+//
+//        return ApiResponse.onSuccessData("default 기사", articleService.getDefaultArticles(page));
+//
+//    }
 
-   @GetMapping()
-   public ApiResponse<PageResponse<ArticleResponse>> getArticles(@RequestParam("page") int page) {
+    @GetMapping("/search")
+    public ApiResponse<PageResponse<ArticleResponse>> getArticlesBySearch(@RequestParam("keyword") String keyword,
+                                                                          @RequestParam("categoryId") Long categoryId,
+                                                                          @RequestParam("page") int page) {
 
-       return ApiResponse.onSuccessData("default 기사", articleService.getDefaultArticles(page));
+        return ApiResponse.onSuccessData("검색 기사", articleService.getArticlesBySearch("w1", keyword, categoryId, page));
 
-   }
-
-   @PostMapping("/search")
-   public ApiResponse<PageResponse<ArticleResponse>> getArticlesBySearch(@RequestParam("keyword") String keyword,
-                                                                         @RequestParam("categoryId") Long categoryId,
-                                                                         @RequestParam("page") int page) {
-
-       return ApiResponse.onSuccessData("검색 기사", articleService.getArticlesBySearch("w1", keyword, categoryId, page));
-
-   }
+    }
 
 }
