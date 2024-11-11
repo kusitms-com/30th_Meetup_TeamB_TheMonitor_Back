@@ -4,11 +4,13 @@ import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jdbc.repository.query.Query;
+import org.springframework.stereotype.Repository;
 import the_monitor.domain.model.Article;
 import the_monitor.infrastructure.persistence.JpaArticleRepository;
 
 import java.util.List;
 
+@Repository
 public interface ArticleRepository extends JpaArticleRepository {
 
     @Query("SELECT a FROM Article a " +
