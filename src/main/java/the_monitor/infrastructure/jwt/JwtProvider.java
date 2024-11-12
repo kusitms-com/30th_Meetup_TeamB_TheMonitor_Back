@@ -99,6 +99,10 @@ public class JwtProvider {
         }
     }
 
+    public boolean isTokenValid(String token) {
+        return "VALID".equals(validateToken(token));
+    }
+
     public Claims getClaimsFromToken(String token) {
         try {
             return Jwts.parserBuilder()
