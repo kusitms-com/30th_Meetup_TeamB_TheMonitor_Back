@@ -5,6 +5,8 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import the_monitor.application.dto.request.*;
@@ -205,6 +207,11 @@ public class AccountServiceImpl implements AccountService {
 
     }
 
+    @Override
+    public boolean isTokenValid(String token) {
+        // validateToken 메서드로 토큰 유효성 검사
+        return "VALID".equals(jwtProvider.validateToken(token));
+    }
 //    @Override
 //    public String resetPassword(AccountPasswordResetRequest request) throws UnsupportedEncodingException {
 //

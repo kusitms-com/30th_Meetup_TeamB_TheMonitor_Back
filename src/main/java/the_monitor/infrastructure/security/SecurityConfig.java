@@ -18,10 +18,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import the_monitor.infrastructure.jwt.JwtAccessDeniedHandler;
-import the_monitor.infrastructure.jwt.JwtAuthenticationEntryPoint;
-import the_monitor.infrastructure.jwt.JwtAuthenticationFilter;
-import the_monitor.infrastructure.jwt.JwtExceptionFilter;
+import the_monitor.infrastructure.jwt.*;
 
 @Configuration
 @EnableWebSecurity
