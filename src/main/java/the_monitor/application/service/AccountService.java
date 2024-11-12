@@ -2,6 +2,7 @@ package the_monitor.application.service;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.http.ResponseEntity;
 import the_monitor.application.dto.request.*;
 import the_monitor.domain.model.Account;
 
@@ -27,4 +28,7 @@ public interface AccountService {
     List<Account> getAccountList();
 
 //    String resetPassword(AccountPasswordResetRequest request) throws UnsupportedEncodingException;
+
+    boolean isTokenValid(String token);
+
 }
