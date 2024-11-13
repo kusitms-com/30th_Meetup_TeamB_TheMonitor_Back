@@ -1,33 +1,3 @@
-//package the_monitor.presentation;
-//
-//import jakarta.validation.Valid;
-//import the_monitor.application.dto.request.ClientRequest;
-//import the_monitor.application.service.ClientService;
-//import the_monitor.common.ApiResponse;
-//import the_monitor.domain.model.Client;
-//import lombok.RequiredArgsConstructor;
-//import org.springframework.http.HttpStatus;
-//import org.springframework.http.ResponseEntity;
-//import org.springframework.web.bind.annotation.*;
-//
-//
-//@RestController
-//@RequestMapping("/api/clients")
-//@RequiredArgsConstructor
-//public class ClientController {
-//
-//    private final ClientService clientService;
-//
-//    @PostMapping("/{accountId}")
-//    public ResponseEntity<Client> createClient(@PathVariable Long accountId,
-//            @RequestBody @Valid ClientRequest request) {
-//
-//        clientService.createClient(request, accountId);
-//
-//        return ResponseEntity.status(HttpStatus.OK)
-//                .build();
-//    }
-//}
 package the_monitor.presentation;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,6 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/clients")
 @RequiredArgsConstructor
@@ -64,8 +36,15 @@ public class ClientController {
         ApiResponse<ClientResponse> response = ApiResponse.onSuccessData("클라이언트 생성 성공", clientResponse);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-}
 
+    @Operation(summary = "고객사 정보 조회", description = "로그인한 유저의 accountId로 고객사 정보를 조회합니다.")
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiResponse<List<ClientResponse>>> getClientInfo() {
+        List<ClientResponse> clientResponses = clientService.getClientsByAccountId();
+        ApiResponse<List<ClientResponse>> response = ApiResponse.onSuccessData("클라이언트 조회 성공", clientResponses);
+        return ResponseEntity.ok(response);
+    }
+}
 
 
 
