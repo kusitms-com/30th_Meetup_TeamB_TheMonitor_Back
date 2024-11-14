@@ -1,6 +1,7 @@
 package the_monitor.application.service;
 
 import the_monitor.application.dto.request.ReportArticleUpdateRequest;
+import the_monitor.application.dto.response.ReportArticlesResponse;
 import the_monitor.application.dto.response.ReportDetailResponse;
 import the_monitor.application.dto.response.ReportListResponse;
 
@@ -16,6 +17,14 @@ public interface ReportService {
 
     ReportDetailResponse getReportDetail(Long clientId, Long reportId);
 
-    String updateReport(Long clientId, Long reportId, ReportArticleUpdateRequest request);
+    ReportArticlesResponse getReportArticles(Long clientId, Long reportId);
+
+    String updateReportArticle(Long clientId, Long reportId, ReportArticleUpdateRequest request);
+
+    String updateReportTitle(Long clientId, Long reportId, String title);
+
+    String updateReportColor(Long clientId, Long reportId, String color);
+
+    String updateReportLogo(Long clientId, Long reportId, String logo);
 
 }

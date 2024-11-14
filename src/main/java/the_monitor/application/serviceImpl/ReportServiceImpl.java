@@ -6,6 +6,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import the_monitor.application.dto.request.ReportArticleUpdateRequest;
+import the_monitor.application.dto.response.ReportArticlesResponse;
 import the_monitor.application.dto.response.ReportDetailResponse;
 import the_monitor.application.dto.response.ReportListResponse;
 import the_monitor.application.service.AccountService;
@@ -66,6 +67,17 @@ public class ReportServiceImpl implements ReportService {
                 .title(report.getTitle())
                 .logo(report.getLogo())
                 .color(report.getColor())
+                .build();
+
+    }
+
+    @Override
+    public ReportArticlesResponse getReportArticles(Long clientId, Long reportId) {
+
+        Report report = findByClientIdAndReportId(clientId, reportId);
+        validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
+
+        return ReportArticlesResponse.builder()
                 .reportArticles(getCategorizedArticles(report))
                 .build();
 
@@ -73,14 +85,53 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     @Transactional
-    public String updateReport(Long clientId, Long reportId, ReportArticleUpdateRequest request) {
+    public String updateReportArticle(Long clientId, Long reportId, ReportArticleUpdateRequest request) {
 
         Report report = findByClientIdAndReportId(clientId, reportId);
         validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
 
         reportArticleRepository.save(request.toEntity(report));
 
-        return "보고서 수정 성공";
+        return "보고서 기사 추가 완료";
+
+    }
+
+    @Override
+    @Transactional
+    public String updateReportTitle(Long clientId, Long reportId, String title) {
+
+        Report report = findByClientIdAndReportId(clientId, reportId);
+        validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
+
+        report.updateTitle(title);
+
+        return "보고서 제목 수정 완료";
+
+    }
+
+    @Override
+    @Transactional
+    public String updateReportColor(Long clientId, Long reportId, String color) {
+
+        Report report = findByClientIdAndReportId(clientId, reportId);
+        validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
+
+        report.updateColor(color);
+
+        return "보고서 색상 수정 완료";
+
+    }
+
+    @Override
+    @Transactional
+    public String updateReportLogo(Long clientId, Long reportId, String logo) {
+
+        Report report = findByClientIdAndReportId(clientId, reportId);
+        validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
+
+        report.updateLogo(logo);
+
+        return "보고서 로고 수정 완료";
 
     }
 

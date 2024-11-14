@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import the_monitor.application.dto.request.ReportArticleUpdateRequest;
+import the_monitor.application.dto.response.ReportArticlesResponse;
 import the_monitor.application.dto.response.ReportDetailResponse;
 import the_monitor.application.dto.response.ReportListResponse;
 import the_monitor.application.service.ReportService;
@@ -47,12 +48,46 @@ public class ReportController {
 
     }
 
-    @PostMapping("/update")
+    @GetMapping("/articles")
+    public ApiResponse<ReportArticlesResponse> getReportArticles(@RequestParam("clientId") Long clientId,
+                                                                 @RequestParam("reportId") Long reportId) {
+        return ApiResponse.onSuccessData("보고서 기사 조회", reportService.getReportArticles(clientId, reportId));
+
+    }
+
+    @PostMapping("/articles/update")
     public ApiResponse<String> updateReportArticle(@RequestParam("clientId") Long clientId,
                                                    @RequestParam("reportId") Long reportId,
                                                    @RequestBody @Valid ReportArticleUpdateRequest request) {
 
-        return ApiResponse.onSuccess(reportService.updateReport(clientId, reportId, request));
+        return ApiResponse.onSuccess(reportService.updateReportArticle(clientId, reportId, request));
+
+    }
+
+    @PatchMapping("/title")
+    public ApiResponse<String> updateReportTitle(@RequestParam("clientId") Long clientId,
+                                                 @RequestParam("reportId") Long reportId,
+                                                 @RequestParam("title") String title) {
+
+        return ApiResponse.onSuccess(reportService.updateReportTitle(clientId, reportId, title));
+
+    }
+
+    @PatchMapping("/color")
+    public ApiResponse<String> updateReportColor(@RequestParam("clientId") Long clientId,
+                                                 @RequestParam("reportId") Long reportId,
+                                                 @RequestParam("color") String color) {
+
+        return ApiResponse.onSuccess(reportService.updateReportColor(clientId, reportId, color));
+
+    }
+
+    @PatchMapping("/logo")
+    public ApiResponse<String> updateReportLogo(@RequestParam("clientId") Long clientId,
+                                                @RequestParam("reportId") Long reportId,
+                                                @RequestParam("logo") String logo) {
+
+        return ApiResponse.onSuccess(reportService.updateReportLogo(clientId, reportId, logo));
 
     }
 

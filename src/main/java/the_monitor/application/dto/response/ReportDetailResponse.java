@@ -18,20 +18,17 @@ public class ReportDetailResponse {
     private String title;
     private String logo;
     private String color;
-    Map<CategoryType, List<ReportArticle>> reportArticles;
 
     @Builder
     public ReportDetailResponse(Long reportId,
                                 String title,
                                 String logo,
-                                String color,
-                                Map<CategoryType, List<ReportArticle>> reportArticles) {
+                                String color) {
 
         this.reportId = reportId;
         this.title = title;
         this.logo = logo;
         this.color = color;
-        this.reportArticles = reportArticles;
 
     }
 
