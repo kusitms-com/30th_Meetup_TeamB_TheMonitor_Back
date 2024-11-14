@@ -1,12 +1,15 @@
 package the_monitor.application.serviceImpl;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.core.Authentication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import the_monitor.application.dto.request.*;
@@ -15,12 +18,15 @@ import the_monitor.application.service.CertifiedKeyService;
 import the_monitor.application.service.EmailService;
 import the_monitor.application.service.TemporaryPasswordGenerateService;
 import the_monitor.common.ApiException;
+import the_monitor.common.ApiResponse;
 import the_monitor.common.ErrorStatus;
 import the_monitor.domain.model.Account;
 import the_monitor.domain.repository.AccountRepository;
 import the_monitor.infrastructure.jwt.JwtProvider;
 
 import java.util.List;
+
+import static the_monitor.common.ErrorStatus._JWT_EXPIRED;
 
 @Slf4j
 @Service
@@ -208,10 +214,37 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public boolean isTokenValid(String token) {
-        // validateToken 메서드로 토큰 유효성 검사
-        return "VALID".equals(jwtProvider.validateToken(token));
+    public ApiResponse checkTokenValidity(HttpServletRequest request, HttpServletResponse response) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new ApiException(ErrorStatus._JWT_INVALID);
+        }
+
+        String token = (String) authentication.getCredentials();
+        String tokenStatus = jwtProvider.validateToken(token);
+
+        if ("VALID".equals(tokenStatus)) {
+            return ApiResponse.onSuccessData("토큰이 갱신되었습니다.", token);
+        } else if ("EXPIRED".equals(tokenStatus)) {
+            String refreshToken = (String) request.getSession(false).getAttribute("refreshToken");
+
+            if (refreshToken != null && "VALID".equals(jwtProvider.validateToken(refreshToken))) {
+                Long accountId = jwtProvider.getAccountId(refreshToken);
+                Account account = accountRepository.findById(accountId)
+                        .orElseThrow(() -> new ApiException(ErrorStatus._ACCOUNT_NOT_EXIST));
+
+                String newAccessToken = jwtProvider.generateAccessToken(account);
+                jwtProvider.setAccessTokenInCookie(account, newAccessToken, response);
+                return ApiResponse.onSuccessData("토큰이 갱신되었습니다.", newAccessToken);
+            } else {
+                throw new ApiException(ErrorStatus._JWT_EXPIRED);
+            }
+        } else {
+           throw new ApiException(ErrorStatus._JWT_INVALID);
+        }
     }
+
 //    @Override
 //    public String resetPassword(AccountPasswordResetRequest request) throws UnsupportedEncodingException {
 //
