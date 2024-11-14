@@ -1,25 +1,20 @@
 package the_monitor.application.serviceImpl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import the_monitor.application.dto.ArticleGoogleDto;
 import the_monitor.application.dto.response.ArticleResponse;
 import the_monitor.application.service.ArticleService;
 import the_monitor.application.service.GoogleSearchService;
 import the_monitor.application.service.KeywordService;
 import the_monitor.common.PageResponse;
-import the_monitor.domain.model.Article;
 import the_monitor.domain.model.Keyword;
-import the_monitor.domain.repository.ArticleRepository;
+import the_monitor.domain.repository.ReportArticleRepository;
 import the_monitor.infrastructure.jwt.JwtProvider;
 import the_monitor.infrastructure.security.CustomUserDetails;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +24,7 @@ import java.util.List;
 public class ArticleServiceImpl implements ArticleService {
 
     private final GoogleSearchService googleSearchService;
-    private final ArticleRepository articleRepository;
+    private final ReportArticleRepository articleRepository;
     private final JwtProvider jwtProvider;
     private final KeywordService keywordService;
 

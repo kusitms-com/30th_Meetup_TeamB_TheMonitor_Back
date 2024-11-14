@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import the_monitor.application.dto.request.ClientRequest;
 import the_monitor.application.dto.response.ClientResponse;
+import the_monitor.application.dto.response.ReportListResponse;
 import the_monitor.application.service.ClientService;
 import org.springframework.stereotype.Service;
 import the_monitor.application.service.S3Service;
@@ -34,8 +35,10 @@ public class ClientServiceImpl implements ClientService {
     private final CategoryRepository categoryRepository;
     private final AccountRepository accountRepository;
     private final KeywordRepository keywordRepository;
+
     private final ClientMailRecipientRepository clientMailRecipientRepository;
     private final ClientMailCCRepository clientMailCCRepository;
+
     private final JwtProvider jwtProvider;
     private final S3Service s3Service;
 
@@ -130,6 +133,12 @@ public class ClientServiceImpl implements ClientService {
                         .logoUrl(client.getLogo())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Client findClientById(Long clientId) {
+        return clientRepository.findById(clientId)
+                .orElseThrow(() -> new ApiException(ErrorStatus._CLIENT_NOT_FOUND));
     }
 
     private List<Keyword> createKeywords(List<String> includeKeywords, List<String> excludeKeywords, Category category) {

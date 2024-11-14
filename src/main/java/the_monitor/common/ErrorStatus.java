@@ -24,13 +24,23 @@ public enum ErrorStatus implements BaseErrorCode {
     _FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON403", "접근 권한이 없습니다."),
     _FILE_DOWNLOAD_FAILED(HttpStatus.BAD_REQUEST, "FILE404", "파일을 다운받을 수 없습니다."),
     _EMAIL_SEND_FAIL(HttpStatus.BAD_REQUEST, "EMAIL400", "이메일 전송에 실패했습니다."),
+
+    // JWT
     _JWT_NOT_FOUND(HttpStatus.NOT_FOUND, "JWT404", "토큰을 찾을 수 없습니다"),
     _JWT_INVALID(HttpStatus.UNAUTHORIZED, "JWT400", "유효하지 않는 토큰입니다"),
     _JWT_EXPIRED(HttpStatus.UNAUTHORIZED, "JWT400", "만료된 토큰입니다"),
     _JWT_BLACKLIST(HttpStatus.UNAUTHORIZED, "JWT400", "접근 불가능한 토큰입니다"),
     _JWT_UNKNOWN(HttpStatus.UNAUTHORIZED, "JWT400", "JWT 인증 중 알 수 없는 오류가 발생했습니다."),
+
+
     _UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON500", "알 수 없는 오류가 발생했습니다."),
-    _CLIENT_NOT_FOUND(HttpStatus.NOT_FOUND, "CLIENT404", "해당 클라이언트를 찾을 수 없습니다.");
+
+    // Client
+    _CLIENT_NOT_FOUND(HttpStatus.NOT_FOUND, "CLIENT404", "해당 클라이언트를 찾을 수 없습니다."),
+
+    // Report
+    _REPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "REPORT404", "해당 리포트를 찾을 수 없습니다."),
+    _REPORT_FORBIDDEN(HttpStatus.FORBIDDEN, "REPORT403", "해당 리포트에 접근할 수 없습니다.");
 
 
 
