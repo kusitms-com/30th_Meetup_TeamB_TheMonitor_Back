@@ -29,7 +29,8 @@ public enum ErrorStatus implements BaseErrorCode {
     _JWT_EXPIRED(HttpStatus.UNAUTHORIZED, "JWT400", "만료된 토큰입니다"),
     _JWT_BLACKLIST(HttpStatus.UNAUTHORIZED, "JWT400", "접근 불가능한 토큰입니다"),
     _JWT_UNKNOWN(HttpStatus.UNAUTHORIZED, "JWT400", "JWT 인증 중 알 수 없는 오류가 발생했습니다."),
-    _UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON500", "알 수 없는 오류가 발생했습니다.");
+    _UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON500", "알 수 없는 오류가 발생했습니다."),
+    _CLIENT_NOT_FOUND(HttpStatus.NOT_FOUND, "CLIENT404", "해당 클라이언트를 찾을 수 없습니다.");
 
 
 
