@@ -47,18 +47,6 @@ public class Article extends BaseTimeEntity {
     @Column(name = "article_is_duplicate", nullable = false)
     private boolean isDuplicate;
 
-    @Column(name = "article_portal_naver", nullable = true)
-    private boolean portalNaver;
-
-    @Column(name = "article_portal_google", nullable = true)
-    private boolean portalGoogle;
-
-    @Column(name = "article_portal_daum", nullable = true)
-    private boolean portalDaum;
-
-    @Column(name = "article_portal_zum", nullable = true)
-    private boolean portalZum;
-
     @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Scrap> scraps;
 
@@ -76,10 +64,6 @@ public class Article extends BaseTimeEntity {
                    String publishDate,
                    boolean isRead,
                    boolean isDuplicate,
-                   boolean portalNaver,
-                   boolean portalGoogle,
-                   boolean portalDaum,
-                   boolean portalZum,
                    Keyword keyword) {
 
         this.title = title;
@@ -91,10 +75,6 @@ public class Article extends BaseTimeEntity {
         this.publishDate = publishDate;
         this.isRead = isRead;
         this.isDuplicate = isDuplicate;
-        this.portalNaver = portalNaver;
-        this.portalGoogle = portalGoogle;
-        this.portalDaum = portalDaum;
-        this.portalZum = portalZum;
         this.keyword = keyword;
 
     }

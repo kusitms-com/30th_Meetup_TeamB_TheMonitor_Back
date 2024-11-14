@@ -13,7 +13,6 @@ public class ArticleNaverDto {
     private String body;
     private String url;
     private String publishDate;
-    private boolean portalNaver;
 
     @Builder
     public ArticleNaverDto(String title, String body, String url, String publishDate) {
@@ -21,7 +20,6 @@ public class ArticleNaverDto {
         this.body = body;
         this.url = url;
         this.publishDate = publishDate;
-        this.portalNaver = true;
     }
 
     public Article toEntity() {
@@ -30,7 +28,6 @@ public class ArticleNaverDto {
                 .body(body)
                 .url(url)
                 .publishDate(publishDate)
-                .portalNaver(portalNaver)
                 .build();
     }
 

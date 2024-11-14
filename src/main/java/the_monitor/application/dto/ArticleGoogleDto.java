@@ -17,7 +17,6 @@ public class ArticleGoogleDto {
     private String publisherName;
     private String publishDate;
     private String reporterName;
-    private boolean portalGoogle;
 
     @Builder
     public ArticleGoogleDto(String title,
@@ -35,7 +34,6 @@ public class ArticleGoogleDto {
         this.publisherName = publisherName;
         this.publishDate = publishDate;
         this.reporterName = reporterName;
-        this.portalGoogle = true;
 
     }
 
@@ -51,7 +49,6 @@ public class ArticleGoogleDto {
                 .publisherName(publisherName)
                 .publishDate(publishDate)
                 .reporterName(reporterName)
-                .portalGoogle(portalGoogle)
                 .build();
 
     }

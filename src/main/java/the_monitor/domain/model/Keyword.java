@@ -28,14 +28,8 @@ public class Keyword extends BaseTimeEntity {
     @Column(name = "keyword_type", nullable = false)
     private String keywordType;
 
-    @Column(name = "keyword_naver_count", nullable = false)
-    private int naverCount;
-
-    @Column(name = "keyword_google_count", nullable = false)
-    private int googleCount;
-
-    @Column(name = "keyword_daum_count", nullable = false)
-    private int daumCount;
+    @Column(name = "keyword_result_count", nullable = false)
+    private int resultCount;
 
     @OneToMany(mappedBy = "keyword", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Article> articles;
@@ -49,16 +43,12 @@ public class Keyword extends BaseTimeEntity {
     public Keyword(String keyword,
                    String keywordType,
                    Category category,
-                   int naverCount,
-                   int googleCount,
-                   int daumCount) {
+                   int resultCount) {
 
         this.keyword = keyword;
         this.keywordType = keywordType;
         this.category = category;
-        this.naverCount = naverCount;
-        this.googleCount = googleCount;
-        this.daumCount = daumCount;
+        this.resultCount = resultCount;
 
     }
 
