@@ -17,8 +17,10 @@ import the_monitor.application.service.AccountService;
 import the_monitor.common.ApiException;
 import the_monitor.common.ErrorStatus;
 import the_monitor.domain.model.Account;
+import the_monitor.infrastructure.security.SecurityConfig;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 @Slf4j
 @Component
@@ -30,6 +32,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+
+        String requestURI = request.getRequestURI();
+
+        if (isPublicUrl(requestURI)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         HttpSession session = request.getSession(false);
         String accessToken = null;
@@ -75,5 +84,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
 
     }
-    
+
+    private boolean isPublicUrl(String requestURI) {
+        return Arrays.stream(SecurityConfig.PUBLIC_URLS).anyMatch(requestURI::startsWith);
+    }
+
 }

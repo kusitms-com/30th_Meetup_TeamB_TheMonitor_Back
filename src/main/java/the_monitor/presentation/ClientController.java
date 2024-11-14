@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
 import the_monitor.application.dto.request.ClientRequest;
 import the_monitor.application.dto.response.ClientResponse;
+import the_monitor.application.dto.response.ReportListResponse;
 import the_monitor.application.service.ClientService;
 import the_monitor.common.ApiResponse;
 import the_monitor.domain.model.Client;
@@ -43,6 +44,7 @@ public class ClientController {
         List<ClientResponse> clientResponses = clientService.getClientsByAccountId();
         return ApiResponse.onSuccessData("클라이언트 조회 성공", clientResponses);
     }
+
 }
 
 
