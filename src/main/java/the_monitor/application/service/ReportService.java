@@ -1,5 +1,6 @@
 package the_monitor.application.service;
 
+import org.springframework.web.multipart.MultipartFile;
 import the_monitor.application.dto.request.ReportArticleUpdateRequest;
 import the_monitor.application.dto.response.ReportArticlesResponse;
 import the_monitor.application.dto.response.ReportDetailResponse;
@@ -25,6 +26,6 @@ public interface ReportService {
 
     String updateReportColor(Long clientId, Long reportId, String color);
 
-    String updateReportLogo(Long clientId, Long reportId, String logo);
+    String updateReportLogo(Long clientId, Long reportId, MultipartFile logo);
 
 }

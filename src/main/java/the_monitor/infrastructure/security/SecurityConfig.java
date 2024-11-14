@@ -36,7 +36,7 @@ public class SecurityConfig {
     }
 
     // 공개 URL
-    private static final String[] PUBLIC_URLS = {
+    public static final String[] PUBLIC_URLS = {
             "/api/v1/accounts/sendEmailConfirm",
             "/api/v1/accounts/verifyCode",
             "/api/v1/accounts/signUp",

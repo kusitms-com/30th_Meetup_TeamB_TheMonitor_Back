@@ -1,9 +1,12 @@
 package the_monitor.presentation;
 
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import the_monitor.application.dto.request.ReportArticleUpdateRequest;
 import the_monitor.application.dto.response.ReportArticlesResponse;
 import the_monitor.application.dto.response.ReportDetailResponse;
@@ -20,6 +23,7 @@ public class ReportController {
 
     private final ReportService reportService;
 
+    @Operation(summary = "보고서 목록 최신순", description = "보고서 목록을 최신순으로 조회합니다.")
     @GetMapping("/c")
     public ApiResponse<List<ReportListResponse>> getReportsByCreatedAt(@RequestParam("clientId") Long clientId) {
 
@@ -27,6 +31,7 @@ public class ReportController {
 
     }
 
+    @Operation(summary = "보고서 목록 수정일순", description = "보고서 목록을 수정일순으로 조회합니다.")
     @GetMapping("/u")
     public ApiResponse<List<ReportListResponse>> getReportsByUpdatedAt(@RequestParam("clientId") Long clientId) {
 
@@ -34,6 +39,7 @@ public class ReportController {
 
     }
 
+    @Operation(summary = "보고서 삭제", description = "보고서를 삭제합니다.")
     @DeleteMapping()
     public ApiResponse<String> deleteReports(@RequestParam("clientId") Long clientId,
                                              @RequestParam("reportId") Long reportId) {
@@ -41,6 +47,7 @@ public class ReportController {
 
     }
 
+    @Operation(summary = "보고서 상세 조회", description = "보고서 상세 정보를 조회합���다.")
     @GetMapping("/details")
     public ApiResponse<ReportDetailResponse> getReportDetail(@RequestParam("clientId") Long clientId,
                                                              @RequestParam("reportId") Long reportId) {
@@ -48,6 +55,7 @@ public class ReportController {
 
     }
 
+    @Operation(summary = "보고서 기사 조회", description = "보고서에 포함된 기사를 조회합니다.")
     @GetMapping("/articles")
     public ApiResponse<ReportArticlesResponse> getReportArticles(@RequestParam("clientId") Long clientId,
                                                                  @RequestParam("reportId") Long reportId) {
@@ -55,6 +63,7 @@ public class ReportController {
 
     }
 
+    @Operation(summary = "보고서 기사 수정", description = "보고서에 포함된 기사를 수정합니다.")
     @PostMapping("/articles/update")
     public ApiResponse<String> updateReportArticle(@RequestParam("clientId") Long clientId,
                                                    @RequestParam("reportId") Long reportId,
@@ -64,6 +73,7 @@ public class ReportController {
 
     }
 
+    @Operation(summary = "보고서 제목 수정", description = "보고서 제목을 수정합니다.")
     @PatchMapping("/title")
     public ApiResponse<String> updateReportTitle(@RequestParam("clientId") Long clientId,
                                                  @RequestParam("reportId") Long reportId,
@@ -73,6 +83,7 @@ public class ReportController {
 
     }
 
+    @Operation(summary = "보고서 색상 수정", description = "보고서 색상을 수정합니다.")
     @PatchMapping("/color")
     public ApiResponse<String> updateReportColor(@RequestParam("clientId") Long clientId,
                                                  @RequestParam("reportId") Long reportId,
@@ -82,11 +93,13 @@ public class ReportController {
 
     }
 
-    @PatchMapping("/logo")
+    @Operation(summary = "보고서 로고 수정", description = "보고서 로고를 수정합니다.")
+    @PatchMapping(value = "/logo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<String> updateReportLogo(@RequestParam("clientId") Long clientId,
                                                 @RequestParam("reportId") Long reportId,
-                                                @RequestParam("logo") String logo) {
+                                                @RequestPart("logo") MultipartFile logo) {
 
+        // 로고 파일을 전달하여 업데이트하는 서비스 메서드 호출
         return ApiResponse.onSuccess(reportService.updateReportLogo(clientId, reportId, logo));
 
     }

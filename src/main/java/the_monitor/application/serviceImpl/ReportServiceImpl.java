@@ -5,6 +5,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import the_monitor.application.dto.request.ReportArticleUpdateRequest;
 import the_monitor.application.dto.response.ReportArticlesResponse;
 import the_monitor.application.dto.response.ReportDetailResponse;
@@ -12,6 +13,7 @@ import the_monitor.application.dto.response.ReportListResponse;
 import the_monitor.application.service.AccountService;
 import the_monitor.application.service.ClientService;
 import the_monitor.application.service.ReportService;
+import the_monitor.application.service.S3Service;
 import the_monitor.common.ApiException;
 import the_monitor.common.ErrorStatus;
 import the_monitor.domain.enums.CategoryType;
@@ -35,6 +37,8 @@ public class ReportServiceImpl implements ReportService {
     private final ReportArticleRepository reportArticleRepository;
     private final AccountService accountService;
     private final ClientService clientService;
+
+    private final S3Service s3Service;
 
     @Override
     public List<ReportListResponse> getReportsByCreatedAt(Long clientId) {
@@ -124,12 +128,12 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     @Transactional
-    public String updateReportLogo(Long clientId, Long reportId, String logo) {
+    public String updateReportLogo(Long clientId, Long reportId, MultipartFile logo) {
 
         Report report = findByClientIdAndReportId(clientId, reportId);
         validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
 
-        report.updateLogo(logo);
+        report.updateLogo(s3Service.updateFile(report.getLogo(), logo));
 
         return "보고서 로고 수정 완료";
 

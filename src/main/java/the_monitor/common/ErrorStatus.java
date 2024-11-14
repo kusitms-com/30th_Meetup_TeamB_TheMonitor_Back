@@ -22,8 +22,13 @@ public enum ErrorStatus implements BaseErrorCode {
     _BAD_REQUEST(HttpStatus.BAD_REQUEST, "COMMON400", "잘못된 요청입니다."),
     _UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "COMMON401", "인증되지 않은 요청입니다."),
     _FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON403", "접근 권한이 없습니다."),
-    _FILE_DOWNLOAD_FAILED(HttpStatus.BAD_REQUEST, "FILE404", "파일을 다운받을 수 없습니다."),
     _EMAIL_SEND_FAIL(HttpStatus.BAD_REQUEST, "EMAIL400", "이메일 전송에 실패했습니다."),
+
+    // FILE
+    _FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "FILE404", "해당 파일을 찾을 수 없습니다."),
+    _FILE_UPLOAD_FAILED(HttpStatus.BAD_REQUEST, "FILE400", "파일 업로드에 실패했습니다."),
+    _FILE_DELETE_FAILED(HttpStatus.BAD_REQUEST, "FILE400", "파일 삭제에 실패했습니다."),
+    _FILE_DOWNLOAD_FAILED(HttpStatus.BAD_REQUEST, "FILE400", "파일 다운로드에 실패했습니다."),
 
     // JWT
     _JWT_NOT_FOUND(HttpStatus.NOT_FOUND, "JWT404", "토큰을 찾을 수 없습니다"),
@@ -31,7 +36,6 @@ public enum ErrorStatus implements BaseErrorCode {
     _JWT_EXPIRED(HttpStatus.UNAUTHORIZED, "JWT400", "만료된 토큰입니다"),
     _JWT_BLACKLIST(HttpStatus.UNAUTHORIZED, "JWT400", "접근 불가능한 토큰입니다"),
     _JWT_UNKNOWN(HttpStatus.UNAUTHORIZED, "JWT400", "JWT 인증 중 알 수 없는 오류가 발생했습니다."),
-
 
     _UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON500", "알 수 없는 오류가 발생했습니다."),
 

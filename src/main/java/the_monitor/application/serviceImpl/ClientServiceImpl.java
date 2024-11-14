@@ -63,11 +63,7 @@ public class ClientServiceImpl implements ClientService {
                 .orElseThrow(() -> new RuntimeException("Account not found"));
 
         String logoPath;
-        try {
-            logoPath = (logo != null) ? s3Service.uploadFile(logo) : "default_logo_url";
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to upload logo to S3", e);
-        }
+        logoPath = (logo != null) ? s3Service.uploadFile(logo) : "default_logo_url";
 
         // 클라이언트 객체 생성
         Client client = Client.builder()
