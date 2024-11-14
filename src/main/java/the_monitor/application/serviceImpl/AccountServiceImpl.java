@@ -1,12 +1,15 @@
 package the_monitor.application.serviceImpl;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.core.Authentication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import the_monitor.application.dto.request.*;
@@ -15,6 +18,7 @@ import the_monitor.application.service.CertifiedKeyService;
 import the_monitor.application.service.EmailService;
 import the_monitor.application.service.TemporaryPasswordGenerateService;
 import the_monitor.common.ApiException;
+import the_monitor.common.ApiResponse;
 import the_monitor.common.ErrorStatus;
 import the_monitor.domain.model.Account;
 import the_monitor.domain.repository.AccountRepository;
@@ -208,10 +212,40 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public boolean isTokenValid(String token) {
-        // validateToken 메서드로 토큰 유효성 검사
-        return "VALID".equals(jwtProvider.validateToken(token));
+    public ApiResponse<String> checkTokenValidity(HttpServletRequest request, HttpServletResponse response) {
+        // SecurityContextHolder에서 인증 정보 가져오기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ApiResponse.onFailure("401", "토큰을 찾을 수 없습니다", null);
+        }
+
+        // 인증된 토큰의 유효성 검사
+        String token = (String) authentication.getCredentials();
+        String tokenStatus = jwtProvider.validateToken(token);
+
+        if ("VALID".equals(tokenStatus)) {
+            return ApiResponse.onSuccess("Token is valid");
+        } else if ("EXPIRED".equals(tokenStatus)) {
+            // 리프레시 토큰으로 새로운 액세스 토큰 발급
+            String refreshToken = (String) request.getSession(false).getAttribute("refreshToken");
+
+            if (refreshToken != null && "VALID".equals(jwtProvider.validateToken(refreshToken))) {
+                Long accountId = jwtProvider.getAccountId(refreshToken);
+                Account account = accountRepository.findById(accountId)
+                        .orElseThrow(() -> new ApiException(ErrorStatus._ACCOUNT_NOT_EXIST));
+
+                String newAccessToken = jwtProvider.generateAccessToken(account);
+                jwtProvider.setAccessTokenInCookie(account, newAccessToken, response);
+                return ApiResponse.onSuccess("Access token refreshed");
+            } else {
+                return ApiResponse.onFailure("401", "리프레시 토큰이 만료되었습니다.", null);
+            }
+        } else {
+            return ApiResponse.onFailure("401", "유효하지 않은 토큰입니다", null);
+        }
     }
+
 //    @Override
 //    public String resetPassword(AccountPasswordResetRequest request) throws UnsupportedEncodingException {
 //

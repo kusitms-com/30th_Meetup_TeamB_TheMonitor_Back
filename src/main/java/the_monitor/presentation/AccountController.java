@@ -1,6 +1,7 @@
 package the_monitor.presentation;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -58,17 +59,8 @@ public class AccountController {
 
     @Operation(summary = "토큰 유효성 검사", description = "유저의 Access Token을 검사하여 유효성에 따라 상태 코드를 반환합니다.")
     @GetMapping("/check")
-    public ResponseEntity<ApiResponse<String>> checkTokenValidity(@RequestHeader("Authorization") String token) {
-        // Bearer 접두사를 제거하고 토큰 유효성 검사
-        String accessToken = token.startsWith("Bearer ") ? token.substring(7).trim() : token.trim();
-
-        // isTokenValid 메서드를 통해 유효성 확인
-        if (jwtProvider.isTokenValid(accessToken)) {
-            return ResponseEntity.ok(ApiResponse.onSuccess("Token is valid"));
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(ApiResponse.onFailure("401", "Invalid token", null));
-        }
+    public ApiResponse<String> checkTokenValidity(HttpServletRequest request, HttpServletResponse response) {
+        return accountService.checkTokenValidity(request, response);
     }
 
 //    @Operation(summary = "이메일 존재 확인", description = "이메일 존재 여부를 확인합니다.")
