@@ -7,6 +7,8 @@ import the_monitor.application.dto.response.ClientResponse;
 import the_monitor.application.service.ClientService;
 import org.springframework.stereotype.Service;
 import the_monitor.application.service.S3Service;
+import the_monitor.common.ApiException;
+import the_monitor.common.ErrorStatus;
 import the_monitor.domain.enums.KeywordType;
 import the_monitor.domain.model.*;
 import the_monitor.domain.repository.*;
@@ -117,7 +119,7 @@ public class ClientServiceImpl implements ClientService {
         Long accountId = getAccountIdFromJwt(); // JWT에서 accountId 추출
         List<Client> clients = clientRepository.findAllByAccountId(accountId);
         if (clients.isEmpty()) {
-            throw new RuntimeException("No clients found for this account");
+            throw new ApiException(ErrorStatus._CLIENT_NOT_FOUND);
         }
 
         return clients.stream()

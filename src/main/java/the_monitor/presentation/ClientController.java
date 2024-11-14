@@ -39,10 +39,9 @@ public class ClientController {
 
     @Operation(summary = "고객사 정보 조회", description = "로그인한 유저의 accountId로 고객사 정보를 조회합니다.")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ApiResponse<List<ClientResponse>>> getClientInfo() {
+    public ApiResponse<List<ClientResponse>> getClientInfo() {
         List<ClientResponse> clientResponses = clientService.getClientsByAccountId();
-        ApiResponse<List<ClientResponse>> response = ApiResponse.onSuccessData("클라이언트 조회 성공", clientResponses);
-        return ResponseEntity.ok(response);
+        return ApiResponse.onSuccessData("클라이언트 조회 성공", clientResponses);
     }
 }
 
