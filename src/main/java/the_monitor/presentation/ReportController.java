@@ -99,7 +99,6 @@ public class ReportController {
                                                 @RequestParam("reportId") Long reportId,
                                                 @RequestPart("logo") MultipartFile logo) {
 
-        // 로고 파일을 전달하여 업데이트하는 서비스 메서드 호출
         return ApiResponse.onSuccess(reportService.updateReportLogo(clientId, reportId, logo));
 
     }
