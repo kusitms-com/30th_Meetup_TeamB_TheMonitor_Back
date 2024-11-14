@@ -3,6 +3,7 @@ package the_monitor.application.serviceImpl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -14,9 +15,15 @@ import the_monitor.application.service.GoogleSearchService;
 import the_monitor.domain.model.Keyword;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class GoogleSearchServiceImpl implements GoogleSearchService {
@@ -34,60 +41,80 @@ public class GoogleSearchServiceImpl implements GoogleSearchService {
     private String baseUrl;
 
     @Override
-    public List<ArticleGoogleDto> toDto(Keyword keyword) {
+    public ArticleResponse toDto(String keyword) {
+
         List<ArticleGoogleDto> allResults = new ArrayList<>();
         int start = 1;
         boolean hasMoreResults = true;
+        int totalResults = 0;
 
         while (hasMoreResults) {
-            List<ArticleGoogleDto> pageResults = searchArticles(keyword.getKeyword(), "d1", start);
+            ArticleResponse pageResults = searchArticles(keyword, "d1", start);
 
-            if (pageResults.isEmpty()) {
+            if (pageResults.getGoogleArticles().isEmpty()) {
                 hasMoreResults = false;
             } else {
-                allResults.addAll(pageResults);
+                allResults.addAll(pageResults.getGoogleArticles());
+                totalResults = pageResults.getTotalResults(); // 전체 결과 수 업데이트
                 start += 10;
             }
         }
 
-        return allResults;
+        return ArticleResponse.builder()
+                .googleArticles(allResults)
+                .totalResults(totalResults)
+                .build();
     }
 
     @Override
-    public List<ArticleResponse> searchArticlesWithoutSaving(String keyword, String dateRestrict, int page, int size) {
-        // `page`와 `size`에 따라 `start` 값을 계산합니다.
+    public ArticleResponse searchArticlesWithoutSaving(String keyword, String dateRestrict, int page, int size) {
+
         int start = (page - 1) * size + 1; // 페이지가 1일 때 1부터 시작
 
-        // 지정된 페이지의 결과만 가져오기
-        List<ArticleGoogleDto> articleDtos = searchArticles(keyword, dateRestrict, start);
-        return mapToArticleResponseList(articleDtos);
+        ArticleResponse articleResponse = searchArticles(keyword, dateRestrict, start);
+        return mapToArticleResponseList(articleResponse.getGoogleArticles(), articleResponse.getTotalResults());
+
     }
 
-    public List<ArticleGoogleDto> searchArticles(String query, String dateRestrict, int start) {
+//    public int getTotalResults
+
+    public ArticleResponse searchArticles(String query, String dateRestrict, int start) {
+
         String url = UriComponentsBuilder.fromHttpUrl(baseUrl)
                 .queryParam("q", query)
                 .queryParam("key", apiKey)
                 .queryParam("cx", searchEngineId)
                 .queryParam("num", 10)
                 .queryParam("start", start)
-                .queryParam("dateRestrict", dateRestrict)
+//                .queryParam("dateRestrict", dateRestrict)
+                .build(false)
                 .toUriString();
 
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<String> entity = new HttpEntity<>(headers);
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
 
+
         if (response.getStatusCode() == HttpStatus.OK) {
+            log.info("Response body: {}", response.getBody());
             return parseResponse(response.getBody());
         } else {
             throw new RuntimeException("Failed to search Google: " + response.getStatusCode());
         }
+
     }
 
-    private List<ArticleGoogleDto> parseResponse(String jsonResponse) {
+    private ArticleResponse parseResponse(String jsonResponse) {
+
         List<ArticleGoogleDto> searchDetails = new ArrayList<>();
+        int totalResults = 0;
+
         try {
             JsonNode root = objectMapper.readTree(jsonResponse);
+
+            // 총 검색 결과 수 가져오기
+            totalResults = root.path("searchInformation").path("totalResults").asInt(0);
+
             JsonNode items = root.path("items");
 
             for (JsonNode item : items) {
@@ -125,26 +152,27 @@ public class GoogleSearchServiceImpl implements GoogleSearchService {
 
                 searchDetails.add(dto);
             }
+
+
+
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return searchDetails;
+        return ArticleResponse.builder()
+                .googleArticles(searchDetails)
+                .totalResults(totalResults)
+                .build();
+
     }
 
-    private List<ArticleResponse> mapToArticleResponseList(List<ArticleGoogleDto> articleDtos) {
-        List<ArticleResponse> articleResponses = new ArrayList<>();
-        for (ArticleGoogleDto dto : articleDtos) {
-            articleResponses.add(ArticleResponse.builder()
-                    .title(dto.getTitle())
-                    .body(dto.getBody())
-                    .url(dto.getUrl())
-                    .image(dto.getImageUrl())
-                    .publisherName(dto.getPublisherName())
-                    .reporterName(dto.getReporterName())
-                    .publishDate(dto.getPublishDate())
-                    .build());
-        }
-        return articleResponses;
+    private ArticleResponse mapToArticleResponseList(List<ArticleGoogleDto> articleDtos, int totalResults) {
+
+        return ArticleResponse.builder()
+                .googleArticles(articleDtos)
+                .totalResults(totalResults)
+                .build();
+
     }
+
 }

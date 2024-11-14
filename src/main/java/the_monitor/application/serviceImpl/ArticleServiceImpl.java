@@ -2,8 +2,6 @@ package the_monitor.application.serviceImpl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -22,6 +20,7 @@ import the_monitor.infrastructure.security.CustomUserDetails;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -51,73 +50,62 @@ public class ArticleServiceImpl implements ArticleService {
 //
 //    }
 
-    private void saveArticlesFromGoogle(Keyword keyword) {
-
-        List<ArticleGoogleDto> articleDtos = googleSearchService.toDto(keyword);
-
-        LocalDateTime startTime = LocalDateTime.now().minusDays(1).withHour(ARTICLE_SAVE_START_TIME).withMinute(0);
-        LocalDateTime endTime = LocalDateTime.now().withHour(ARTICLE_SAVE_END_TIME).withMinute(0);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-
-        for (ArticleGoogleDto dto : articleDtos) {
-            if (!dto.getPublishDate().isEmpty()) {
-                LocalDateTime publishDate = LocalDateTime.parse(dto.getPublishDate(), formatter);
-
-                if (publishDate.isAfter(startTime) && publishDate.isBefore(endTime)) {
-                    articleRepository.save(dto.toEntity(keyword));
-                }
-            }
-        }
-
-    }
-
-//    @Override
-//    public PageResponse<ArticleResponse> getDefaultArticles(int page) {
+//    private void saveArticlesFromGoogle(Keyword keyword) {
 //
-//        Pageable pageable = PageRequest.of(page - 1, 10);
+//        List<ArticleGoogleDto> articleDtos = googleSearchService.toDto(keyword);
 //
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal(); // CustomUserDetails 캐스팅
+//        LocalDateTime startTime = LocalDateTime.now().minusDays(1).withHour(ARTICLE_SAVE_START_TIME).withMinute(0);
+//        LocalDateTime endTime = LocalDateTime.now().withHour(ARTICLE_SAVE_END_TIME).withMinute(0);
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 //
-//        Long accountId = userDetails.getAccountId();  // accountId 추출
-//        Page<Article> articles = articleRepository.findAllByAccount_IdAndCategoryId(accountId, 1L, pageable);
+//        for (ArticleGoogleDto dto : articleDtos) {
+//            if (!dto.getPublishDate().isEmpty()) {
+//                LocalDateTime publishDate = LocalDateTime.parse(dto.getPublishDate(), formatter);
 //
-//        return getArticlePageResponse(articles);
+//                if (publishDate.isAfter(startTime) && publishDate.isBefore(endTime)) {
+//                    articleRepository.save(dto.toEntity(keyword));
+//                }
+//            }
+//        }
 //
 //    }
 
     @Override
-    public PageResponse<ArticleResponse> getArticlesBySearch(String dateRestrict, String keyword, Long categoryId, int page) {
+    public PageResponse<ArticleResponse> getDefaultArticles(Long clientId, int page) {
 
-        List<ArticleResponse> articles = googleSearchService.searchArticlesWithoutSaving(
-                keyword, dateRestrict, page, 10);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long accountId = userDetails.getAccountId();
+
+        List<Keyword> keywords = keywordService.getKeywordByAccountIdAndClientIdAndCategoryId(accountId, clientId, 1L);
+
+        List<ArticleResponse> articles = new ArrayList<>();
+
+        int totalResults = 0;
+
+        for (Keyword keyword : keywords) {
+            ArticleResponse keywordArticleResponse = googleSearchService.searchArticlesWithoutSaving(keyword.getKeyword(), "w1", page, 10);
+            articles.add(keywordArticleResponse);
+            totalResults += keywordArticleResponse.getTotalResults();
+        }
 
         return PageResponse.<ArticleResponse>builder()
                 .listPageResponse(articles)
-                .totalCount((long) articles.size())
+                .totalCount((long) totalResults)
                 .size(articles.size())
                 .build();
-
     }
 
-    private PageResponse<ArticleResponse> getArticlePageResponse(Page<Article> articles) {
 
-        List<ArticleResponse> articleResponses = articles.stream()
-                .map(article -> ArticleResponse.builder()
-                        .title(article.getTitle())
-                        .body(article.getBody())
-                        .url(article.getUrl())
-                        .image(article.getImage())
-                        .publisherName(article.getPublisherName())
-                        .reporterName(article.getReporterName())
-                        .publishDate(article.getPublishDate())
-                        .build())
-                .toList();
+    @Override
+    public PageResponse<ArticleResponse> getArticlesBySearch(String keyword, int page) {
+
+        ArticleResponse articleResponse = googleSearchService.searchArticlesWithoutSaving(keyword, "w1", page, 10);
 
         return PageResponse.<ArticleResponse>builder()
-                .listPageResponse(articleResponses)
-                .totalCount(articles.getTotalElements())
-                .size(articleResponses.size())
+                .listPageResponse(List.of(articleResponse))
+                .totalCount((long) articleResponse.getTotalResults())
+                .size(articleResponse.getGoogleArticles().size())
                 .build();
 
     }

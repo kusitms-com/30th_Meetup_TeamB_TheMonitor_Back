@@ -1,13 +1,14 @@
 package the_monitor.application.service;
 
+import the_monitor.application.dto.response.KeywordResponse;
 import the_monitor.domain.model.Keyword;
 
 import java.util.List;
 
 public interface KeywordService {
 
-    int getTotalSearchCount(int keywordId);
+    KeywordResponse getKeywords(Long clientId);
 
-    List<Keyword> getAllKeywords();
+    List<Keyword> getKeywordByAccountIdAndClientIdAndCategoryId(Long accountId, Long clientId, Long categoryId);
 
 }
