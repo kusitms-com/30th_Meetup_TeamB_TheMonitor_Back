@@ -26,6 +26,8 @@ import the_monitor.infrastructure.jwt.JwtProvider;
 
 import java.util.List;
 
+import static the_monitor.common.ErrorStatus._JWT_EXPIRED;
+
 @Slf4j
 @Service
 @Transactional(readOnly = true)
@@ -212,22 +214,19 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public ApiResponse<String> checkTokenValidity(HttpServletRequest request, HttpServletResponse response) {
-        // SecurityContextHolder에서 인증 정보 가져오기
+    public ApiResponse checkTokenValidity(HttpServletRequest request, HttpServletResponse response) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated()) {
-            return ApiResponse.onFailure("401", "토큰을 찾을 수 없습니다", null);
+            throw new ApiException(ErrorStatus._JWT_INVALID);
         }
 
-        // 인증된 토큰의 유효성 검사
         String token = (String) authentication.getCredentials();
         String tokenStatus = jwtProvider.validateToken(token);
 
         if ("VALID".equals(tokenStatus)) {
-            return ApiResponse.onSuccess("Token is valid");
+            return ApiResponse.onSuccessData("토큰이 갱신되었습니다.", token);
         } else if ("EXPIRED".equals(tokenStatus)) {
-            // 리프레시 토큰으로 새로운 액세스 토큰 발급
             String refreshToken = (String) request.getSession(false).getAttribute("refreshToken");
 
             if (refreshToken != null && "VALID".equals(jwtProvider.validateToken(refreshToken))) {
@@ -237,12 +236,12 @@ public class AccountServiceImpl implements AccountService {
 
                 String newAccessToken = jwtProvider.generateAccessToken(account);
                 jwtProvider.setAccessTokenInCookie(account, newAccessToken, response);
-                return ApiResponse.onSuccess("Access token refreshed");
+                return ApiResponse.onSuccessData("토큰이 갱신되었습니다.", newAccessToken);
             } else {
-                return ApiResponse.onFailure("401", "리프레시 토큰이 만료되었습니다.", null);
+                throw new ApiException(ErrorStatus._JWT_EXPIRED);
             }
         } else {
-            return ApiResponse.onFailure("401", "유효하지 않은 토큰입니다", null);
+           throw new ApiException(ErrorStatus._JWT_INVALID);
         }
     }
 

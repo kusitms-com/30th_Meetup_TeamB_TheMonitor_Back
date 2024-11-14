@@ -31,6 +31,6 @@ public interface AccountService {
 
 //    String resetPassword(AccountPasswordResetRequest request) throws UnsupportedEncodingException;
 
-    ApiResponse<String> checkTokenValidity(HttpServletRequest request, HttpServletResponse response);
+    ApiResponse checkTokenValidity(HttpServletRequest request, HttpServletResponse response);
 }
 

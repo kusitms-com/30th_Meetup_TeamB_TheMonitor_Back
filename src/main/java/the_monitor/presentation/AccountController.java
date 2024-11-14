@@ -57,10 +57,10 @@ public class AccountController {
 
     }
 
-    @Operation(summary = "토큰 유효성 검사", description = "유저의 Access Token을 검사하여 유효성에 따라 상태 코드를 반환합니다.")
     @GetMapping("/check")
     public ApiResponse<String> checkTokenValidity(HttpServletRequest request, HttpServletResponse response) {
-        return accountService.checkTokenValidity(request, response);
+
+        return accountService.checkTokenValidity(request,response);
     }
 
 //    @Operation(summary = "이메일 존재 확인", description = "이메일 존재 여부를 확인합니다.")
