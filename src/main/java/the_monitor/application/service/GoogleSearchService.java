@@ -8,8 +8,8 @@ import java.util.List;
 
 public interface GoogleSearchService {
 
-    List<ArticleGoogleDto> toDto(Keyword keyword);
+    ArticleResponse toDto(String keyword);
 
-    List<ArticleResponse> searchArticlesWithoutSaving(String keyword, String dateRestrict, int page, int size);
+    ArticleResponse searchArticlesWithoutSaving(String keyword, String dateRestrict, int page, int size);
 
 }

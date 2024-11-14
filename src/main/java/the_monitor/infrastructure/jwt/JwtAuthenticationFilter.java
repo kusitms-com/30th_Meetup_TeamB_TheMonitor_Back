@@ -14,6 +14,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import the_monitor.application.service.AccountService;
+import the_monitor.common.ApiException;
+import the_monitor.common.ErrorStatus;
 import the_monitor.domain.model.Account;
 
 import java.io.IOException;
@@ -28,10 +30,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+
         HttpSession session = request.getSession(false);
         String accessToken = null;
 
-        // Retrieve accessToken from cookies
         if (request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
                 if ("accessToken".equals(cookie.getName())) {
@@ -60,16 +62,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                     if (authentication != null) {
                         SecurityContextHolder.getContext().setAuthentication(authentication);
+                    } else {
+                        SecurityContextHolder.clearContext();
                     }
                 }
             } else if ("INVALID".equals(tokenStatus)) {
-                // accessToken이 불일치하거나 손상된 경우, 인증 정보 설정 없이 요청 통과
                 SecurityContextHolder.clearContext();
             }
+
         }
 
-        // 다음 필터로 요청을 전달
         filterChain.doFilter(request, response);
+
     }
     
 }

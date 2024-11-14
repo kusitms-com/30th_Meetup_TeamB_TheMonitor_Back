@@ -18,4 +18,5 @@ public class TheMonitorApplication {
     public static void main(String[] args) {
         SpringApplication.run(TheMonitorApplication.class, args);
     }
+
 }

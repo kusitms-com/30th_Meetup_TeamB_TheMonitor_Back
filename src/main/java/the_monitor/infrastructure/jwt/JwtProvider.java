@@ -26,6 +26,7 @@ import the_monitor.application.service.AccountService;
 import the_monitor.common.ApiException;
 import the_monitor.common.ErrorStatus;
 import the_monitor.domain.model.Account;
+import the_monitor.infrastructure.security.CustomUserDetails;
 
 @Component
 public class JwtProvider {
@@ -117,9 +118,10 @@ public class JwtProvider {
 
     public Authentication getAuthenticationFromToken(String token) {
         Claims claims = getClaimsFromToken(token);
+        Long accountId = claims.get("account_id", Long.class);
         String email = claims.get("email", String.class);
 
-        UserDetails userDetails = new org.springframework.security.core.userdetails.User(email, "", new ArrayList<>());
+        CustomUserDetails userDetails = new CustomUserDetails(accountId, email, new ArrayList<>());
         return new UsernamePasswordAuthenticationToken(userDetails, token, userDetails.getAuthorities());
     }
 
@@ -134,8 +136,11 @@ public class JwtProvider {
 
             // 인증 객체 생성 및 반환
             return getAuthenticationFromToken(newAccessToken);
+
         }
+
         return null;
+
     }
 
 }
