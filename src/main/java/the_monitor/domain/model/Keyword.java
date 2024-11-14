@@ -28,11 +28,8 @@ public class Keyword extends BaseTimeEntity {
     @Column(name = "keyword_type", nullable = false)
     private String keywordType;
 
-    @Column(name = "keyword_result_count", nullable = false)
+    @Column(name = "keyword_result_count")
     private int resultCount;
-
-    @OneToMany(mappedBy = "keyword", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Article> articles;
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)

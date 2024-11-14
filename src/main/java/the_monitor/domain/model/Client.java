@@ -48,11 +48,18 @@ public class Client extends BaseTimeEntity {
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Category> categories = new ArrayList<>();
 
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Scrap> scraps = new ArrayList<>();
+
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Report> reports = new ArrayList<>();
+
     @Builder
     public Client(String name,
                   String managerName,
                   String logo,
                   Account account) {
+
 
         this.name = name;
         this.managerName = managerName;
@@ -65,6 +72,7 @@ public class Client extends BaseTimeEntity {
     public void setCategory(Category category) {
         this.categories.add(category); // 카테고리 추가
     }
+
     // clientMailRecipients 설정 메서드
     public void setClientMailRecipients(List<ClientMailRecipient> clientMailRecipients) {
         this.clientMailRecipients = clientMailRecipients;
@@ -74,4 +82,5 @@ public class Client extends BaseTimeEntity {
     public void setClientMailCCs(List<ClientMailCC> clientMailCCs) {
         this.clientMailCCs = clientMailCCs;
     }
+
 }
