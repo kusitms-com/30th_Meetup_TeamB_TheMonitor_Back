@@ -102,6 +102,20 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     @Transactional
+    public String deleteReportArticle(Long clientId, Long reportId, Long reportArticleId) {
+
+            Report report = findByClientIdAndReportId(clientId, reportId);
+            validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
+
+            reportArticleRepository.deleteById(reportArticleId);
+
+            return "보고서 기사 삭제 완료";
+
+    }
+
+
+    @Override
+    @Transactional
     public String updateReportTitle(Long clientId, Long reportId, String title) {
 
         Report report = findByClientIdAndReportId(clientId, reportId);
@@ -136,6 +150,21 @@ public class ReportServiceImpl implements ReportService {
         report.updateLogo(s3Service.updateFile(report.getLogo(), logo));
 
         return "보고서 로고 수정 완료";
+
+    }
+
+    @Override
+    public List<ReportListResponse> searchReport(Long clientId, String searchTitle) {
+
+        List<Report> reports = reportRepository.findByClientIdAndTitleContaining(clientId, searchTitle);
+
+        return reports.stream()
+                .map(report -> ReportListResponse.builder()
+                        .reportId(report.getId())
+                        .title(report.getTitle())
+                        .createdAt(String.valueOf(report.getCreatedAt()))
+                        .build())
+                .collect(Collectors.toList());
 
     }
 

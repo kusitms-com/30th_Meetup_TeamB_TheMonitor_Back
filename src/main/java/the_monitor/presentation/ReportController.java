@@ -73,6 +73,16 @@ public class ReportController {
 
     }
 
+    @Operation(summary = "보고서 기사 삭제", description = "보고서에 포함된 기사를 삭제합니다.")
+    @DeleteMapping("/articles/delete")
+    public ApiResponse<String> deleteReportArticle(@RequestParam("clientId") Long clientId,
+                                                   @RequestParam("reportId") Long reportId,
+                                                   @RequestParam("reportArticleId") Long reportArticleId) {
+
+        return ApiResponse.onSuccess(reportService.deleteReportArticle(clientId, reportId, reportArticleId));
+
+    }
+
     @Operation(summary = "보고서 제목 수정", description = "보고서 제목을 수정합니다.")
     @PatchMapping("/title")
     public ApiResponse<String> updateReportTitle(@RequestParam("clientId") Long clientId,
@@ -100,6 +110,15 @@ public class ReportController {
                                                 @RequestPart("logo") MultipartFile logo) {
 
         return ApiResponse.onSuccess(reportService.updateReportLogo(clientId, reportId, logo));
+
+    }
+
+    @Operation(summary = "보고서 검색", description = "보고서를 검색합니다.")
+    @GetMapping("/search")
+    public ApiResponse<List<ReportListResponse>> searchReport(@RequestParam("clientId") Long clientId,
+                                                       @RequestParam("searchTitle") String searchTitle) {
+
+        return ApiResponse.onSuccessData("보고서 검색", reportService.searchReport(clientId, searchTitle));
 
     }
 
