@@ -13,7 +13,7 @@ public interface ReportRepository extends JpaReportRepository {
     Report findReportByClientIdAndReportId(@Param("clientId") Long clientId,
                                            @Param("reportId") Long reportId);
 
-    @Query("SELECT r FROM Report r WHERE r.client.id = :clientId AND r.title LIKE %:searchTitle%")
+    @Query("SELECT r FROM Report r WHERE r.client.id = :clientId AND r.title LIKE %:searchTitle% ORDER BY r.createdAt DESC")
     List<Report> findByClientIdAndTitleContaining(@Param("clientId") Long clientId,
                                                   @Param("searchTitle") String searchTitle);
 
