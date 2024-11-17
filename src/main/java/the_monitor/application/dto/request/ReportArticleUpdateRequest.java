@@ -13,10 +13,10 @@ import the_monitor.domain.model.ReportArticle;
 public class ReportArticleUpdateRequest {
 
     @NotBlank(message = "카테고리는 필수입니다.")
-    private String category;
+    private String categoryType;
 
     @NotBlank(message = "키워드는 필수입니다.")
-    private String keyword;
+    private String category;
 
     @NotBlank(message = "기사 제목은 필수입니다.")
     private String articleTitle;
@@ -34,16 +34,16 @@ public class ReportArticleUpdateRequest {
     private String reporterName;
 
     @Builder
-    public ReportArticleUpdateRequest(String category,
-                                      String keyword,
+    public ReportArticleUpdateRequest(String categoryType,
+                                      String category,
                                       String articleTitle,
                                       String url,
                                       String publishedDate,
                                       String pulisherName,
                                       String reporterName) {
 
+        this.categoryType = categoryType;
         this.category = category;
-        this.keyword = keyword;
         this.articleTitle = articleTitle;
         this.url = url;
         this.publishedDate = publishedDate;
@@ -54,8 +54,8 @@ public class ReportArticleUpdateRequest {
 
     public ReportArticle toEntity(Report report) {
         return ReportArticle.builder()
-                .category(CategoryType.valueOf(category))
-                .keyword(keyword)
+                .categoryType(CategoryType.valueOf(categoryType))
+                .category(category)
                 .title(articleTitle)
                 .url(url)
                 .publishDate(publishedDate)

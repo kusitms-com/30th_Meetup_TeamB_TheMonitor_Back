@@ -72,7 +72,7 @@ public class GoogleSearchServiceImpl implements GoogleSearchService {
         int start = (page - 1) * size + 1; // 페이지가 1일 때 1부터 시작
 
         ArticleResponse articleResponse = searchArticles(keyword, dateRestrict, start);
-        return mapToArticleResponseList(articleResponse.getGoogleArticles(), articleResponse.getTotalResults());
+        return mapToArticleResponseList(keyword, articleResponse.getGoogleArticles(), articleResponse.getTotalResults());
 
     }
 
@@ -166,9 +166,10 @@ public class GoogleSearchServiceImpl implements GoogleSearchService {
 
     }
 
-    private ArticleResponse mapToArticleResponseList(List<ArticleGoogleDto> articleDtos, int totalResults) {
+    private ArticleResponse mapToArticleResponseList(String keyword, List<ArticleGoogleDto> articleDtos, int totalResults) {
 
         return ArticleResponse.builder()
+                .keyword(keyword)
                 .googleArticles(articleDtos)
                 .totalResults(totalResults)
                 .build();

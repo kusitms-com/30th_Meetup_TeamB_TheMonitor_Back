@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import the_monitor.application.dto.request.ReportArticleUpdateRequest;
+import the_monitor.application.dto.request.ReportCreateRequest;
 import the_monitor.application.dto.response.ReportArticlesResponse;
 import the_monitor.application.dto.response.ReportDetailResponse;
 import the_monitor.application.dto.response.ReportListResponse;
@@ -24,18 +25,19 @@ public class ReportController {
     private final ReportService reportService;
 
     @Operation(summary = "보고서 목록 최신순", description = "보고서 목록을 최신순으로 조회합니다.")
-    @GetMapping("/c")
-    public ApiResponse<List<ReportListResponse>> getReportsByCreatedAt(@RequestParam("clientId") Long clientId) {
+    @GetMapping()
+    public ApiResponse<List<ReportListResponse>> getReports(@RequestParam("clientId") Long clientId) {
 
-        return ApiResponse.onSuccessData("보고서 목록 최신순", reportService.getReportsByCreatedAt(clientId));
+        return ApiResponse.onSuccessData("보고서 목록", reportService.getReports(clientId));
 
     }
 
-    @Operation(summary = "보고서 목록 수정일순", description = "보고서 목록을 수정일순으로 조회합니다.")
-    @GetMapping("/u")
-    public ApiResponse<List<ReportListResponse>> getReportsByUpdatedAt(@RequestParam("clientId") Long clientId) {
+    @Operation(summary = "보고서 생성", description = "보고서를 생성합니다.")
+    @PostMapping()
+    public ApiResponse<String> createReports(@RequestParam("clientId") Long clientId,
+                                             @RequestBody ReportCreateRequest request) {
 
-        return ApiResponse.onSuccessData("보고서 목록 수정일순", reportService.getReportsByUpdatedAt(clientId));
+        return ApiResponse.onSuccess(reportService.createReports(clientId, request));
 
     }
 
@@ -47,7 +49,7 @@ public class ReportController {
 
     }
 
-    @Operation(summary = "보고서 상세 조회", description = "보고서 상세 정보를 조회합���다.")
+    @Operation(summary = "보고서 상세 조회", description = "보고서 상세 정보를 조회합니다.")
     @GetMapping("/details")
     public ApiResponse<ReportDetailResponse> getReportDetail(@RequestParam("clientId") Long clientId,
                                                              @RequestParam("reportId") Long reportId) {
@@ -63,7 +65,7 @@ public class ReportController {
 
     }
 
-    @Operation(summary = "보고서 기사 수정", description = "보고서에 포함된 기사를 수정합니다.")
+    @Operation(summary = "보고서 기사 수동 추가", description = "보고서에 포함된 기사를 수동 추가합니다.")
     @PostMapping("/articles/update")
     public ApiResponse<String> updateReportArticle(@RequestParam("clientId") Long clientId,
                                                    @RequestParam("reportId") Long reportId,
@@ -80,6 +82,17 @@ public class ReportController {
                                                    @RequestParam("reportArticleId") Long reportArticleId) {
 
         return ApiResponse.onSuccess(reportService.deleteReportArticle(clientId, reportId, reportArticleId));
+
+    }
+
+    @Operation(summary = "보고서 요약 수정", description = "보고서 요약을 수정합니다.")
+    @PatchMapping("/articles/summary")
+    public ApiResponse<String> updateReportArticleSummary(@RequestParam("clientId") Long clientId,
+                                                          @RequestParam("reportId") Long reportId,
+                                                          @RequestParam("reportArticleId") Long reportArticleId,
+                                                          @RequestParam("summary") String summary) {
+
+        return ApiResponse.onSuccess(reportService.updateReportArticleSummary(clientId, reportId, reportArticleId, summary));
 
     }
 
