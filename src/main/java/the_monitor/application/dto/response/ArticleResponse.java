@@ -13,11 +13,17 @@ public class ArticleResponse {
 
     private List<ArticleGoogleDto> googleArticles;
     private int totalResults;
+    private String keyword;
 
     @Builder
-    public ArticleResponse(List<ArticleGoogleDto> googleArticles, int totalResults) {
+    public ArticleResponse(List<ArticleGoogleDto> googleArticles,
+                           int totalResults,
+                           String keyword) {
+
         this.googleArticles = googleArticles;
         this.totalResults = totalResults;
+        this.keyword = keyword;
+
     }
 
 }

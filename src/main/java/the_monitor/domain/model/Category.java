@@ -24,6 +24,7 @@ public class Category extends BaseTimeEntity {
     private Long id;
 
     @Column(name = "category_type", nullable = false)
+    @Enumerated(EnumType.STRING)
     private CategoryType categoryType;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

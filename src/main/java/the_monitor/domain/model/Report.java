@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import the_monitor.common.BaseTimeEntity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -33,8 +34,8 @@ public class Report extends BaseTimeEntity {
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
-    @OneToMany(mappedBy = "report", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<ReportArticle> reportArticles;
+    @OneToMany(mappedBy = "report", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<ReportArticle> reportArticles = new ArrayList<>();;
 
     @Builder
     public Report(String title,
@@ -49,6 +50,10 @@ public class Report extends BaseTimeEntity {
         this.color = color;
         this.reportArticles = reportArticles;
 
+    }
+
+    public void addReportArticle(ReportArticle reportArticles) {
+        this.reportArticles.add(reportArticles);
     }
 
     public void updateTitle(String title) {

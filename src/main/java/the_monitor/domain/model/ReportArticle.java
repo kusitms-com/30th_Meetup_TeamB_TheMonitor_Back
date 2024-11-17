@@ -36,11 +36,15 @@ public class ReportArticle extends BaseTimeEntity {
     @Column(name = "report_article_publish_date", nullable = false)
     private String publishDate;
 
-    @Column(name = "report_article_category", nullable = false)
-    private CategoryType category;
+    @Column(name = "report_article_summary", nullable = false)
+    private String summary;
 
-    @Column(name = "report_article_keyword", nullable = false)
-    private String keyword;
+    @Column(name = "report_article_category_type", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private CategoryType categoryType;
+
+    @Column(name = "report_article_category")
+    private String category;
 
     @ManyToOne
     @JoinColumn(name = "report_id", nullable = false)
@@ -52,8 +56,9 @@ public class ReportArticle extends BaseTimeEntity {
                          String publisherName,
                          String reporterName,
                          String publishDate,
-                         CategoryType category,
-                         String keyword,
+                         String summary,
+                         CategoryType categoryType,
+                         String category,
                          Report report) {
 
         this.title = title;
@@ -61,10 +66,19 @@ public class ReportArticle extends BaseTimeEntity {
         this.publisherName = publisherName;
         this.reporterName = reporterName;
         this.publishDate = publishDate;
+        this.summary = summary;
+        this.categoryType = categoryType;
         this.category = category;
-        this.keyword = keyword;
         this.report = report;
 
+    }
+
+    public void updateCategoryType(CategoryType categoryType) {
+        this.categoryType = categoryType;
+    }
+
+    public void updateSummary(String summary) {
+        this.summary = summary;
     }
 
 }

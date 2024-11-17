@@ -44,7 +44,11 @@ public enum ErrorStatus implements BaseErrorCode {
 
     // Report
     _REPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "REPORT404", "해당 리포트를 찾을 수 없습니다."),
-    _REPORT_FORBIDDEN(HttpStatus.FORBIDDEN, "REPORT403", "해당 리포트에 접근할 수 없습니다.");
+    _REPORT_FORBIDDEN(HttpStatus.FORBIDDEN, "REPORT403", "해당 리포트에 접근할 수 없습니다."),
+    _REPORT_ARTICLE_NOT_FOUND(HttpStatus.NOT_FOUND, "REPORT404", "해당 리포트 기사를 찾을 수 없습니다."),
+    _INVALID_REPORT_ARTICLE_SUMMARY_LENGTH(HttpStatus.BAD_REQUEST, "REPORT400", "리포트 기사 요약은 100자 이하로 입력해주세요."),
+    // SCRAP
+    _SCRAP_NOT_FOUND(HttpStatus.NOT_FOUND, "SCRAP404", "해당 스크랩을 찾을 수 없습니다.");
 
 
 

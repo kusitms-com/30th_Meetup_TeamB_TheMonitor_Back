@@ -25,6 +25,9 @@ public class Scrap extends BaseTimeEntity {
     @Column(name = "scrap_url", nullable = false)
     private String url;
 
+    @Column(name = "scrap_keyword", nullable = false)
+    private String keyword;
+
     @Column(name = "scrap_publisher_name", nullable = false)
     private String publisherName;
 
@@ -34,8 +37,9 @@ public class Scrap extends BaseTimeEntity {
     @Column(name = "scrap_publish_date", nullable = false)
     private String publishDate;
 
-    @Column(name = "scrap_category", nullable = false)
-    private CategoryType category;
+    @Column(name = "scrap_category_type", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private CategoryType categoryType;
 
     @ManyToOne
     @JoinColumn(name = "client_id", nullable = false)
@@ -44,18 +48,20 @@ public class Scrap extends BaseTimeEntity {
     @Builder
     public Scrap(String title,
                  String url,
+                 String keyword,
                  String publisherName,
                  String reporterName,
                  String publishDate,
-                 CategoryType category,
+                 CategoryType categoryType,
                  Client client) {
 
         this.title = title;
         this.url = url;
+        this.keyword = keyword;
         this.publisherName = publisherName;
         this.reporterName = reporterName;
         this.publishDate = publishDate;
-        this.category = category;
+        this.categoryType = categoryType;
         this.client = client;
 
     }

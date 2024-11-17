@@ -13,13 +13,15 @@ public class ReportListResponse {
     private Long reportId;
     private String title;
     private String createdAt;
+    private String updatedAt;
 
     @Builder
-    public ReportListResponse(Long reportId, String title, String createdAt) {
+    public ReportListResponse(Long reportId, String title, String createdAt, String updatedAt) {
 
         this.reportId = reportId;
         this.title = title;
         this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
 
     }
 

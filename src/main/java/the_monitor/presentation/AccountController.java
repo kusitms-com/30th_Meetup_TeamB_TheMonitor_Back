@@ -23,7 +23,6 @@ import java.io.UnsupportedEncodingException;
 public class AccountController {
 
     private final AccountService accountService;
-    private final JwtProvider jwtProvider;
 
     @Operation(summary = "이메일 인증 요청", description = "이메일 인증 요청을 보냅니다.")
     @PostMapping("/sendEmailConfirm")
@@ -57,19 +56,13 @@ public class AccountController {
 
     }
 
-    @GetMapping("/check")
+    @Operation(summary = "토큰 유효성 검사", description = "토큰 유효성 검사")
+    @GetMapping("/tokenValidity")
     public ApiResponse<String> checkTokenValidity(HttpServletRequest request, HttpServletResponse response) {
 
         return accountService.checkTokenValidity(request,response);
-    }
 
-//    @Operation(summary = "이메일 존재 확인", description = "이메일 존재 여부를 확인합니다.")
-//    @GetMapping("/checkEmail")
-//    public ApiResponse<String> checkEmail(@RequestParam("email") String email) {
-//
-//        return ApiResponse.onSuccess(accountService.checkEmail(email));
-//
-//    }
+    }
 
     @Operation(summary = "비밀번호 변경 메일 발송", description = "비밀번호 변경 메일을 발송합니다.")
     @PostMapping("/sendPasswordChangeEmail")
@@ -79,11 +72,4 @@ public class AccountController {
 
     }
 
-//    @Operation(summary = "비밀번호 재설정", description = "비밀번호를 재설정합니다.")
-//    @PostMapping("/resetPassword")
-//    public ApiResponse<String> resetPassword(@RequestBody @Valid AccountPasswordResetRequest request) throws UnsupportedEncodingException {
-//
-//        return ApiResponse.onSuccess(accountService.resetPassword(request));
-//
-//    }
 }
