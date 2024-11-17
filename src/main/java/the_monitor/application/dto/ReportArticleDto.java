@@ -16,6 +16,7 @@ public class ReportArticleDto {
     private String url;
     private String media;
     private String reporter;
+    private String summary;
 
     @Builder
     public ReportArticleDto(String publishedDate,
@@ -23,7 +24,8 @@ public class ReportArticleDto {
                             String headLine,
                             String url,
                             String media,
-                            String reporter) {
+                            String reporter,
+                            String summary) {
 
         this.publishedDate = publishedDate;
         this.keyword = keyword;
@@ -31,6 +33,7 @@ public class ReportArticleDto {
         this.url = url;
         this.media = media;
         this.reporter = reporter;
+        this.summary = summary;
 
     }
 
@@ -43,6 +46,7 @@ public class ReportArticleDto {
                 .url(url)
                 .publisherName(media)
                 .reporterName(reporter)
+                .summary(summary)
                 .build();
     }
 

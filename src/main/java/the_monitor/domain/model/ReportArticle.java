@@ -36,6 +36,9 @@ public class ReportArticle extends BaseTimeEntity {
     @Column(name = "report_article_publish_date", nullable = false)
     private String publishDate;
 
+    @Column(name = "report_article_summary", nullable = false)
+    private String summary;
+
     @Column(name = "report_article_category_type", nullable = false)
     @Enumerated(EnumType.STRING)
     private CategoryType categoryType;
@@ -53,6 +56,7 @@ public class ReportArticle extends BaseTimeEntity {
                          String publisherName,
                          String reporterName,
                          String publishDate,
+                         String summary,
                          CategoryType categoryType,
                          String category,
                          Report report) {
@@ -62,14 +66,19 @@ public class ReportArticle extends BaseTimeEntity {
         this.publisherName = publisherName;
         this.reporterName = reporterName;
         this.publishDate = publishDate;
+        this.summary = summary;
         this.categoryType = categoryType;
         this.category = category;
         this.report = report;
 
     }
 
-    public void setCategoryType(CategoryType categoryType) {
+    public void updateCategoryType(CategoryType categoryType) {
         this.categoryType = categoryType;
+    }
+
+    public void updateSummary(String summary) {
+        this.summary = summary;
     }
 
 }

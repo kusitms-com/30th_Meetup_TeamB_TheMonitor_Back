@@ -27,6 +27,8 @@ public interface ReportService {
 
     String deleteReportArticle(Long clientId, Long reportId, Long reportArticleId);
 
+    String updateReportArticleSummary(Long clientId, Long reportId, Long reportArticleId, String summary);
+
     String updateReportTitle(Long clientId, Long reportId, String title);
 
     String updateReportColor(Long clientId, Long reportId, String color);

@@ -73,7 +73,7 @@ public class ReportController {
 
     }
 
-    @Operation(summary = "보고서 기사 수정", description = "보고서에 포함된 기사를 수정합니다.")
+    @Operation(summary = "보고서 기사 수동 추가", description = "보고서에 포함된 기사를 수동 추가합니다.")
     @PostMapping("/articles/update")
     public ApiResponse<String> updateReportArticle(@RequestParam("clientId") Long clientId,
                                                    @RequestParam("reportId") Long reportId,
@@ -90,6 +90,17 @@ public class ReportController {
                                                    @RequestParam("reportArticleId") Long reportArticleId) {
 
         return ApiResponse.onSuccess(reportService.deleteReportArticle(clientId, reportId, reportArticleId));
+
+    }
+
+    @Operation(summary = "보고서 요약 수정", description = "보고서 요약을 수정합니다.")
+    @PatchMapping("/articles/summary")
+    public ApiResponse<String> updateReportArticleSummary(@RequestParam("clientId") Long clientId,
+                                                          @RequestParam("reportId") Long reportId,
+                                                          @RequestParam("reportArticleId") Long reportArticleId,
+                                                          @RequestParam("summary") String summary) {
+
+        return ApiResponse.onSuccess(reportService.updateReportArticleSummary(clientId, reportId, reportArticleId, summary));
 
     }
 

@@ -11,6 +11,7 @@ import the_monitor.application.service.GoogleSearchService;
 import the_monitor.application.service.KeywordService;
 import the_monitor.common.PageResponse;
 import the_monitor.domain.enums.CategoryType;
+import the_monitor.domain.model.Account;
 import the_monitor.domain.model.Keyword;
 import the_monitor.domain.repository.ReportArticleRepository;
 import the_monitor.infrastructure.jwt.JwtProvider;
@@ -67,13 +68,11 @@ public class ArticleServiceImpl implements ArticleService {
 //    }
 
     @Override
-    public PageResponse<ArticleResponse> getDefaultArticles(Long clientId, int page) {
+    public PageResponse<ArticleResponse> getArticlesGroupByCategory(Long clientId, CategoryType categoryType, int page) {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        Long accountId = userDetails.getAccountId();
+        Long accountId = getAccountId();
 
-        List<Keyword> keywords = keywordService.getKeywordByAccountIdAndClientIdAndCategoryType(accountId, clientId, CategoryType.SELF);
+        List<Keyword> keywords = keywordService.getKeywordByAccountIdAndClientIdAndCategoryType(accountId, clientId, categoryType);
 
         List<ArticleResponse> articles = new ArrayList<>();
 
@@ -90,6 +89,7 @@ public class ArticleServiceImpl implements ArticleService {
                 .totalCount((long) totalResults)
                 .size(articles.size())
                 .build();
+
     }
 
 
@@ -104,6 +104,13 @@ public class ArticleServiceImpl implements ArticleService {
                 .size(articleResponse.getGoogleArticles().size())
                 .build();
 
+    }
+
+
+    private Long getAccountId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        return userDetails.getAccountId();
     }
 
 }

@@ -35,7 +35,6 @@ public class ReportServiceImpl implements ReportService {
 
     private final AccountService accountService;
     private final ClientService clientService;
-    private final ScrapService scrapService;
 
     private final S3Service s3Service;
 
@@ -61,6 +60,7 @@ public class ReportServiceImpl implements ReportService {
 
         // 각 카테고리별로 ReportArticle 생성 및 저장
         createAndSaveReportArticlesByCategories(report, request);
+
 
         reportRepository.save(report); // Report와 관련된 ReportArticles 자동 저장
 
@@ -126,6 +126,24 @@ public class ReportServiceImpl implements ReportService {
             reportArticleRepository.deleteById(reportArticleId);
 
             return "보고서 기사 삭제 완료";
+
+    }
+
+    @Override
+    @Transactional
+    public String updateReportArticleSummary(Long clientId, Long reportId, Long reportArticleId, String summary) {
+
+        Report report = findByClientIdAndReportId(clientId, reportId);
+        validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
+
+        ReportArticle reportArticle = reportArticleRepository.findById(reportArticleId)
+                .orElseThrow(() -> new ApiException(ErrorStatus._REPORT_ARTICLE_NOT_FOUND));
+
+        validContentLength(summary);
+
+        reportArticle.updateSummary(summary);
+
+        return "��고서 기사 요약 수정 완료";
 
     }
 
@@ -206,7 +224,10 @@ public class ReportServiceImpl implements ReportService {
             reportCategoryArticleDto.getReportArticles().forEach((category, reportArticleDtoList) -> {
                 reportArticleDtoList.forEach(reportArticleDto -> {
                     ReportArticle reportArticle = reportArticleDto.toEntity(report);
-                    reportArticle.setCategoryType(categoryType);
+
+                    validContentLength(reportArticle.getSummary());
+
+                    reportArticle.updateCategoryType(categoryType);
                     report.addReportArticle(reportArticle); // Report에 추가
                 });
             });
@@ -254,6 +275,11 @@ public class ReportServiceImpl implements ReportService {
         if (!report.getClient().getAccount().equals(account)) {
             throw new ApiException(ErrorStatus._REPORT_FORBIDDEN);
         }
+    }
+
+    private void validContentLength(String content) {
+        if (content.length() > 100)
+            throw new ApiException(ErrorStatus._INVALID_REPORT_ARTICLE_SUMMARY_LENGTH);
     }
 
 }
