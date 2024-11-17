@@ -31,6 +31,6 @@ public interface KeywordRepository extends JpaRepository<Keyword, Long> {
             "AND c.categoryType = :categoryType")
     List<Keyword> findKeywordByAccountIdAndClientIdAndCategoryType(@Param("accountId") Long accountId,
                                                                    @Param("clientId") Long clientId,
-                                                                   @Param("categoryType")CategoryType categoryType);
+                                                                   @Param("categoryType") CategoryType categoryType);
 
 }
