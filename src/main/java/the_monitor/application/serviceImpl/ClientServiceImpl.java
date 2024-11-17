@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import the_monitor.application.service.S3Service;
 import the_monitor.common.ApiException;
 import the_monitor.common.ErrorStatus;
+import the_monitor.domain.enums.CategoryType;
 import the_monitor.domain.enums.KeywordType;
 import the_monitor.domain.model.*;
 import the_monitor.domain.repository.*;
@@ -25,7 +26,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -60,7 +63,7 @@ public class ClientServiceImpl implements ClientService {
         // JWT에서 accountId를 추출하는 과정
         Long extractedAccountId = getAccountIdFromJwt();
         Account account = accountRepository.findById(extractedAccountId)
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElseThrow(() -> new ApiException(ErrorStatus._ACCOUNT_NOT_FOUND));
 
         String logoPath;
         logoPath = (logo != null) ? s3Service.uploadFile(logo) : "default_logo_url";
@@ -75,26 +78,18 @@ public class ClientServiceImpl implements ClientService {
 
         client = clientRepository.save(client);
 
-        // 카테고리 생성 및 클라이언트에 추가
-        Category category = Category.builder()
-                .categoryType(clientRequest.getCategoryType())
-                .client(client)
-                .build();
-        categoryRepository.save(category);
-        client.getCategories().add(category);
-
-        // 키워드 생성 및 저장
-        List<Keyword> keywords = createKeywords(clientRequest.getIncludeKeywords(), clientRequest.getExcludeKeywords(), category);
-        keywordRepository.saveAll(keywords);
-        category.addKeywords(keywords);
+        // 카테고리 및 키워드 저장
+        Map<CategoryType, List<String>> categoryKeywordsFromRequest = clientRequest.getCategoryKeywords();
+        for (Map.Entry<CategoryType, List<String>> entry : categoryKeywordsFromRequest.entrySet()) {
+            CategoryType categoryType = entry.getKey();
+            List<String> keywords = entry.getValue();
+            saveCategoryWithKeywords(categoryType, keywords, client); // Lambda 문제 해결
+        }
 
         // 이메일 수신자와 참조인 저장
         saveEmailRecipients(clientRequest.getRecipientEmails(), clientRequest.getCcEmails(), client);
 
-        // `keywords`를 문자열 리스트로 변환
-        List<String> keywordList = keywords.stream()
-                .map(Keyword::getKeyword)
-                .collect(Collectors.toList());
+        Map<CategoryType, List<String>> categoryKeywords = clientRequest.getCategoryKeywords();
 
 
         // ClientResponse 반환
@@ -103,8 +98,7 @@ public class ClientServiceImpl implements ClientService {
                 .name(client.getName())
                 .managerName(client.getManagerName())
                 .logoUrl(client.getLogo())
-                .keywords(keywordList)
-                .categoryType(clientRequest.getCategoryType().toString())
+                .categoryKeywords(categoryKeywordsFromRequest)
                 .clientMailRecipients(client.getClientMailRecipients().stream()
                         .map(ClientMailRecipient::getAddress)
                         .collect(Collectors.toList()))
@@ -118,7 +112,7 @@ public class ClientServiceImpl implements ClientService {
         Long accountId = getAccountIdFromJwt(); // JWT에서 accountId 추출
         List<Client> clients = clientRepository.findAllByAccountId(accountId);
         if (clients.isEmpty()) {
-            throw new ApiException(ErrorStatus._CLIENT_NOT_FOUND);
+            return List.of();
         }
 
         return clients.stream()
@@ -137,30 +131,30 @@ public class ClientServiceImpl implements ClientService {
                 .orElseThrow(() -> new ApiException(ErrorStatus._CLIENT_NOT_FOUND));
     }
 
-    private List<Keyword> createKeywords(List<String> includeKeywords, List<String> excludeKeywords, Category category) {
-        List<Keyword> keywords = new ArrayList<>();
+    private void saveCategoryWithKeywords(CategoryType categoryType, List<String> keywords, Client client) {
+        // 카테고리 생성
+        Category category = Category.builder()
+                .categoryType(categoryType)
+                .client(client)
+                .build();
+        categoryRepository.save(category);
 
-        // 필수 검색어 생성
-        for (String keywordText : includeKeywords) {
-            Keyword keyword = Keyword.builder()
-                    .keyword(keywordText)
-                    .keywordType(KeywordType.INCLUDE.name())
-                    .category(category)
-                    .build();
-            keywords.add(keyword);
-        }
+        // 키워드 생성
+        List<Keyword> keywordEntities = createKeywords(keywords, category);
+        keywordRepository.saveAll(keywordEntities);
 
-        // 선택 검색어 생성
-        for (String keywordText : excludeKeywords) {
-            Keyword keyword = Keyword.builder()
-                    .keyword(keywordText)
-                    .keywordType(KeywordType.EXCLUDE.name())
-                    .category(category)
-                    .build();
-            keywords.add(keyword);
-        }
+        category.addKeywords(keywordEntities);
+    }
 
-        return keywords;
+
+    private List<Keyword> createKeywords(List<String> keywords, Category category) {
+        return keywords.stream()
+                .map(keyword -> Keyword.builder()
+                        .keyword(keyword)
+                        .category(category)
+                        .resultCount(0)
+                        .build())
+                .collect(Collectors.toList());
     }
 
     private String saveLogo(MultipartFile logo) {

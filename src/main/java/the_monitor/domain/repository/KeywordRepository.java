@@ -1,8 +1,8 @@
 package the_monitor.domain.repository;
 
-import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import the_monitor.domain.enums.CategoryType;
 import the_monitor.domain.model.Keyword;
@@ -31,6 +31,6 @@ public interface KeywordRepository extends JpaRepository<Keyword, Long> {
             "AND c.categoryType = :categoryType")
     List<Keyword> findKeywordByAccountIdAndClientIdAndCategoryType(@Param("accountId") Long accountId,
                                                                    @Param("clientId") Long clientId,
-                                                                   @Param("categoryType")CategoryType categoryType);
+                                                                   @Param("categoryType") CategoryType categoryType);
 
 }
