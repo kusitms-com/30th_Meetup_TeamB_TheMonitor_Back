@@ -3,10 +3,7 @@ package the_monitor.domain.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import the_monitor.common.BaseTimeEntity;
 
 import java.util.List;
@@ -25,9 +22,6 @@ public class Keyword extends BaseTimeEntity {
     @Column(name = "keyword", nullable = false)
     private String keyword;
 
-    @Column(name = "keyword_type", nullable = false)
-    private String keywordType;
-
     @Column(name = "keyword_result_count")
     private int resultCount;
 
@@ -38,12 +32,10 @@ public class Keyword extends BaseTimeEntity {
 
     @Builder
     public Keyword(String keyword,
-                   String keywordType,
                    Category category,
                    int resultCount) {
 
         this.keyword = keyword;
-        this.keywordType = keywordType;
         this.category = category;
         this.resultCount = resultCount;
 

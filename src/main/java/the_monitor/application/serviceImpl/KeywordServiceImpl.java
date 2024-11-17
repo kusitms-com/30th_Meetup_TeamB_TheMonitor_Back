@@ -36,7 +36,9 @@ public class KeywordServiceImpl implements KeywordService {
         Map<CategoryType, List<String>> keywordsByCategory = new HashMap<>();
 
         for (CategoryType categoryType : CategoryType.values()) {
-            List<Keyword> keywords = getKeywordByAccountIdAndClientIdAndCategoryType(accountId, clientId, categoryType);
+            System.out.printf("categoryType: %s", categoryType);
+            List<Keyword> keywords = keywordRepository.findKeywordByAccountIdAndClientIdAndCategoryType(accountId, clientId, categoryType);
+            System.out.printf("keywords: %s", keywords);
 
             List<String> keywordList = keywords.stream()
                     .map(Keyword::getKeyword)

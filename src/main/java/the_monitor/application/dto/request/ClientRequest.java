@@ -1,5 +1,6 @@
 package the_monitor.application.dto.request;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -10,6 +11,7 @@ import the_monitor.domain.enums.CategoryType;
 import the_monitor.domain.enums.KeywordType;
 
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @NoArgsConstructor
@@ -20,13 +22,9 @@ public class ClientRequest {
     @NotBlank(message = "담당자 이름은 필수 항목입니다.")
     private String managerName;
 
-    @NotNull(message = "카테고리 타입은 필수 항목입니다.")
-    private CategoryType categoryType; // SELF, COMPETITOR, INDUSTRY 중 하나
-
-    @NotEmpty(message = "포함할 검색 키워드는 필수 항목입니다.")
-    private List<String> includeKeywords; // 필수 검색어 리스트
-
-    private List<String> excludeKeywords; // 제외 검색어 리스트 (선택 사항)
+    @Schema(description = "카테고리와 키워드 매핑", example = "{ \"SELF\": [\"keyword1\", \"keyword2\"], \"COMPETITOR\": [\"keyword3\"], \"INDUSTRY\": [\"keyword4\"] }")
+    @NotNull(message = "카테고리 키워드는 필수 항목입니다.")
+    private Map<CategoryType, List<String>> categoryKeywords;
 
     @NotEmpty(message = "메일 수신자는 필수 항목입니다.")
     private List<String> recipientEmails; // 수신자 이메일 (필수)
