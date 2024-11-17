@@ -112,7 +112,7 @@ public class ClientServiceImpl implements ClientService {
         Long accountId = getAccountIdFromJwt(); // JWT에서 accountId 추출
         List<Client> clients = clientRepository.findAllByAccountId(accountId);
         if (clients.isEmpty()) {
-            throw new ApiException(ErrorStatus._CLIENT_NOT_FOUND);
+            return List.of();
         }
 
         return clients.stream()
