@@ -10,6 +10,7 @@ import the_monitor.application.service.ArticleService;
 import the_monitor.application.service.GoogleSearchService;
 import the_monitor.application.service.KeywordService;
 import the_monitor.common.PageResponse;
+import the_monitor.domain.enums.CategoryType;
 import the_monitor.domain.model.Keyword;
 import the_monitor.domain.repository.ReportArticleRepository;
 import the_monitor.infrastructure.jwt.JwtProvider;
@@ -72,7 +73,7 @@ public class ArticleServiceImpl implements ArticleService {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         Long accountId = userDetails.getAccountId();
 
-        List<Keyword> keywords = keywordService.getKeywordByAccountIdAndClientIdAndCategoryId(accountId, clientId, 1L);
+        List<Keyword> keywords = keywordService.getKeywordByAccountIdAndClientIdAndCategoryType(accountId, clientId, CategoryType.SELF);
 
         List<ArticleResponse> articles = new ArrayList<>();
 

@@ -6,26 +6,23 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import the_monitor.application.dto.ReportCategoryArticleDto;
 import the_monitor.application.dto.request.ReportArticleUpdateRequest;
+import the_monitor.application.dto.request.ReportCreateRequest;
 import the_monitor.application.dto.response.ReportArticlesResponse;
 import the_monitor.application.dto.response.ReportDetailResponse;
 import the_monitor.application.dto.response.ReportListResponse;
-import the_monitor.application.service.AccountService;
-import the_monitor.application.service.ClientService;
-import the_monitor.application.service.ReportService;
-import the_monitor.application.service.S3Service;
+import the_monitor.application.service.*;
 import the_monitor.common.ApiException;
 import the_monitor.common.ErrorStatus;
 import the_monitor.domain.enums.CategoryType;
 import the_monitor.domain.model.*;
 import the_monitor.domain.repository.ReportArticleRepository;
 import the_monitor.domain.repository.ReportRepository;
+import the_monitor.domain.repository.ScrapRepository;
 import the_monitor.infrastructure.security.CustomUserDetails;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,10 +32,13 @@ public class ReportServiceImpl implements ReportService {
 
     private final ReportRepository reportRepository;
     private final ReportArticleRepository reportArticleRepository;
+
     private final AccountService accountService;
     private final ClientService clientService;
+    private final ScrapService scrapService;
 
     private final S3Service s3Service;
+
 
     @Override
     public List<ReportListResponse> getReportsByCreatedAt(Long clientId) {
@@ -49,7 +49,23 @@ public class ReportServiceImpl implements ReportService {
     public List<ReportListResponse> getReportsByUpdatedAt(Long clientId) {
         return getSortedReports(clientId, Comparator.comparing(Report::getUpdatedAt).reversed()); // 수정일 기준 내림차순
     }
+    @Override
+    @Transactional
+    public String createReports(Long clientId, ReportCreateRequest request) {
 
+        Client client = findClientById(clientId);
+
+        String logoUrl = s3Service.uploadFile(request.getLogo());
+
+        Report report = reportRepository.save(request.toEntity(client, logoUrl));
+
+        // 각 카테고리별로 ReportArticle 생성 및 저장
+        createAndSaveReportArticlesByCategories(report, request);
+
+        reportRepository.save(report); // Report와 관련된 ReportArticles 자동 저장
+
+        return "보고서 생성 성공";
+    }
     @Override
     @Transactional
     public String deleteReports(Long clientId, Long reportId) {
@@ -168,6 +184,7 @@ public class ReportServiceImpl implements ReportService {
 
     }
 
+    // 보고서 리스트를 정렬하여 반환
     private List<ReportListResponse> getSortedReports(Long clientId, Comparator<Report> comparator) {
 
         Client client = findClientById(clientId);
@@ -182,11 +199,26 @@ public class ReportServiceImpl implements ReportService {
                 .collect(Collectors.toList());
     }
 
+    // ReportCreateRequest로부터 ReportArticle 생성 및 저장
+    private void createAndSaveReportArticlesByCategories(Report report, ReportCreateRequest request) {
 
+        request.getReportArticles().forEach((categoryType, reportCategoryArticleDto) -> {
+            reportCategoryArticleDto.getReportArticles().forEach((category, reportArticleDtoList) -> {
+                reportArticleDtoList.forEach(reportArticleDto -> {
+                    ReportArticle reportArticle = reportArticleDto.toEntity(report);
+                    reportArticle.setCategoryType(categoryType);
+                    report.addReportArticle(reportArticle); // Report에 추가
+                });
+            });
+        });
+
+    }
+
+    // ReportArticle 리스트를 CategoryType으로 그룹화
     private Map<CategoryType, List<ReportArticle>> getCategorizedArticles(Report report) {
         return report.getReportArticles().stream()
                 .collect(Collectors.groupingBy(
-                        ReportArticle::getCategory,
+                        ReportArticle::getCategoryType,
                         Collectors.mapping(reportArticle -> ReportArticle.builder()
                                 .title(reportArticle.getTitle())
                                 .url(reportArticle.getUrl())
@@ -208,14 +240,16 @@ public class ReportServiceImpl implements ReportService {
         return accountService.findAccountById(accountId);
     }
 
-    private Report findByClientIdAndReportId(Long clientId, Long reportId) {
-        return reportRepository.findReportByClientIdAndReportId(clientId, reportId);
-    }
-
     private Client findClientById(Long clientId) {
         return clientService.findClientById(clientId);
     }
 
+    // Client ID와 Report ID로 Report 조회
+    private Report findByClientIdAndReportId(Long clientId, Long reportId) {
+        return reportRepository.findReportByClientIdAndReportId(clientId, reportId);
+    }
+
+    // Account가 보고서에 권한이 있는지 확인
     private void validIsAccountAuthorizedForReport(Account account, Report report) {
         if (!report.getClient().getAccount().equals(account)) {
             throw new ApiException(ErrorStatus._REPORT_FORBIDDEN);

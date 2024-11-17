@@ -2,6 +2,7 @@ package the_monitor.application.service;
 
 import org.springframework.web.multipart.MultipartFile;
 import the_monitor.application.dto.request.ReportArticleUpdateRequest;
+import the_monitor.application.dto.request.ReportCreateRequest;
 import the_monitor.application.dto.response.ReportArticlesResponse;
 import the_monitor.application.dto.response.ReportDetailResponse;
 import the_monitor.application.dto.response.ReportListResponse;
@@ -13,6 +14,8 @@ public interface ReportService {
     List<ReportListResponse> getReportsByCreatedAt(Long clientId);
 
     List<ReportListResponse> getReportsByUpdatedAt(Long clientId);
+
+    String createReports(Long clientId, ReportCreateRequest request);
 
     String deleteReports(Long clientId, Long reportId);
 

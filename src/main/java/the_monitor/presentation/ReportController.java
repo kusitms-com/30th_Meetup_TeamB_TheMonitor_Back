@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import the_monitor.application.dto.request.ReportArticleUpdateRequest;
+import the_monitor.application.dto.request.ReportCreateRequest;
 import the_monitor.application.dto.response.ReportArticlesResponse;
 import the_monitor.application.dto.response.ReportDetailResponse;
 import the_monitor.application.dto.response.ReportListResponse;
@@ -39,6 +40,15 @@ public class ReportController {
 
     }
 
+    @Operation(summary = "보고서 생성", description = "보고서를 생성합니다.")
+    @PostMapping()
+    public ApiResponse<String> createReports(@RequestParam("clientId") Long clientId,
+                                             @RequestBody ReportCreateRequest request) {
+
+        return ApiResponse.onSuccess(reportService.createReports(clientId, request));
+
+    }
+
     @Operation(summary = "보고서 삭제", description = "보고서를 삭제합니다.")
     @DeleteMapping()
     public ApiResponse<String> deleteReports(@RequestParam("clientId") Long clientId,
@@ -47,7 +57,7 @@ public class ReportController {
 
     }
 
-    @Operation(summary = "보고서 상세 조회", description = "보고서 상세 정보를 조회합���다.")
+    @Operation(summary = "보고서 상세 조회", description = "보고서 상세 정보를 조회합니다.")
     @GetMapping("/details")
     public ApiResponse<ReportDetailResponse> getReportDetail(@RequestParam("clientId") Long clientId,
                                                              @RequestParam("reportId") Long reportId) {
