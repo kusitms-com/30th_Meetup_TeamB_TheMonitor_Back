@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import the_monitor.application.dto.response.KeywordResponse;
 import the_monitor.application.service.KeywordService;
+import the_monitor.domain.enums.CategoryType;
 import the_monitor.domain.model.Keyword;
 import the_monitor.domain.repository.KeywordRepository;
 import the_monitor.infrastructure.security.CustomUserDetails;
@@ -32,15 +33,15 @@ public class KeywordServiceImpl implements KeywordService {
 
         Long accountId = userDetails.getAccountId();
 
-        Map<Long, List<String>> keywordsByCategory = new HashMap<>();
+        Map<CategoryType, List<String>> keywordsByCategory = new HashMap<>();
 
-        for (Long categoryId : Arrays.asList(1L, 2L, 3L)) {
-            List<Keyword> keywords = keywordRepository.findKeywordByAccountIdAndClientIdAndCategoryId(accountId, clientId, categoryId);
+        for (CategoryType categoryType : CategoryType.values()) {
+            List<Keyword> keywords = getKeywordByAccountIdAndClientIdAndCategoryType(accountId, clientId, categoryType);
 
             List<String> keywordList = keywords.stream()
                     .map(Keyword::getKeyword)
                     .collect(Collectors.toList());
-            keywordsByCategory.put(categoryId, keywordList);
+            keywordsByCategory.put(categoryType, keywordList);
         }
 
         return KeywordResponse.builder()
@@ -50,9 +51,9 @@ public class KeywordServiceImpl implements KeywordService {
     }
 
     @Override
-    public List<Keyword> getKeywordByAccountIdAndClientIdAndCategoryId(Long accountId, Long clientId, Long categoryId) {
+    public List<Keyword> getKeywordByAccountIdAndClientIdAndCategoryType(Long accountId, Long clientId, CategoryType categoryType) {
 
-        return keywordRepository.findKeywordByAccountIdAndClientIdAndCategoryId(accountId, clientId, categoryId);
+        return keywordRepository.findKeywordByAccountIdAndClientIdAndCategoryType(accountId, clientId, categoryType);
 
     }
 
