@@ -38,16 +38,22 @@ public class ReportServiceImpl implements ReportService {
 
     private final S3Service s3Service;
 
-
     @Override
-    public List<ReportListResponse> getReportsByCreatedAt(Long clientId) {
-        return getSortedReports(clientId, Comparator.comparing(Report::getCreatedAt).reversed()); // 생성일 기준 내림차순
+    public List<ReportListResponse> getReports(Long clientId) {
+
+        Client client = findClientById(clientId);
+
+        return client.getReports().stream()
+                .map(report -> ReportListResponse.builder()
+                        .reportId(report.getId())
+                        .title(report.getTitle())
+                        .createdAt(String.valueOf(report.getCreatedAt()))
+                        .updatedAt(String.valueOf(report.getUpdatedAt()))
+                        .build())
+                .collect(Collectors.toList());
+
     }
 
-    @Override
-    public List<ReportListResponse> getReportsByUpdatedAt(Long clientId) {
-        return getSortedReports(clientId, Comparator.comparing(Report::getUpdatedAt).reversed()); // 수정일 기준 내림차순
-    }
     @Override
     @Transactional
     public String createReports(Long clientId, ReportCreateRequest request) {
@@ -66,6 +72,7 @@ public class ReportServiceImpl implements ReportService {
 
         return "보고서 생성 성공";
     }
+
     @Override
     @Transactional
     public String deleteReports(Long clientId, Long reportId) {
@@ -200,21 +207,6 @@ public class ReportServiceImpl implements ReportService {
                         .build())
                 .collect(Collectors.toList());
 
-    }
-
-    // 보고서 리스트를 정렬하여 반환
-    private List<ReportListResponse> getSortedReports(Long clientId, Comparator<Report> comparator) {
-
-        Client client = findClientById(clientId);
-
-        return client.getReports().stream()
-                .sorted(comparator)
-                .map(report -> ReportListResponse.builder()
-                        .reportId(report.getId())
-                        .title(report.getTitle())
-                        .createdAt(String.valueOf(report.getCreatedAt()))
-                        .build())
-                .collect(Collectors.toList());
     }
 
     // ReportCreateRequest로부터 ReportArticle 생성 및 저장

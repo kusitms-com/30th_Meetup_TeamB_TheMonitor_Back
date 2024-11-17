@@ -25,18 +25,10 @@ public class ReportController {
     private final ReportService reportService;
 
     @Operation(summary = "보고서 목록 최신순", description = "보고서 목록을 최신순으로 조회합니다.")
-    @GetMapping("/c")
-    public ApiResponse<List<ReportListResponse>> getReportsByCreatedAt(@RequestParam("clientId") Long clientId) {
+    @GetMapping()
+    public ApiResponse<List<ReportListResponse>> getReports(@RequestParam("clientId") Long clientId) {
 
-        return ApiResponse.onSuccessData("보고서 목록 최신순", reportService.getReportsByCreatedAt(clientId));
-
-    }
-
-    @Operation(summary = "보고서 목록 수정일순", description = "보고서 목록을 수정일순으로 조회합니다.")
-    @GetMapping("/u")
-    public ApiResponse<List<ReportListResponse>> getReportsByUpdatedAt(@RequestParam("clientId") Long clientId) {
-
-        return ApiResponse.onSuccessData("보고서 목록 수정일순", reportService.getReportsByUpdatedAt(clientId));
+        return ApiResponse.onSuccessData("보고서 목록", reportService.getReports(clientId));
 
     }
 

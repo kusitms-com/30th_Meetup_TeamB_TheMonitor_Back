@@ -11,9 +11,7 @@ import java.util.List;
 
 public interface ReportService {
 
-    List<ReportListResponse> getReportsByCreatedAt(Long clientId);
-
-    List<ReportListResponse> getReportsByUpdatedAt(Long clientId);
+    List<ReportListResponse> getReports(Long clientId);
 
     String createReports(Long clientId, ReportCreateRequest request);
 
