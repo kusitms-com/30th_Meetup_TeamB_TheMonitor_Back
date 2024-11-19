@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
 
@@ -106,6 +106,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
+    @Transactional
     public EmailResponse updateEmails(Long clientId, EmailUpdateRequest emailUpdateRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
@@ -117,8 +118,18 @@ public class EmailServiceImpl implements EmailService {
         clientMailRecipientRepository.deleteAllByClient(client);
         clientMailCCRepository.deleteAllByClient(client);
 
-        List<String> recipientEmails = emailUpdateRequest.getRecipients();
-        List<String> ccEmails = emailUpdateRequest.getCcs();
+        saveEmails(emailUpdateRequest.getRecipients(), emailUpdateRequest.getCcs(), client);
+
+        List<String> recipientEmails = clientMailRecipientRepository.findAllByClient(client)
+                .stream()
+                .map(ClientMailRecipient::getAddress)
+                .collect(Collectors.toList());
+
+        List<String> ccEmails = clientMailCCRepository.findAllByClient(client)
+                .stream()
+                .map(ClientMailCC::getAddress)
+                .collect(Collectors.toList());
+
 
         return EmailResponse.builder()
                 .recipients(recipientEmails)
