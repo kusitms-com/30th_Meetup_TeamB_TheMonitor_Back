@@ -37,26 +37,31 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Set up SSH key
+        run: |
+          echo "${{ secrets.EC2_PRIVATE_KEY }}" > /home/runner/.ssh/id_rsa
+          chmod 600 /home/runner/.ssh/id_rsa
+
       - name: Copy docker-compose.yml to EC2
         uses: appleboy/ssh-action@v0.1.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          key_path: /home/runner/.ssh/id_rsa
           script: |
-            scp -i ${{ secrets.EC2_PRIVATE_KEY }} docker-compose.yml ec2-user@${{ secrets.EC2_HOST }}:/home/ec2-user/docker-compose.yml
+            scp -i /home/runner/.ssh/id_rsa docker-compose.yml ec2-user@${{ secrets.EC2_HOST }}:/home/ec2-user/docker-compose.yml
 
       - name: Connect to EC2 and deploy
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          key_path: /home/runner/.ssh/id_rsa
           script: |
             # Install jq if not already installed
             if ! command -v jq &> /dev/null
             then
-            sudo yum install -y jq
+              sudo yum install -y jq
             fi
             
             # Set up Docker Compose on EC2 if not installed
@@ -67,7 +72,7 @@ jobs:
             fi
 
             # Pull the latest Docker images
-            docker-compose -f /path/to/your/docker-compose.yml pull
+            docker-compose -f /home/ec2-user/docker-compose.yml pull
 
             # Start containers with Docker Compose
-            docker-compose -f /path/to/your/docker-compose.yml up -d
+            docker-compose -f /home/ec2-user/docker-compose.yml up -d
