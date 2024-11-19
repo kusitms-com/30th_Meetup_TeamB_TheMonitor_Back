@@ -46,6 +46,9 @@ public class SecurityConfig {
             "/api/v1/accounts/sendPasswordChangeEmail",
             "/api/v1/accounts/tokenValidity",
 
+            "/api/v1/articles/**",
+            "/api/v1/keywords/**",
+
     };
 
     private static final String[] WHITE_LIST_URL = {

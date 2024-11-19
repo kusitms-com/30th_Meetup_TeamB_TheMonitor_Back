@@ -1,5 +1,6 @@
 package the_monitor.application.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +14,7 @@ import java.util.Map;
 @NoArgsConstructor
 public class ReportArticlesResponse {
 
+    @JsonInclude
     private Map<CategoryType, List<ReportArticle>> reportArticles;
 
     @Builder
