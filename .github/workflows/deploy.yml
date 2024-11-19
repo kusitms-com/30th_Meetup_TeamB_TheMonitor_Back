@@ -51,7 +51,7 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
-          key_path: /home/runner/.ssh/id_rsa
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
             # Install jq if not already installed
             if ! command -v jq &> /dev/null
