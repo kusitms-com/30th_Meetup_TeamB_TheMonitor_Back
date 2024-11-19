@@ -1,6 +1,7 @@
 package the_monitor.domain.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -32,5 +33,10 @@ public interface KeywordRepository extends JpaRepository<Keyword, Long> {
     List<Keyword> findKeywordByAccountIdAndClientIdAndCategoryType(@Param("accountId") Long accountId,
                                                                    @Param("clientId") Long clientId,
                                                                    @Param("categoryType") CategoryType categoryType);
+
+    @Modifying
+    @Query("DELETE FROM Keyword k " +
+            "WHERE k.category.client.id = :clientId")
+    void deleteAllByClientId(@Param("clientId") Long clientId);
 
 }

@@ -5,6 +5,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import the_monitor.application.dto.request.ClientRequest;
 import the_monitor.application.dto.response.ClientResponse;
 import the_monitor.application.dto.response.ReportListResponse;
+import the_monitor.application.service.CategoryService;
 import the_monitor.application.service.ClientService;
 import org.springframework.stereotype.Service;
 import the_monitor.application.service.S3Service;
@@ -35,7 +36,7 @@ import java.util.stream.Collectors;
 public class ClientServiceImpl implements ClientService {
 
     private final ClientRepository clientRepository;
-    private final CategoryRepository categoryRepository;
+    private final CategoryService categoryService;
     private final AccountRepository accountRepository;
     private final KeywordRepository keywordRepository;
 
@@ -44,18 +45,20 @@ public class ClientServiceImpl implements ClientService {
 
     private final JwtProvider jwtProvider;
     private final S3Service s3Service;
+    private final EmailServiceImpl emailServiceImpl;
 
     @Autowired
-    public ClientServiceImpl(ClientRepository clientRepository, CategoryRepository categoryRepository, AccountRepository accountRepository, KeywordRepository keywordRepository,
-                             ClientMailRecipientRepository clientMailRecipientRepository, ClientMailCCRepository clientMailCCRepository, JwtProvider jwtProvider, S3Service s3Service) {
+    public ClientServiceImpl(ClientRepository clientRepository, CategoryService categoryService, AccountRepository accountRepository, KeywordRepository keywordRepository,
+                             ClientMailRecipientRepository clientMailRecipientRepository, ClientMailCCRepository clientMailCCRepository, JwtProvider jwtProvider, S3Service s3Service, EmailServiceImpl emailServiceImpl) {
         this.clientRepository = clientRepository;
-        this.categoryRepository = categoryRepository;
+        this.categoryService = categoryService;
         this.accountRepository = accountRepository;
         this.keywordRepository = keywordRepository;
         this.clientMailRecipientRepository = clientMailRecipientRepository;
         this.clientMailCCRepository = clientMailCCRepository;
         this.jwtProvider = jwtProvider;
         this.s3Service = s3Service;
+        this.emailServiceImpl = emailServiceImpl;
     }
 
     @Transactional
@@ -79,18 +82,13 @@ public class ClientServiceImpl implements ClientService {
         client = clientRepository.save(client);
 
         // 카테고리 및 키워드 저장
-        Map<CategoryType, List<String>> categoryKeywordsFromRequest = clientRequest.getCategoryKeywords();
-        for (Map.Entry<CategoryType, List<String>> entry : categoryKeywordsFromRequest.entrySet()) {
-            CategoryType categoryType = entry.getKey();
-            List<String> keywords = entry.getValue();
-            saveCategoryWithKeywords(categoryType, keywords, client); // Lambda 문제 해결
+        Map<CategoryType, List<String>> categoryKeywords = clientRequest.getCategoryKeywords();
+        for (Map.Entry<CategoryType, List<String>> entry : categoryKeywords.entrySet()) {
+            categoryService.saveCategoryWithKeywords(entry.getKey(), entry.getValue(), client); // CategoryService 사용
         }
 
         // 이메일 수신자와 참조인 저장
-        saveEmailRecipients(clientRequest.getRecipientEmails(), clientRequest.getCcEmails(), client);
-
-        Map<CategoryType, List<String>> categoryKeywords = clientRequest.getCategoryKeywords();
-
+        emailServiceImpl.saveEmails(clientRequest.getRecipientEmails(), clientRequest.getCcEmails(), client);
 
         // ClientResponse 반환
         return ClientResponse.builder()
@@ -98,7 +96,7 @@ public class ClientServiceImpl implements ClientService {
                 .name(client.getName())
                 .managerName(client.getManagerName())
                 .logoUrl(client.getLogo())
-                .categoryKeywords(categoryKeywordsFromRequest)
+                .categoryKeywords(categoryKeywords)
                 .clientMailRecipients(client.getClientMailRecipients().stream()
                         .map(ClientMailRecipient::getAddress)
                         .collect(Collectors.toList()))
@@ -131,32 +129,6 @@ public class ClientServiceImpl implements ClientService {
                 .orElseThrow(() -> new ApiException(ErrorStatus._CLIENT_NOT_FOUND));
     }
 
-    private void saveCategoryWithKeywords(CategoryType categoryType, List<String> keywords, Client client) {
-        // 카테고리 생성
-        Category category = Category.builder()
-                .categoryType(categoryType)
-                .client(client)
-                .build();
-        categoryRepository.save(category);
-
-        // 키워드 생성
-        List<Keyword> keywordEntities = createKeywords(keywords, category);
-        keywordRepository.saveAll(keywordEntities);
-
-        category.addKeywords(keywordEntities);
-    }
-
-
-    private List<Keyword> createKeywords(List<String> keywords, Category category) {
-        return keywords.stream()
-                .map(keyword -> Keyword.builder()
-                        .keyword(keyword)
-                        .category(category)
-                        .resultCount(0)
-                        .build())
-                .collect(Collectors.toList());
-    }
-
     private String saveLogo(MultipartFile logo) {
         // 로고 파일 저장 처리
         String directoryPath = "/logo";
@@ -179,30 +151,5 @@ public class ClientServiceImpl implements ClientService {
         String token = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
         return jwtProvider.getAccountId(token);
     }
-
-    private void saveEmailRecipients(List<String> recipientEmails, List<String> ccEmails, Client client) {
-        List<ClientMailRecipient> recipients = new ArrayList<>();
-        for (String email : recipientEmails) {
-            ClientMailRecipient recipient = ClientMailRecipient.builder()
-                    .address(email)
-                    .client(client)
-                    .build();
-            recipients.add(recipient);
-        }
-        clientMailRecipientRepository.saveAll(recipients);
-        client.setClientMailRecipients(recipients);
-
-        List<ClientMailCC> ccs = new ArrayList<>();
-        for (String email : ccEmails) {
-            ClientMailCC cc = ClientMailCC.builder()
-                    .address(email)
-                    .client(client)
-                    .build();
-            ccs.add(cc);
-        }
-        clientMailCCRepository.saveAll(ccs);
-        client.setClientMailCCs(ccs);
-    }
-
 
 }
