@@ -1,10 +1,9 @@
-name: Deploy Spring Boot to EC2
+name: Deploy Spring Boot to EC2 with Docker Compose
 
 on:
   push:
     branches:
       - main
-#      - develop
 
 jobs:
   build:
@@ -35,6 +34,18 @@ jobs:
     needs: build
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Copy docker-compose.yml to EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script: |
+            scp -i ${{ secrets.EC2_PRIVATE_KEY }} docker-compose.yml ec2-user@${{ secrets.EC2_HOST }}:/home/ec2-user/docker-compose.yml
+
       - name: Connect to EC2 and deploy
         uses: appleboy/ssh-action@master
         with:
@@ -42,46 +53,21 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
-            # Create a custom network if it doesn't exist
-            docker network inspect the_monitor_network >/dev/null 2>&1 || docker network create the_monitor_network
+            # Install jq if not already installed
+            if ! command -v jq &> /dev/null
+            then
+            sudo yum install -y jq
+            fi
             
-            # Stop and remove any existing Redis container
-            docker stop redis-server || true
-            docker rm redis-server || true
-            
-            # Run Redis in the custom network
-            docker run -d --name redis-server --network the_monitor_network \
-              -p 6379:6379 redis
-            
-            # Pull the latest application image
-            docker pull ${{ secrets.DOCKER_USERNAME }}/the_monitor:latest
-            
-            # Stop and remove any existing application container
-            docker stop the_monitor-container || true
-            docker rm the_monitor-container || true
-            
-            # Run the application in the custom network
-            docker run -d --network the_monitor_network -p 8080:8080 --name the_monitor-container \
-              -e SPRING_DATASOURCE_URL="${{ secrets.SPRING_DATASOURCE_URL }}" \
-              -e SPRING_DATASOURCE_USERNAME="${{ secrets.SPRING_DATASOURCE_USERNAME }}" \
-              -e SPRING_DATASOURCE_PASSWORD="${{ secrets.SPRING_DATASOURCE_PASSWORD }}" \
-              -e CLOUD_AWS_REGION_STATIC="${{ secrets.CLOUD_AWS_REGION_STATIC }}" \
-              -e CLOUD_AWS_CREDENTIALS_ACCESS_KEY="${{ secrets.CLOUD_AWS_CREDENTIALS_ACCESS_KEY }}" \
-              -e CLOUD_AWS_CREDENTIALS_SECRET_KEY="${{ secrets.CLOUD_AWS_CREDENTIALS_SECRET_KEY }}" \
-              -e CLOUD_AWS_S3_BUCKET="${{ secrets.CLOUD_AWS_S3_BUCKET }}" \
-              -e SPRING_MAIL_HOST="smtp.gmail.com" \
-              -e SPRING_MAIL_PORT="587" \
-              -e SPRING_MAIL_USERNAME="${{ secrets.SPRING_MAIL_USERNAME }}" \
-              -e SPRING_MAIL_PASSWORD="${{ secrets.SPRING_MAIL_PASSWORD }}" \
-              -e JWT_SECRET_KEY="${{ secrets.JWT_SECRET_KEY }}" \
-              -e JWT_ACCESS_TOKEN_EXPIRE="${{ secrets.JWT_ACCESS_TOKEN_EXPIRE }}" \
-              -e JWT_REFRESH_TOKEN_EXPIRE="${{ secrets.JWT_REFRESH_TOKEN_EXPIRE }}" \
-              -e SPRING_DATA_REDIS_HOST="redis-server" \
-              -e SPRING_DATA_REDIS_PORT=6379 \
-              -e NAVER_API_CLIENT_ID="${{ secrets.NAVER_API_CLIENT_ID }}" \
-              -e NAVER_API_CLIENT_SECRET="${{ secrets.NAVER_API_CLIENT_SECRET }}" \
-              -e NAVER_API_BASE_URL="${{ secrets.NAVER_API_BASE_URL }}" \
-              -e GOOGLE_API_KEY="${{ secrets.GOOGLE_API_KEY }}" \
-              -e GOOGLE_API_SEARCH_ENGINE_ID="${{ secrets.GOOGLE_API_SEARCH_ENGINE_ID }}" \
-              -e GOOGLE_API_BASE_URL="${{ secrets.GOOGLE_API_BASE_URL }}" \
-              ${{ secrets.DOCKER_USERNAME }}/the_monitor:latest
+            # Set up Docker Compose on EC2 if not installed
+            if ! command -v docker-compose &> /dev/null
+            then
+                sudo curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | jq -r '.tag_name')/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+                sudo chmod +x /usr/local/bin/docker-compose
+            fi
+
+            # Pull the latest Docker images
+            docker-compose -f /path/to/your/docker-compose.yml pull
+
+            # Start containers with Docker Compose
+            docker-compose -f /path/to/your/docker-compose.yml up -d
