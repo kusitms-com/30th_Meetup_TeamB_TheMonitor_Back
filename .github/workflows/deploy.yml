@@ -42,6 +42,8 @@ jobs:
           mkdir -p /home/runner/.ssh
           echo "${{ secrets.EC2_PRIVATE_KEY }}" > /home/runner/.ssh/id_rsa
           chmod 600 /home/runner/.ssh/id_rsa
+          ls -al /home/runner/.ssh
+          cat /home/runner/.ssh/id_rsa | head -n 1
 
       - name: Copy docker-compose.yml to EC2
         uses: appleboy/ssh-action@v0.1.0
