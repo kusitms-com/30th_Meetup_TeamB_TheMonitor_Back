@@ -1,5 +1,7 @@
 package the_monitor.application.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,6 +11,7 @@ import the_monitor.domain.enums.CategoryType;
 import the_monitor.domain.model.Client;
 import the_monitor.domain.model.Report;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,7 +24,8 @@ public class ReportCreateRequest {
     private String color;
 
     // 유형(자사, 경쟁사, 고객사)별 카테고리 - 기사 리스트
-    private Map<CategoryType, ReportCategoryArticleDto> reportArticles;
+    @JsonInclude
+    private Map<CategoryType, ReportCategoryArticleDto> reportArticles = new HashMap<>();
 
     @Builder
     public ReportCreateRequest(String reportTitle,

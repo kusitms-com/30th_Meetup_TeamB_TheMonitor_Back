@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import the_monitor.application.dto.ArticleGoogleDto;
 import the_monitor.application.dto.ReportArticleDto;
+import the_monitor.application.dto.ScrapArticleDto;
 import the_monitor.application.dto.request.ScrapIdsRequest;
 import the_monitor.application.dto.request.ScrapReportArticleRequest;
 import the_monitor.application.dto.response.ScrapArticleListResponse;
@@ -83,25 +84,23 @@ public class ScrapServiceImpl implements ScrapService {
     }
 
     // Article -> Scrap 저장
-    private List<Scrap> convertAndSaveScrap(Map<CategoryType, ArticleGoogleDto> reportArticles, Client client) {
-        return reportArticles.entrySet().stream()
-                .map(entry -> {
-                    CategoryType categoryType = entry.getKey();
-                    ArticleGoogleDto articleDto = entry.getValue();
+    private List<Scrap> convertAndSaveScrap(List<ScrapArticleDto> reportArticles, Client client) {
 
+        return reportArticles.stream()
+                .map((articleDto) -> {
                     Scrap scrap = Scrap.builder()
                             .client(client)
-                            .categoryType(categoryType)
+                            .categoryType(articleDto.getCategoryType())
                             .title(articleDto.getTitle())
                             .url(articleDto.getUrl())
                             .publishDate(articleDto.getPublishDate())
                             .publisherName(articleDto.getPublisherName())
                             .reporterName(articleDto.getReporterName())
                             .build();
-
                     return scrapRepository.save(scrap);
                 })
                 .collect(Collectors.toList());
+
     }
 
     // Scrap -> ReportArticleDto 변환
