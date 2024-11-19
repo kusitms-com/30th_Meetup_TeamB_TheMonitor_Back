@@ -22,7 +22,7 @@ public class ClientRequest {
     @NotBlank(message = "담당자 이름은 필수 항목입니다.")
     private String managerName;
 
-    @Schema(description = "카테고리와 키워드 매핑", example = "{ \"SELF\": [\"keyword1\", \"COMPETITOR\": [\"keyword3\"], \"INDUSTRY\": [\"keyword4\"] }")
+    @Schema(description = "카테고리와 키워드 매핑", example = "{ \"SELF\": [\"keyword1\", \"keyword2\"], \"COMPETITOR\": [\"keyword3\"], \"INDUSTRY\": [\"keyword4\"] }")
     @NotNull(message = "카테고리 키워드는 필수 항목입니다.")
     private Map<CategoryType, List<String>> categoryKeywords;
 

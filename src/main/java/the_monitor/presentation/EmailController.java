@@ -17,7 +17,7 @@ public class EmailController {
     @Operation(summary = "이메일 조회", description = "clientId에 따른 이메일 리스트를 조회합니다.")
     @GetMapping
     public ApiResponse<EmailResponse> getEmails(@RequestParam("clientId") Long clientId) {
-        EmailResponse emailResponse = emailService.getEmails(clientId);
+
         return ApiResponse.onSuccessData("이메일 조회 성공", emailService.getEmails(clientId));
     }
 

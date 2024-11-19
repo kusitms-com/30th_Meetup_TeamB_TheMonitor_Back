@@ -1,18 +1,13 @@
 package the_monitor.presentation;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
-import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
 import the_monitor.application.dto.request.ClientRequest;
 import the_monitor.application.dto.response.ClientResponse;
-import the_monitor.application.dto.response.ReportListResponse;
 import the_monitor.application.service.ClientService;
 import the_monitor.common.ApiResponse;
-import the_monitor.domain.model.Client;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/clients")
+@RequestMapping("/api/v1/clients")
 @RequiredArgsConstructor
 public class ClientController {
 
@@ -46,7 +41,3 @@ public class ClientController {
     }
 
 }
-
-
-
-
