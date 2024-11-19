@@ -53,12 +53,17 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
+            # Remove existing directory if it exists
+            if [ -d "/home/ec2-user/docker-compose.yml" ]; then
+              rm -rf /home/ec2-user/docker-compose.yml
+            fi
+
             # Install jq if not already installed
             if ! command -v jq &> /dev/null
             then
               sudo yum install -y jq
             fi
-            
+
             # Set up Docker Compose on EC2 if not installed
             if ! command -v docker-compose &> /dev/null
             then
