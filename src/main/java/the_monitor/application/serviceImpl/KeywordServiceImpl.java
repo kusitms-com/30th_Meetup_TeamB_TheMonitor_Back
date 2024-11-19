@@ -18,7 +18,6 @@ import the_monitor.domain.repository.ClientRepository;
 import the_monitor.domain.repository.KeywordRepository;
 import the_monitor.infrastructure.security.CustomUserDetails;
 
-import java.security.Key;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -67,7 +66,9 @@ public class KeywordServiceImpl implements KeywordService {
 
     @Transactional
     @Override
-    public KeywordResponse updateKeywords(Long clientId, Map<CategoryType, List<String>> keywordsByCategory) {
+    public KeywordResponse updateKeywords(Long clientId, KeywordUpdateRequest keywordUpdateRequest) {
+        Map<CategoryType, List<String>> keywordsByCategory = keywordUpdateRequest.getKeywordsByCategory();
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         Long accountId = userDetails.getAccountId();

@@ -31,9 +31,7 @@ public class KeywordController {
             @RequestParam("clientId") Long clientId,
             @RequestBody KeywordUpdateRequest keywordUpdateRequest) {
 
-        Map<CategoryType, List<String>> keywordsByCategory = keywordUpdateRequest.getKeywordsByCategory();
-
-        KeywordResponse updatedKeywords = keywordService.updateKeywords(clientId, keywordsByCategory);
+        KeywordResponse updatedKeywords = keywordService.updateKeywords(clientId, keywordUpdateRequest);
         return ApiResponse.onSuccessData("키워드 업데이트 성공", updatedKeywords);
     }
 }

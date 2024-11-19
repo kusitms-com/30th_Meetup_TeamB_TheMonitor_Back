@@ -14,6 +14,6 @@ public interface KeywordService {
 
     List<Keyword> getKeywordByAccountIdAndClientIdAndCategoryType(Long accountId, Long clientId, CategoryType categoryType);
 
-    KeywordResponse updateKeywords(Long clientId, Map<CategoryType, List<String>> keywordUpdateRequests);
+    KeywordResponse updateKeywords(Long clientId, KeywordUpdateRequest keywordUpdateRequest);
 
 }

@@ -117,9 +117,13 @@ public class EmailServiceImpl implements EmailService {
         clientMailRecipientRepository.deleteAllByClient(client);
         clientMailCCRepository.deleteAllByClient(client);
 
-        saveEmails(emailUpdateRequest.getRecipients(), emailUpdateRequest.getCcs(), client);
+        List<String> recipientEmails = emailUpdateRequest.getRecipients();
+        List<String> ccEmails = emailUpdateRequest.getCcs();
 
-        return getEmails(clientId);
+        return EmailResponse.builder()
+                .recipients(recipientEmails)
+                .ccs(ccEmails)
+                .build();
     }
 
 }

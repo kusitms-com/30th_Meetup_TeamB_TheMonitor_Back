@@ -17,4 +17,5 @@ public interface EmailService {
 
     EmailResponse getEmails(Long clientId);
 
-    EmailResponse updateEmails(Long clientId, EmailUpdateRequest emailUpdateRequest);}
+    EmailResponse updateEmails(Long clientId, EmailUpdateRequest emailUpdateRequest);
+}
