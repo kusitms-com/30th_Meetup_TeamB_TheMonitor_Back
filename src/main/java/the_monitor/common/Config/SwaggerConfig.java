@@ -6,6 +6,7 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.security.SecurityScheme.Type;
+import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -26,7 +27,9 @@ public class SwaggerConfig {
                                         .in(HEADER)
                                         .name("Authorization")))
                 .info(apiInfo())
-                .addSecurityItem(new SecurityRequirement().addList("bearerAuth"));  // SecurityRequirement 추가
+                .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
+                .addServersItem(new Server().url("http://the-monitor.o-r.kr").description("HTTP Server"))
+                .addServersItem(new Server().url("https://the-monitor.o-r.kr").description("HTTPS Server"));
     }
 
     private Info apiInfo() {
@@ -35,5 +38,4 @@ public class SwaggerConfig {
                 .description("The Monitor API")
                 .version("1.0.0");
     }
-
 }
