@@ -44,7 +44,7 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
-            scp -i /home/ec2-user/.ssh/id_rsa ./docker-compose.yml ec2-user@${{ secrets.EC2_HOST }}:/home/ec2-user/docker-compose.yml
+            scp -i ${{ secrets.EC2_PRIVATE_KEY }} ./docker-compose.yml ec2-user@${{ secrets.EC2_HOST }}:/home/ec2-user/docker-compose.yml
 
       - name: Verify docker-compose.yml on EC2
         uses: appleboy/ssh-action@master
