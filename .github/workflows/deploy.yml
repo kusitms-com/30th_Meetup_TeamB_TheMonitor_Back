@@ -75,7 +75,13 @@ jobs:
                 sudo chmod +x /usr/local/bin/docker-compose
             fi
 
-            # Run Docker Compose with .env
             cd /home/ec2-user
-            docker-compose pull
-            docker-compose up -d
+
+            # Stop and remove existing containers
+            docker-compose -f docker-compose.yml down
+
+            # Pull the latest Docker images
+            docker-compose -f docker-compose.yml pull
+
+            # Start containers with Docker Compose
+            docker-compose -f docker-compose.yml up -d
