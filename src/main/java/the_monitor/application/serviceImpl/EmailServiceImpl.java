@@ -9,17 +9,21 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import the_monitor.application.dto.request.EmailUpdateRequest;
 import the_monitor.application.dto.response.EmailResponse;
 import the_monitor.application.service.EmailService;
+import the_monitor.application.service.S3Service;
 import the_monitor.common.ApiException;
 import the_monitor.common.ErrorStatus;
 import the_monitor.domain.model.Client;
 import the_monitor.domain.model.ClientMailCC;
 import the_monitor.domain.model.ClientMailRecipient;
+import the_monitor.domain.model.Signature;
 import the_monitor.domain.repository.ClientMailCCRepository;
 import the_monitor.domain.repository.ClientMailRecipientRepository;
 import the_monitor.domain.repository.ClientRepository;
+import the_monitor.domain.repository.SignatureRepository;
 import the_monitor.infrastructure.security.CustomUserDetails;
 
 import java.io.UnsupportedEncodingException;
@@ -37,6 +41,8 @@ public class EmailServiceImpl implements EmailService {
     private final ClientMailRecipientRepository clientMailRecipientRepository;
     private final ClientMailCCRepository clientMailCCRepository;
     private final ClientRepository clientRepository;
+    private final SignatureRepository signatureRepository;
+    private final S3Service s3Service;
 
     @Override
     public void sendEmail(String toEmail, String subject, String body) throws MessagingException, UnsupportedEncodingException {
@@ -99,15 +105,22 @@ public class EmailServiceImpl implements EmailService {
                 .map(ClientMailCC::getAddress)
                 .collect(Collectors.toList());
 
+        // 서명 이미지 URL 가져오기
+        String signatureImageUrl = null;
+        if (client.getSignature() != null) {
+            signatureImageUrl = client.getSignature().getSignatureUrl();
+        }
+
         return EmailResponse.builder()
                 .recipients(recipients)
                 .ccs(ccs)
+                .signatureImageUrl(signatureImageUrl)
                 .build();
     }
 
     @Override
     @Transactional
-    public EmailResponse updateEmails(Long clientId, EmailUpdateRequest emailUpdateRequest) {
+    public EmailResponse updateEmails(Long clientId, EmailUpdateRequest emailUpdateRequest, MultipartFile signatureImage) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         Long accountId = userDetails.getAccountId();
@@ -119,6 +132,28 @@ public class EmailServiceImpl implements EmailService {
         clientMailCCRepository.deleteAllByClient(client);
 
         saveEmails(emailUpdateRequest.getRecipients(), emailUpdateRequest.getCcs(), client);
+
+        String signatureImageUrl = null;
+
+        // 서명 이미지 처리
+        if (signatureImage != null && !signatureImage.isEmpty()) {
+            String imageUrl = s3Service.uploadFile(signatureImage);
+
+            Signature signature = client.getSignature();
+            if (signature == null) {
+                signature = Signature.builder()
+                        .signatureUrl(imageUrl)
+                        .client(client)
+                        .build();
+            } else {
+                signature.updateImageUrl(imageUrl);
+            }
+
+            signatureRepository.save(signature);
+            signatureImageUrl = imageUrl; // 반환할 서명 이미지 URL 설정
+        } else if (client.getSignature() != null) {
+            signatureImageUrl = client.getSignature().getSignatureUrl(); // 기존 이미지 URL 반환
+        }
 
         List<String> recipientEmails = clientMailRecipientRepository.findAllByClient(client)
                 .stream()
@@ -134,6 +169,7 @@ public class EmailServiceImpl implements EmailService {
         return EmailResponse.builder()
                 .recipients(recipientEmails)
                 .ccs(ccEmails)
+                .signatureImageUrl(signatureImageUrl)
                 .build();
     }
 

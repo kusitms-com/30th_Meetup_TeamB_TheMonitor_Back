@@ -1,5 +1,8 @@
 package the_monitor.application.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -9,11 +12,14 @@ import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 import the_monitor.domain.enums.CategoryType;
 import the_monitor.domain.enums.KeywordType;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import java.util.List;
 import java.util.Map;
 
 @Getter
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @NoArgsConstructor
 public class ClientRequest {
     @NotBlank(message = "클라이언트 이름은 필수 항목입니다.")

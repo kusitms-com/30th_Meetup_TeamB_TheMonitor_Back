@@ -54,6 +54,9 @@ public class Client extends BaseTimeEntity {
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Report> reports = new ArrayList<>();
 
+    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private Signature signature;
+
     @Builder
     public Client(String name,
                   String managerName,
