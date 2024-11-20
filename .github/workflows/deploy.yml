@@ -37,6 +37,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Create .env file on EC2
+        run: |
+          echo "${{ secrets.ENV }}" > .env
+
       - name: Copy docker-compose.yml to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
