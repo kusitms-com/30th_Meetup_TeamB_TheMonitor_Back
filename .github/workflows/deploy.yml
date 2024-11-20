@@ -43,9 +43,17 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
           key: ${{ secrets.EC2_PRIVATE_KEY }}
-          source: "./docker-compose.yml"
-          target: "~/docker-compose.yml"
+          script: |
+            scp -i /home/ec2-user/.ssh/id_rsa ./docker-compose.yml ec2-user@${{ secrets.EC2_HOST }}:/home/ec2-user/docker-compose.yml
 
+      - name: Verify docker-compose.yml on EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script: |
+            ls -la /home/ec2-user/docker-compose.yml
 
       - name: Connect to EC2 and deploy
         uses: appleboy/ssh-action@master
