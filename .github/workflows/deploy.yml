@@ -77,6 +77,11 @@ jobs:
 
             cd /home/ec2-user
 
+            # 강제로 모든 컨테이너 중지 및 삭제
+            docker stop $(docker ps -q) || true
+            docker rm $(docker ps -aq) || true
+            docker network prune -f || true
+
             # Stop and remove existing containers
             docker-compose -f docker-compose.yml down
 
