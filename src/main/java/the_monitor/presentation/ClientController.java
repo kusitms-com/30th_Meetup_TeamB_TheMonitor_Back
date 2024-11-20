@@ -23,7 +23,7 @@ public class ClientController {
     private final ClientService clientService;
 
     @Operation(summary = "고객사 정보 입력", description = "고객사에 대한 정보를 입력합니다.")
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<ClientResponse>> createClient(
             @RequestPart(name = "clientRequest") @Valid ClientRequest request,
             @RequestPart(name = "logo", required = false) MultipartFile logo) {
@@ -35,7 +35,7 @@ public class ClientController {
 
     @Operation(summary = "고객사 정보 조회", description = "로그인한 유저의 accountId로 고객사 정보를 조회합니다.")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ApiResponse<List<ClientResponse>> getClientInfo() {
+    public ApiResponse<List<ClientResponse>> getClientInfo()     {
         List<ClientResponse> clientResponses = clientService.getClientsByAccountId();
         return ApiResponse.onSuccessData("클라이언트 조회 성공", clientResponses);
     }

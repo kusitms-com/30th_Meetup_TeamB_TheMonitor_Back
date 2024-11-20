@@ -11,10 +11,12 @@ import java.util.List;
 public class EmailResponse {
     private List<String> recipients;
     private List<String> ccs;
+    private String signatureImageUrl;
 
     @Builder
-    public EmailResponse(List<String> recipients, List<String> ccs) {
+    public EmailResponse(List<String> recipients, List<String> ccs, String signatureImageUrl) {
         this.recipients = recipients;
         this.ccs = ccs;
+        this.signatureImageUrl = signatureImageUrl;
     }
 }

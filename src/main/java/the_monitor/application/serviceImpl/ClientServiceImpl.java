@@ -1,6 +1,7 @@
 package the_monitor.application.serviceImpl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import the_monitor.application.dto.request.ClientRequest;
 import the_monitor.application.dto.response.ClientResponse;
@@ -47,6 +48,9 @@ public class ClientServiceImpl implements ClientService {
     private final S3Service s3Service;
     private final EmailServiceImpl emailServiceImpl;
 
+    @Value("${cloud.aws.s3.default-logo-url}")
+    private String defaultLogoUrl;
+
     @Autowired
     public ClientServiceImpl(ClientRepository clientRepository, CategoryService categoryService, AccountRepository accountRepository, KeywordRepository keywordRepository,
                              ClientMailRecipientRepository clientMailRecipientRepository, ClientMailCCRepository clientMailCCRepository, JwtProvider jwtProvider, S3Service s3Service, EmailServiceImpl emailServiceImpl) {
@@ -63,13 +67,14 @@ public class ClientServiceImpl implements ClientService {
 
     @Transactional
     public ClientResponse createClient(ClientRequest clientRequest, MultipartFile logo) {
+
         // JWT에서 accountId를 추출하는 과정
         Long extractedAccountId = getAccountIdFromJwt();
         Account account = accountRepository.findById(extractedAccountId)
                 .orElseThrow(() -> new ApiException(ErrorStatus._ACCOUNT_NOT_FOUND));
 
         String logoPath;
-        logoPath = (logo != null) ? s3Service.uploadFile(logo) : "default_logo_url";
+        logoPath = (logo != null) ? s3Service.uploadFile(logo) : defaultLogoUrl;
 
         // 클라이언트 객체 생성
         Client client = Client.builder()
