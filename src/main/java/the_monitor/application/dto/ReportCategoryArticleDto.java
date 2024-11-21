@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import the_monitor.domain.enums.CategoryType;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -15,7 +16,7 @@ public class ReportCategoryArticleDto {
     private CategoryType categoryType;
 
     // 카테고리별 기사 리스트
-    private List<ReportArticleDto> reportArticles;
+    private List<ReportArticleDto> reportArticles = new ArrayList<>();
 
     @Builder
     public ReportCategoryArticleDto(CategoryType categoryType,

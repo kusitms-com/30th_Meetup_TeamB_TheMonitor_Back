@@ -10,6 +10,7 @@ import the_monitor.domain.enums.CategoryType;
 import the_monitor.domain.model.Client;
 import the_monitor.domain.model.Report;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +23,7 @@ public class ReportCreateRequest {
     private String color;
 
     // 유형(자사, 경쟁사, 고객사)별 카테고리 - 기사 리스트
-    private List<ReportCategoryArticleDto> reportArticles;
+    private List<ReportCategoryArticleDto> reportArticles = new ArrayList<>();
 
     @Builder
     public ReportCreateRequest(String reportTitle,
