@@ -70,9 +70,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public PageResponse<ArticleResponse> getArticlesGroupByCategory(Long clientId, CategoryType categoryType, int page) {
 
-//        Long accountId = getAccountId();
-
-        Long accountId = 2L;
+        Long accountId = getAccountId();
 
         List<Keyword> keywords = keywordService.getKeywordByAccountIdAndClientIdAndCategoryType(accountId, clientId, categoryType);
 
