@@ -6,6 +6,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import the_monitor.application.dto.ReportArticleDto;
 import the_monitor.application.dto.ReportCategoryArticleDto;
 import the_monitor.application.dto.request.ReportArticleUpdateRequest;
 import the_monitor.application.dto.request.ReportCreateRequest;
@@ -217,17 +218,27 @@ public class ReportServiceImpl implements ReportService {
     // ReportCreateRequest로부터 ReportArticle 생성 및 저장
     private void createAndSaveReportArticlesByCategories(Report report, ReportCreateRequest request) {
 
-        request.getReportArticles().forEach((categoryType, reportCategoryArticleDto) -> {
-            reportCategoryArticleDto.getReportArticles().forEach((category, reportArticleDtoList) -> {
-                reportArticleDtoList.forEach(reportArticleDto -> {
-                    ReportArticle reportArticle = reportArticleDto.toEntity(report);
+        request.getReportArticles().forEach(reportCategoryArticleDto -> {
 
-                    validContentLength(reportArticle.getSummary());
+            CategoryType categoryType = reportCategoryArticleDto.getCategoryType();
+            List<ReportArticleDto> reportArticles = reportCategoryArticleDto.getReportArticles();
 
-                    reportArticle.updateCategoryType(categoryType);
-                    report.addReportArticle(reportArticle); // Report에 추가
-                });
+            // 각 ReportArticleDto를 처리
+            reportArticles.forEach(reportArticleDto -> {
+                // ReportArticle 엔티티 생성
+                ReportArticle reportArticle = reportArticleDto.toEntity(report);
+
+                // 내용 길이 검증
+                validContentLength(reportArticle.getSummary());
+
+                // CategoryType 설정
+                reportArticle.updateCategoryType(categoryType);
+
+                // Report에 추가
+                report.addReportArticle(reportArticle);
+
             });
+
         });
 
     }
