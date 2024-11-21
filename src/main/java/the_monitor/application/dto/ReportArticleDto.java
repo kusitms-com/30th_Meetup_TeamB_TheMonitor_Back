@@ -10,8 +10,8 @@ import the_monitor.domain.model.ReportArticle;
 @NoArgsConstructor
 public class ReportArticleDto {
 
-    private String publishedDate;
     private String keyword;
+    private String publishedDate;
     private String headLine;
     private String url;
     private String media;

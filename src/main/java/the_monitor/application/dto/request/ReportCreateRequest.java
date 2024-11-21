@@ -1,11 +1,10 @@
 package the_monitor.application.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
+
 import the_monitor.application.dto.ReportCategoryArticleDto;
 import the_monitor.domain.enums.CategoryType;
 import the_monitor.domain.model.Client;
@@ -23,13 +22,12 @@ public class ReportCreateRequest {
     private String color;
 
     // 유형(자사, 경쟁사, 고객사)별 카테고리 - 기사 리스트
-    @JsonInclude
-    private Map<CategoryType, ReportCategoryArticleDto> reportArticles = new HashMap<>();
+    private List<ReportCategoryArticleDto> reportArticles;
 
     @Builder
     public ReportCreateRequest(String reportTitle,
                                String color,
-                               Map<CategoryType, ReportCategoryArticleDto> reportArticles) {
+                               List<ReportCategoryArticleDto> reportArticles) {
 
         this.reportTitle = reportTitle;
         this.color = color;
