@@ -36,7 +36,7 @@ public class ReportController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<String> createReports(@RequestParam("clientId") Long clientId,
                                              @RequestBody ReportCreateRequest request,
-                                             @RequestParam("logo") MultipartFile logo) {
+                                             @RequestParam(value = "logo", required = false) MultipartFile logo) {
 
         return ApiResponse.onSuccess(reportService.createReports(clientId, request, logo));
 
