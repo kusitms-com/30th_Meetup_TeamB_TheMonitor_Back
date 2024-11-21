@@ -41,3 +41,6 @@ out/
 application.yml
 application-*.yml
 application.properties
+
+### ignore .env file
+.env
