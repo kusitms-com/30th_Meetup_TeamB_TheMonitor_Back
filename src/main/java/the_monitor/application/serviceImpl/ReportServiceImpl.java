@@ -56,11 +56,16 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     @Transactional
-    public String createReports(Long clientId, ReportCreateRequest request) {
+    public String createReports(Long clientId, ReportCreateRequest request, MultipartFile logo) {
 
         Client client = findClientById(clientId);
 
-        String logoUrl = s3Service.uploadFile(request.getLogo());
+        String logoUrl;
+        if (logo == null){
+            logoUrl = client.getLogo();
+        } else {
+            logoUrl = s3Service.uploadFile(logo);
+        }
 
         Report report = reportRepository.save(request.toEntity(client, logoUrl));
 

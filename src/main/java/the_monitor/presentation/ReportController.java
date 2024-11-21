@@ -33,11 +33,12 @@ public class ReportController {
     }
 
     @Operation(summary = "보고서 생성", description = "보고서를 생성합니다.")
-    @PostMapping()
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<String> createReports(@RequestParam("clientId") Long clientId,
-                                             @RequestBody ReportCreateRequest request) {
+                                             @RequestBody ReportCreateRequest request,
+                                             @RequestParam("logo") MultipartFile logo) {
 
-        return ApiResponse.onSuccess(reportService.createReports(clientId, request));
+        return ApiResponse.onSuccess(reportService.createReports(clientId, request, logo));
 
     }
 
