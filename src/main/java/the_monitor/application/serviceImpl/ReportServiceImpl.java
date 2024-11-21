@@ -233,6 +233,8 @@ public class ReportServiceImpl implements ReportService {
                 // CategoryType 설정
                 reportArticle.updateCategoryType(categoryType);
 
+                reportArticleRepository.save(reportArticle);
+
                 // Report에 추가
                 report.addReportArticle(reportArticle);
 
