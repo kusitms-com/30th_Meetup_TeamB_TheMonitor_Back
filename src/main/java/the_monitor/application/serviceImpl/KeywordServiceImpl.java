@@ -35,11 +35,10 @@ public class KeywordServiceImpl implements KeywordService {
     @Override
     public KeywordResponse getKeywords(Long clientId) {
 
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal(); // CustomUserDetails 캐스팅
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal(); // CustomUserDetails 캐스팅
 
-//        Long accountId = userDetails.getAccountId();
-        Long accountId = 2L;
+        Long accountId = userDetails.getAccountId();
 
         Map<CategoryType, List<String>> keywordsByCategory = new HashMap<>();
 

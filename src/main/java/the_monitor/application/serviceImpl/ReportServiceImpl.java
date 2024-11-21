@@ -244,10 +244,9 @@ public class ReportServiceImpl implements ReportService {
     }
 
     private Long getAccountId() {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-//        return userDetails.getAccountId();
-        return 2L;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        return userDetails.getAccountId();
     }
 
     private Account getAccountFromId(Long accountId) {
