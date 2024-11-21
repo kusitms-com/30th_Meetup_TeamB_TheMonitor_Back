@@ -48,6 +48,8 @@ public class SecurityConfig {
 
             "/api/v1/articles/**",
             "/api/v1/keywords/**",
+            "/api/v1/reports/**",
+            "/api/v1/scrap/**",
 
     };
 
