@@ -34,7 +34,7 @@ public class Report extends BaseTimeEntity {
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
-    @OneToMany(mappedBy = "report", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(mappedBy = "report", fetch = FetchType.LAZY, orphanRemoval = true)
     private List<ReportArticle> reportArticles = new ArrayList<>();;
 
     @Builder
