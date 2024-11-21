@@ -96,7 +96,6 @@ public class GoogleSearchServiceImpl implements GoogleSearchService {
 
 
         if (response.getStatusCode() == HttpStatus.OK) {
-            log.info("Response body: {}", response.getBody());
             return parseResponse(response.getBody());
         } else {
             throw new RuntimeException("Failed to search Google: " + response.getStatusCode());
