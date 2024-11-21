@@ -20,7 +20,6 @@ import java.util.Map;
 public class ReportCreateRequest {
 
     private String reportTitle;
-    private MultipartFile logo;
     private String color;
 
     // 유형(자사, 경쟁사, 고객사)별 카테고리 - 기사 리스트
@@ -29,12 +28,10 @@ public class ReportCreateRequest {
 
     @Builder
     public ReportCreateRequest(String reportTitle,
-                               MultipartFile logo,
                                String color,
                                Map<CategoryType, ReportCategoryArticleDto> reportArticles) {
 
         this.reportTitle = reportTitle;
-        this.logo = logo;
         this.color = color;
         this.reportArticles = reportArticles;
 

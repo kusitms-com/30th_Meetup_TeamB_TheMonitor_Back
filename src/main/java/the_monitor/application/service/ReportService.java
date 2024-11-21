@@ -13,7 +13,7 @@ public interface ReportService {
 
     List<ReportListResponse> getReports(Long clientId);
 
-    String createReports(Long clientId, ReportCreateRequest request);
+    String createReports(Long clientId, ReportCreateRequest request, MultipartFile logo);
 
     String deleteReports(Long clientId, Long reportId);
 
