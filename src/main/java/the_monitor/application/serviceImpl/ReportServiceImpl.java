@@ -73,7 +73,6 @@ public class ReportServiceImpl implements ReportService {
         // 각 카테고리별로 ReportArticle 생성 및 저장
         createAndSaveReportArticlesByCategories(report, request);
 
-
         reportRepository.save(report); // Report와 관련된 ReportArticles 자동 저장
 
         return "보고서 생성 성공";
