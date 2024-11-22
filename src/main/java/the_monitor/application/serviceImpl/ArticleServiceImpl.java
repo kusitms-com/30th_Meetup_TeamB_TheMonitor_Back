@@ -72,22 +72,30 @@ public class ArticleServiceImpl implements ArticleService {
 
         Long accountId = getAccountId();
 
+        // Account ID, Client ID, Category Type에 따른 키워드 목록 가져오기
         List<Keyword> keywords = keywordService.getKeywordByAccountIdAndClientIdAndCategoryType(accountId, clientId, categoryType);
 
-        List<ArticleResponse> articles = new ArrayList<>();
+        // 키워드들을 OR 연산자로 묶기
+        String combinedKeywords = keywords.stream()
+                .map(Keyword::getKeyword)
+                .reduce((keyword1, keyword2) -> keyword1 + " OR " + keyword2)
+                .orElse(""); // 키워드가 없을 경우 빈 문자열 반환
 
-        int totalResults = 0;
-
-        for (Keyword keyword : keywords) {
-            ArticleResponse keywordArticleResponse = googleSearchService.searchArticlesWithoutSaving(keyword.getKeyword(), "w1", page, 10);
-            articles.add(keywordArticleResponse);
-            totalResults += keywordArticleResponse.getTotalResults();
+        if (combinedKeywords.isEmpty()) {
+            return PageResponse.<ArticleResponse>builder()
+                    .listPageResponse(new ArrayList<>())
+                    .totalCount(0L)
+                    .size(0)
+                    .build();
         }
 
+        // OR로 묶은 키워드를 기반으로 검색
+        ArticleResponse combinedArticleResponse = googleSearchService.searchArticlesWithoutSaving(combinedKeywords, "w1", page, 10);
+
         return PageResponse.<ArticleResponse>builder()
-                .listPageResponse(articles)
-                .totalCount((long) totalResults)
-                .size(articles.size())
+                .listPageResponse(List.of(combinedArticleResponse))
+                .totalCount((long) combinedArticleResponse.getTotalResults())
+                .size(10)
                 .build();
 
     }
@@ -101,7 +109,7 @@ public class ArticleServiceImpl implements ArticleService {
         return PageResponse.<ArticleResponse>builder()
                 .listPageResponse(List.of(articleResponse))
                 .totalCount((long) articleResponse.getTotalResults())
-                .size(articleResponse.getGoogleArticles().size())
+                .size(10)
                 .build();
 
     }

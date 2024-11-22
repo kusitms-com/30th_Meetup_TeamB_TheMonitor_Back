@@ -40,39 +40,39 @@ public class GoogleSearchServiceImpl implements GoogleSearchService {
     @Value("${google.api.base-url:https://www.googleapis.com/customsearch/v1}")
     private String baseUrl;
 
-    @Override
-    public ArticleResponse toDto(String keyword) {
-
-        List<ArticleGoogleDto> allResults = new ArrayList<>();
-        int start = 1;
-        boolean hasMoreResults = true;
-        int totalResults = 0;
-
-        while (hasMoreResults) {
-            ArticleResponse pageResults = searchArticles(keyword, "d1", start);
-
-            if (pageResults.getGoogleArticles().isEmpty()) {
-                hasMoreResults = false;
-            } else {
-                allResults.addAll(pageResults.getGoogleArticles());
-                totalResults = pageResults.getTotalResults(); // 전체 결과 수 업데이트
-                start += 10;
-            }
-        }
-
-        return ArticleResponse.builder()
-                .googleArticles(allResults)
-                .totalResults(totalResults)
-                .build();
-    }
+//    @Override
+//    public ArticleResponse toDto(String keyword) {
+//
+//        List<ArticleGoogleDto> allResults = new ArrayList<>();
+//        int start = 1;
+//        boolean hasMoreResults = true;
+//        int totalResults = 0;
+//
+//        while (hasMoreResults) {
+//            ArticleResponse pageResults = searchArticles(keyword, "d1", start);
+//
+//            if (pageResults.getGoogleArticles().isEmpty()) {
+//                hasMoreResults = false;
+//            } else {
+//                allResults.addAll(pageResults.getGoogleArticles());
+//                totalResults = pageResults.getTotalResults(); // 전체 결과 수 업데이트
+//                start += 10;
+//            }
+//        }
+//
+//        return ArticleResponse.builder()
+//                .googleArticles(allResults)
+//                .totalResults(totalResults)
+//                .build();
+//    }
 
     @Override
     public ArticleResponse searchArticlesWithoutSaving(String keyword, String dateRestrict, int page, int size) {
 
-        int start = (page - 1) * size + 1; // 페이지가 1일 때 1부터 시작
+        int start = (page - 1) * size + 1;
 
         ArticleResponse articleResponse = searchArticles(keyword, dateRestrict, start);
-        return mapToArticleResponseList(keyword, articleResponse.getGoogleArticles(), articleResponse.getTotalResults());
+        return mapToArticleResponseList(keyword,articleResponse.getGoogleArticles(), articleResponse.getTotalResults());
 
     }
 
@@ -106,6 +106,7 @@ public class GoogleSearchServiceImpl implements GoogleSearchService {
     private ArticleResponse parseResponse(String jsonResponse) {
 
         List<ArticleGoogleDto> searchDetails = new ArrayList<>();
+
         int totalResults = 0;
 
         try {
