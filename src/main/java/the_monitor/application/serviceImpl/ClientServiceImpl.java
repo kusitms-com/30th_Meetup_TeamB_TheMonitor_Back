@@ -27,10 +27,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -132,6 +129,20 @@ public class ClientServiceImpl implements ClientService {
     public Client findClientById(Long clientId) {
         return clientRepository.findById(clientId)
                 .orElseThrow(() -> new ApiException(ErrorStatus._CLIENT_NOT_FOUND));
+    }
+    @Override
+    public ClientResponse getClient(Long clientId){
+
+        Client client = clientRepository.findById(clientId)
+                .orElseThrow(() -> new ApiException(ErrorStatus._CLIENT_NOT_FOUND));
+
+        // Client 객체를 ClientResponse로 변환
+        return ClientResponse.builder()
+                .clientId(client.getId())
+                .name(client.getName())
+                .managerName(client.getManagerName())
+                .logoUrl(client.getLogo())
+                .build();
     }
 
     private String saveLogo(MultipartFile logo) {
