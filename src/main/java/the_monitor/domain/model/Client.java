@@ -86,4 +86,15 @@ public class Client extends BaseTimeEntity {
         this.clientMailCCs = clientMailCCs;
     }
 
+    public void updateClientInfo(String name, String managerName, String logoUrl) {
+        if (name != null && !name.isBlank()) {
+            this.name = name;
+        }
+        if (managerName != null && !managerName.isBlank()) {
+            this.managerName = managerName;
+        }
+        if (logoUrl != null) {
+            this.logo = logoUrl;
+        }
+    }
 }
