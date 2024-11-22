@@ -7,8 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import the_monitor.application.dto.request.ReportArticleUpdateRequest;
-import the_monitor.application.dto.request.ReportCreateRequest;
+import the_monitor.application.dto.request.*;
 import the_monitor.application.dto.response.ReportArticlesResponse;
 import the_monitor.application.dto.response.ReportDetailResponse;
 import the_monitor.application.dto.response.ReportListResponse;
@@ -91,9 +90,9 @@ public class ReportController {
     public ApiResponse<String> updateReportArticleSummary(@RequestParam("clientId") Long clientId,
                                                           @RequestParam("reportId") Long reportId,
                                                           @RequestParam("reportArticleId") Long reportArticleId,
-                                                          @RequestParam("summary") String summary) {
+                                                          @RequestBody ReportUpdateSummaryRequest request) {
 
-        return ApiResponse.onSuccess(reportService.updateReportArticleSummary(clientId, reportId, reportArticleId, summary));
+        return ApiResponse.onSuccess(reportService.updateReportArticleSummary(clientId, reportId, reportArticleId, request));
 
     }
 
@@ -101,9 +100,9 @@ public class ReportController {
     @PatchMapping("/title")
     public ApiResponse<String> updateReportTitle(@RequestParam("clientId") Long clientId,
                                                  @RequestParam("reportId") Long reportId,
-                                                 @RequestParam("title") String title) {
+                                                 @RequestBody ReportUpdateTitleRequest request) {
 
-        return ApiResponse.onSuccess(reportService.updateReportTitle(clientId, reportId, title));
+        return ApiResponse.onSuccess(reportService.updateReportTitle(clientId, reportId, request));
 
     }
 
@@ -111,9 +110,9 @@ public class ReportController {
     @PatchMapping("/color")
     public ApiResponse<String> updateReportColor(@RequestParam("clientId") Long clientId,
                                                  @RequestParam("reportId") Long reportId,
-                                                 @RequestParam("color") String color) {
+                                                 @RequestBody ReportUpdateColorRequest request) {
 
-        return ApiResponse.onSuccess(reportService.updateReportColor(clientId, reportId, color));
+        return ApiResponse.onSuccess(reportService.updateReportColor(clientId, reportId, request));
 
     }
 
