@@ -241,7 +241,7 @@ public class ReportServiceImpl implements ReportService {
 
         });
 
-        report.addReportArticle(reportArticleList);
+        report.addReportArticles(reportArticleList);
 
     }
 
