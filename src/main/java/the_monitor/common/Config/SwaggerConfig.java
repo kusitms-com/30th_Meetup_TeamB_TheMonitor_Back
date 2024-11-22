@@ -29,7 +29,9 @@ public class SwaggerConfig {
                 .info(apiInfo())
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
                 .addServersItem(new Server().url("http://the-monitor.o-r.kr").description("HTTP Server"))
-                .addServersItem(new Server().url("https://the-monitor.o-r.kr").description("HTTPS Server"));
+                .addServersItem(new Server().url("https://the-monitor.o-r.kr").description("HTTPS Server"))
+                .addServersItem(new Server().url("http://localhost:8080").description("Local Development Server"));
+
     }
 
     private Info apiInfo() {
