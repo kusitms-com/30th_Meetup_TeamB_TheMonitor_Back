@@ -21,13 +21,13 @@ public class KeywordController {
 
     @Operation(summary = "키워드 리스트 반환", description = "clientId에 따른 키워드를 반환합니다.")
     @GetMapping()
-    public ApiResponse<KeywordResponse> getKeywords(@RequestParam("clientId") Long clientId) {
+    public ApiResponse<List<KeywordResponse>> getKeywords(@RequestParam("clientId") Long clientId) {
         return ApiResponse.onSuccessData("keyword 리스트", keywordService.getKeywords(clientId));
     }
 
     @PutMapping()
     @Operation(summary = "키워드 업데이트", description = "clientId에 따른 키워드를 업데이트합니다.")
-    public ApiResponse<KeywordResponse> updateKeywords(
+    public ApiResponse<List<KeywordResponse>> updateKeywords(
             @RequestParam("clientId") Long clientId,
             @RequestBody KeywordUpdateRequest keywordUpdateRequest) {
 
