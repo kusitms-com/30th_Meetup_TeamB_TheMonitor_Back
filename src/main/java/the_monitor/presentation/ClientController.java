@@ -35,9 +35,15 @@ public class ClientController {
 
     @Operation(summary = "고객사 정보 조회", description = "로그인한 유저의 accountId로 고객사 정보를 조회합니다.")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ApiResponse<List<ClientResponse>> getClientInfo()     {
+    public ApiResponse<List<ClientResponse>> getClient()     {
         List<ClientResponse> clientResponses = clientService.getClientsByAccountId();
         return ApiResponse.onSuccessData("클라이언트 조회 성공", clientResponses);
+    }
+
+    @Operation(summary = "clietId로 고객사 정보 반환", description = "clientId로 고객사 정보를 조회합니다.")
+    @GetMapping("/info")
+    public ApiResponse<ClientResponse> getClientInfo(@RequestParam("clientId") Long clientId){
+        return ApiResponse.onSuccessData("클라이언트 정보 조회 성공", clientService.getClient(clientId));
     }
 
 }

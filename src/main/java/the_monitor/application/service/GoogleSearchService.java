@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface GoogleSearchService {
 
-    ArticleResponse toDto(String keyword);
+//    ArticleResponse toDto(String keyword);
 
     ArticleResponse searchArticlesWithoutSaving(String keyword, String dateRestrict, int page, int size);
 
