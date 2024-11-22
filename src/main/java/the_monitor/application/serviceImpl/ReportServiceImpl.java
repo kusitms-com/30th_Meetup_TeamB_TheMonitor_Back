@@ -8,8 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import the_monitor.application.dto.ReportArticleDto;
 import the_monitor.application.dto.ReportCategoryArticleDto;
-import the_monitor.application.dto.request.ReportArticleUpdateRequest;
-import the_monitor.application.dto.request.ReportCreateRequest;
+import the_monitor.application.dto.request.*;
 import the_monitor.application.dto.response.ReportArticlesResponse;
 import the_monitor.application.dto.response.ReportDetailResponse;
 import the_monitor.application.dto.response.ReportListResponse;
@@ -143,7 +142,7 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     @Transactional
-    public String updateReportArticleSummary(Long clientId, Long reportId, Long reportArticleId, String summary) {
+    public String updateReportArticleSummary(Long clientId, Long reportId, Long reportArticleId, ReportUpdateSummaryRequest request) {
 
         Report report = findByClientIdAndReportId(clientId, reportId);
         validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
@@ -151,9 +150,9 @@ public class ReportServiceImpl implements ReportService {
         ReportArticle reportArticle = reportArticleRepository.findById(reportArticleId)
                 .orElseThrow(() -> new ApiException(ErrorStatus._REPORT_ARTICLE_NOT_FOUND));
 
-        validContentLength(summary);
+        validContentLength(request.getSummary());
 
-        reportArticle.updateSummary(summary);
+        reportArticle.updateSummary(request.getSummary());
 
         return "��고서 기사 요약 수정 완료";
 
@@ -162,12 +161,12 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     @Transactional
-    public String updateReportTitle(Long clientId, Long reportId, String title) {
+    public String updateReportTitle(Long clientId, Long reportId, ReportUpdateTitleRequest request) {
 
         Report report = findByClientIdAndReportId(clientId, reportId);
         validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
 
-        report.updateTitle(title);
+        report.updateTitle(request.getTitle());
 
         return "보고서 제목 수정 완료";
 
@@ -175,12 +174,12 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     @Transactional
-    public String updateReportColor(Long clientId, Long reportId, String color) {
+    public String updateReportColor(Long clientId, Long reportId, ReportUpdateColorRequest request) {
 
         Report report = findByClientIdAndReportId(clientId, reportId);
         validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
 
-        report.updateColor(color);
+        report.updateColor(request.getColor());
 
         return "보고서 색상 수정 완료";
 

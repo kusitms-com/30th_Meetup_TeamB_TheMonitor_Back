@@ -1,8 +1,7 @@
 package the_monitor.application.service;
 
 import org.springframework.web.multipart.MultipartFile;
-import the_monitor.application.dto.request.ReportArticleUpdateRequest;
-import the_monitor.application.dto.request.ReportCreateRequest;
+import the_monitor.application.dto.request.*;
 import the_monitor.application.dto.response.ReportArticlesResponse;
 import the_monitor.application.dto.response.ReportDetailResponse;
 import the_monitor.application.dto.response.ReportListResponse;
@@ -25,11 +24,11 @@ public interface ReportService {
 
     String deleteReportArticle(Long clientId, Long reportId, Long reportArticleId);
 
-    String updateReportArticleSummary(Long clientId, Long reportId, Long reportArticleId, String summary);
+    String updateReportArticleSummary(Long clientId, Long reportId, Long reportArticleId, ReportUpdateSummaryRequest request);
 
-    String updateReportTitle(Long clientId, Long reportId, String title);
+    String updateReportTitle(Long clientId, Long reportId, ReportUpdateTitleRequest request);
 
-    String updateReportColor(Long clientId, Long reportId, String color);
+    String updateReportColor(Long clientId, Long reportId, ReportUpdateColorRequest request);
 
     String updateReportLogo(Long clientId, Long reportId, MultipartFile logo);
 
