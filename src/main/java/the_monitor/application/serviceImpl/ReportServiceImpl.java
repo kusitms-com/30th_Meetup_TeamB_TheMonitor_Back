@@ -67,12 +67,10 @@ public class ReportServiceImpl implements ReportService {
             logoUrl = s3Service.uploadFile(logo);
         }
 
-        Report report = reportRepository.save(request.toEntity(client, logoUrl));
 
+        Report report = reportRepository.save(request.toEntity(client, logoUrl));
         // 각 카테고리별로 ReportArticle 생성 및 저장
         createAndSaveReportArticlesByCategories(report, request);
-
-        reportRepository.save(report); // Report와 관련된 ReportArticles 자동 저장
 
         return "보고서 생성 성공";
     }
@@ -216,6 +214,9 @@ public class ReportServiceImpl implements ReportService {
     // ReportCreateRequest로부터 ReportArticle 생성 및 저장
     private void createAndSaveReportArticlesByCategories(Report report, ReportCreateRequest request) {
 
+
+        List<ReportArticle> reportArticleList = new ArrayList<>();
+
         request.getReportArticles().forEach(reportCategoryArticleDto -> {
 
             CategoryType categoryType = reportCategoryArticleDto.getCategoryType();
@@ -234,12 +235,13 @@ public class ReportServiceImpl implements ReportService {
 
                 reportArticleRepository.save(reportArticle);
 
-                // Report에 추가
-                report.addReportArticle(reportArticle);
+                reportArticleList.add(reportArticle);
 
             });
 
         });
+
+        report.addReportArticles(reportArticleList);
 
     }
 
