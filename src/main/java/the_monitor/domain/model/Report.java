@@ -52,7 +52,7 @@ public class Report extends BaseTimeEntity {
 
     }
 
-    public void addReportArticle(List<ReportArticle> reportArticles) {
+    public void addReportArticles(List<ReportArticle> reportArticles) {
         this.reportArticles = reportArticles;
     }
 
