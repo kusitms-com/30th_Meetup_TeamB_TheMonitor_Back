@@ -7,6 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import the_monitor.application.dto.request.KeywordUpdateRequest;
+import the_monitor.application.dto.response.KeywordAndIdResponse;
 import the_monitor.application.dto.response.KeywordResponse;
 import the_monitor.application.service.KeywordService;
 import the_monitor.common.ApiException;
@@ -33,27 +34,11 @@ public class KeywordServiceImpl implements KeywordService {
 
 
     @Override
-    public KeywordResponse getKeywords(Long clientId) {
+    public List<KeywordResponse> getKeywords(Long clientId) {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal(); // CustomUserDetails 캐스팅
+        Long accountId = getAccountIdFromAuthentication();
 
-        Long accountId = userDetails.getAccountId();
-
-        Map<CategoryType, List<String>> keywordsByCategory = new HashMap<>();
-
-        for (CategoryType categoryType : CategoryType.values()) {
-            List<Keyword> keywords = keywordRepository.findKeywordByAccountIdAndClientIdAndCategoryType(accountId, clientId, categoryType);
-
-            List<String> keywordList = keywords.stream()
-                    .map(Keyword::getKeyword)
-                    .collect(Collectors.toList());
-            keywordsByCategory.put(categoryType, keywordList);
-        }
-
-        return KeywordResponse.builder()
-                .keywordsByCategory(keywordsByCategory)
-                .build();
+        return getKeywordResponses(accountId, clientId);
 
     }
 
@@ -66,24 +51,67 @@ public class KeywordServiceImpl implements KeywordService {
 
     @Transactional
     @Override
-    public KeywordResponse updateKeywords(Long clientId, KeywordUpdateRequest keywordUpdateRequest) {
+    public List<KeywordResponse> updateKeywords(Long clientId, KeywordUpdateRequest keywordUpdateRequest) {
+
         Map<CategoryType, List<String>> keywordsByCategory = keywordUpdateRequest.getKeywordsByCategory();
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        Long accountId = userDetails.getAccountId();
+        Long accountId = getAccountIdFromAuthentication();
 
-        Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new ApiException(ErrorStatus._CLIENT_NOT_FOUND));
+        // 클라이언트 확인
+        Client client = findClientById(clientId);
 
+        // 기존 키워드 삭제
         keywordRepository.deleteAllByClientId(clientId);
 
+        // 새로운 키워드 저장
         for (Map.Entry<CategoryType, List<String>> entry : keywordsByCategory.entrySet()) {
             categoryServiceImpl.saveCategoryWithKeywords(entry.getKey(), entry.getValue(), client);
         }
 
-        return KeywordResponse.builder()
-                .keywordsByCategory(keywordsByCategory)
-                .build();
+        return getKeywordResponses(accountId, clientId);
+
     }
+
+    private Long getAccountIdFromAuthentication() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        return userDetails.getAccountId();
+    }
+
+    private Client findClientById(Long clientId) {
+        return clientRepository.findById(clientId)
+                .orElseThrow(() -> new ApiException(ErrorStatus._CLIENT_NOT_FOUND));
+    }
+
+
+    private List<KeywordResponse> getKeywordResponses(Long accountId, Long clientId) {
+        // 갱신된 키워드 가져오기
+        List<Keyword> keywords = findKeywordByAccountIdAndClientId(accountId, clientId);
+
+        // CategoryType별로 키워드를 그룹화
+        Map<CategoryType, List<Keyword>> keywordsByCategoryType = getKeywordsByCategoryType(keywords);
+
+        return keywordsByCategoryType.entrySet().stream()
+                .map(entry -> KeywordResponse.builder()
+                        .categoryType(entry.getKey())
+                        .keywordAndIdResponses(entry.getValue().stream()
+                                .map(keyword -> KeywordAndIdResponse.builder()
+                                        .keywordId(keyword.getId())
+                                        .keywordName(keyword.getKeyword())
+                                        .build())
+                                .toList())
+                        .build())
+                .toList();
+
+    }
+
+    private List<Keyword> findKeywordByAccountIdAndClientId(Long accountId, Long clientId) {
+        return keywordRepository.findKeywordByAccountIdAndClientId(accountId, clientId);
+    }
+
+    private Map<CategoryType, List<Keyword>> getKeywordsByCategoryType(List<Keyword> keywords) {
+        return keywords.stream()
+                .collect(Collectors.groupingBy(keyword -> keyword.getCategory().getCategoryType()));
+    }
+
 }

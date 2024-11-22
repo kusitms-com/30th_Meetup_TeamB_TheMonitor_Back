@@ -13,12 +13,16 @@ import java.util.Map;
 @NoArgsConstructor
 public class KeywordResponse {
 
-    @JsonInclude
-    private Map<CategoryType, List<String>> keywordsByCategory;
+    private CategoryType categoryType;
+    private List<KeywordAndIdResponse> keywordAndIdResponses;
 
     @Builder
-    public KeywordResponse(Map<CategoryType, List<String>> keywordsByCategory) {
-        this.keywordsByCategory = keywordsByCategory;
+    public KeywordResponse(CategoryType categoryType,
+                           List<KeywordAndIdResponse> keywordAndIdResponses) {
+
+        this.categoryType = categoryType;
+        this.keywordAndIdResponses = keywordAndIdResponses;
+
     }
 
 }
