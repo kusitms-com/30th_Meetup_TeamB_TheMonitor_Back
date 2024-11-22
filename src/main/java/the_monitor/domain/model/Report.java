@@ -52,8 +52,8 @@ public class Report extends BaseTimeEntity {
 
     }
 
-    public void addReportArticle(ReportArticle reportArticles) {
-        this.reportArticles.add(reportArticles);
+    public void addReportArticle(List<ReportArticle> reportArticles) {
+        this.reportArticles = reportArticles;
     }
 
     public void updateTitle(String title) {
