@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import the_monitor.application.dto.request.ClientRequest;
 import the_monitor.application.dto.request.ClientUpdateRequest;
+import the_monitor.application.dto.response.ClientGetResponse;
 import the_monitor.application.dto.response.ClientResponse;
 import the_monitor.application.dto.response.ReportListResponse;
 import the_monitor.application.service.CategoryService;
@@ -99,13 +100,6 @@ public class ClientServiceImpl implements ClientService {
                 .name(client.getName())
                 .managerName(client.getManagerName())
                 .logoUrl(client.getLogo())
-                .categoryKeywords(categoryKeywords)
-                .clientMailRecipients(client.getClientMailRecipients().stream()
-                        .map(ClientMailRecipient::getAddress)
-                        .collect(Collectors.toList()))
-                .clientMailCCs(client.getClientMailCCs().stream()
-                        .map(ClientMailCC::getAddress)
-                        .collect(Collectors.toList()))
                 .build();
     }
     @Override
@@ -133,16 +127,14 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public ClientResponse getClient(Long clientId){
+    public ClientGetResponse getClient(Long clientId){
 
         Client client = clientRepository.findById(clientId)
                 .orElseThrow(() -> new ApiException(ErrorStatus._CLIENT_NOT_FOUND));
 
         // Client 객체를 ClientResponse로 변환
-        return ClientResponse.builder()
-                .clientId(client.getId())
+        return ClientGetResponse.builder()
                 .name(client.getName())
-                .managerName(client.getManagerName())
                 .logoUrl(client.getLogo())
                 .build();
     }
