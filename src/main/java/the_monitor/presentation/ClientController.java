@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 import the_monitor.application.dto.request.ClientRequest;
 import the_monitor.application.dto.request.ClientUpdateRequest;
 import the_monitor.application.dto.request.ReportUpdateTitleRequest;
+import the_monitor.application.dto.response.ClientGetResponse;
 import the_monitor.application.dto.response.ClientResponse;
 import the_monitor.application.service.ClientService;
 import the_monitor.common.ApiResponse;
@@ -51,7 +52,7 @@ public class ClientController {
 
     @Operation(summary = "clietId로 고객사 정보 반환", description = "clientId로 고객사 정보를 조회합니다.")
     @GetMapping("/info")
-    public ApiResponse<ClientResponse> getClientInfo(@RequestParam("clientId") Long clientId){
+    public ApiResponse<ClientGetResponse> getClientInfo(@RequestParam("clientId") Long clientId){
         return ApiResponse.onSuccessData("클라이언트 정보 조회 성공", clientService.getClient(clientId));
     }
 
