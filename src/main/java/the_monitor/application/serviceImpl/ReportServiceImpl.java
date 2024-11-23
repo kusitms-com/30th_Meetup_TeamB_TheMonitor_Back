@@ -197,9 +197,9 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public List<ReportListResponse> searchReport(Long clientId, String searchTitle) {
+    public List<ReportListResponse> searchReport(Long clientId, ReportSearchTitleRequest request) {
 
-        List<Report> reports = reportRepository.findByClientIdAndTitleContaining(clientId, searchTitle);
+        List<Report> reports = reportRepository.findByClientIdAndTitleContaining(clientId, request.getSearchTitle());
 
         return reports.stream()
                 .map(report -> ReportListResponse.builder()

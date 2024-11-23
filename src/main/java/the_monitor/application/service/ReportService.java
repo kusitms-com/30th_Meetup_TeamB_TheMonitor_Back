@@ -32,6 +32,6 @@ public interface ReportService {
 
     String updateReportLogo(Long clientId, Long reportId, MultipartFile logo);
 
-    List<ReportListResponse> searchReport(Long clientId, String searchTitle);
+    List<ReportListResponse> searchReport(Long clientId, ReportSearchTitleRequest request);
 
 }
