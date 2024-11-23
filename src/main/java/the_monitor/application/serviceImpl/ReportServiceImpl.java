@@ -206,6 +206,7 @@ public class ReportServiceImpl implements ReportService {
                         .reportId(report.getId())
                         .title(report.getTitle())
                         .createdAt(String.valueOf(report.getCreatedAt()))
+                        .updatedAt(String.valueOf(report.getUpdatedAt()))
                         .build())
                 .collect(Collectors.toList());
 
