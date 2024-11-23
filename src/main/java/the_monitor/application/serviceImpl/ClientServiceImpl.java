@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import the_monitor.application.dto.request.ClientRequest;
+import the_monitor.application.dto.request.ClientUpdateRequest;
 import the_monitor.application.dto.response.ClientResponse;
 import the_monitor.application.dto.response.ReportListResponse;
 import the_monitor.application.service.CategoryService;
@@ -130,6 +131,7 @@ public class ClientServiceImpl implements ClientService {
         return clientRepository.findById(clientId)
                 .orElseThrow(() -> new ApiException(ErrorStatus._CLIENT_NOT_FOUND));
     }
+
     @Override
     public ClientResponse getClient(Long clientId){
 
@@ -166,6 +168,42 @@ public class ClientServiceImpl implements ClientService {
     private Long getAccountIdFromJwt() {
         String token = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
         return jwtProvider.getAccountId(token);
+    }
+
+    @Override
+    @Transactional
+    public String deleteClientById(Long clientId) {
+        Long accountId = getAccountIdFromJwt(); // JWT에서 accountId 추출 (유틸리티 메서드)
+
+        // 1. Client 존재 여부 및 권한 확인
+        Client client = clientRepository.findById(clientId)
+                .orElseThrow(() -> new ApiException(ErrorStatus._CLIENT_NOT_FOUND));
+
+        if (!client.getAccount().getId().equals(accountId)) {
+            throw new ApiException(ErrorStatus._CLIENT_FORBIDDEN);
+        }
+
+        // 2. Client 삭제
+        clientRepository.delete(client);
+
+        // 3. 성공 메시지 반환
+        return "고객사 정보가 성공적으로 삭제되었습니다.";
+    }
+
+    @Override
+    @Transactional
+    public String updateClient(Long clientId, ClientUpdateRequest request, MultipartFile logo) {
+        // 1. 고객사 조회
+        Client client = clientRepository.findById(clientId)
+                .orElseThrow(() -> new IllegalArgumentException("Client not found with id: " + clientId));
+
+        String logoPath;
+        logoPath = (logo != null) ? s3Service.uploadFile(logo) : defaultLogoUrl;
+
+        // 2. 수정 사항 적용
+        client.updateClientInfo(request.getName(), request.getManagerName(), logoPath);
+
+        return "고객사 정보가 성공적으로 수정되었습니다.";
     }
 
 }
