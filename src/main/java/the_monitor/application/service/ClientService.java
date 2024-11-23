@@ -22,4 +22,6 @@ public interface ClientService {
     String deleteClientById(Long clientId);
 
     String updateClient(Long clientId, ClientUpdateRequest request, MultipartFile logo);
+
+    List<ClientResponse> searchClient(String searchText);
 }

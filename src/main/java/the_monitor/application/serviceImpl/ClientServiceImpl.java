@@ -7,6 +7,7 @@ import the_monitor.application.dto.request.ClientRequest;
 import the_monitor.application.dto.request.ClientUpdateRequest;
 import the_monitor.application.dto.response.ClientGetResponse;
 import the_monitor.application.dto.response.ClientResponse;
+import the_monitor.application.dto.response.EmailSendResponse;
 import the_monitor.application.dto.response.ReportListResponse;
 import the_monitor.application.service.CategoryService;
 import the_monitor.application.service.ClientService;
@@ -196,6 +197,23 @@ public class ClientServiceImpl implements ClientService {
         client.updateClientInfo(request.getName(), request.getManagerName(), logoPath);
 
         return "고객사 정보가 성공적으로 수정되었습니다.";
+    }
+
+    @Override
+    public List<ClientResponse> searchClient(String searchText){
+        if (searchText == null || searchText.trim().isEmpty()) {
+            return List.of(); // 빈 리스트 반환
+        }
+        List<Client> clients = clientRepository.findByNameContainingIgnoreCase(searchText);
+
+        return clients.stream()
+                .map(client -> ClientResponse.builder()
+                        .clientId(client.getId())
+                        .name(client.getName())
+                        .managerName(client.getManagerName())
+                        .logoUrl(client.getLogo())
+                        .build())
+                .collect(Collectors.toList());
     }
 
 }
