@@ -127,11 +127,11 @@ public class ReportController {
     }
 
     @Operation(summary = "보고서 검색", description = "보고서를 검색합니다.")
-    @GetMapping("/search")
+    @PostMapping("/search")
     public ApiResponse<List<ReportListResponse>> searchReport(@RequestParam("clientId") Long clientId,
-                                                       @RequestParam("searchTitle") String searchTitle) {
+                                                       @RequestBody ReportSearchTitleRequest request) {
 
-        return ApiResponse.onSuccessData("보고서 검색", reportService.searchReport(clientId, searchTitle));
+        return ApiResponse.onSuccessData("보고서 검색", reportService.searchReport(clientId, request));
 
     }
 
