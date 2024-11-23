@@ -34,7 +34,7 @@ public class KeywordServiceImpl implements KeywordService {
 
 
     @Override
-    public List<KeywordResponse> getKeywords(Long clientId) {
+    public KeywordResponse getKeywords(Long clientId) {
 
         Long accountId = getAccountIdFromAuthentication();
 
@@ -51,7 +51,7 @@ public class KeywordServiceImpl implements KeywordService {
 
     @Transactional
     @Override
-    public List<KeywordResponse> updateKeywords(Long clientId, KeywordUpdateRequest keywordUpdateRequest) {
+    public KeywordResponse updateKeywords(Long clientId, KeywordUpdateRequest keywordUpdateRequest) {
 
         Map<CategoryType, List<String>> keywordsByCategory = keywordUpdateRequest.getKeywordsByCategory();
 
@@ -84,24 +84,23 @@ public class KeywordServiceImpl implements KeywordService {
     }
 
 
-    private List<KeywordResponse> getKeywordResponses(Long accountId, Long clientId) {
+    private KeywordResponse getKeywordResponses(Long accountId, Long clientId) {
         // 갱신된 키워드 가져오기
         List<Keyword> keywords = findKeywordByAccountIdAndClientId(accountId, clientId);
 
-        // CategoryType별로 키워드를 그룹화
-        Map<CategoryType, List<Keyword>> keywordsByCategoryType = getKeywordsByCategoryType(keywords);
+        // CategoryType별로 키워드를 분류
+        List<KeywordAndIdResponse> selfKeywords = getSELFKeywordAndIdResponses(keywords);
 
-        return keywordsByCategoryType.entrySet().stream()
-                .map(entry -> KeywordResponse.builder()
-                        .categoryType(entry.getKey())
-                        .keywordAndIdResponses(entry.getValue().stream()
-                                .map(keyword -> KeywordAndIdResponse.builder()
-                                        .keywordId(keyword.getId())
-                                        .keywordName(keyword.getKeyword())
-                                        .build())
-                                .toList())
-                        .build())
-                .toList();
+        List<KeywordAndIdResponse> competitorKeywords = getCOMPETITORKeywordAndIdResponses(keywords);
+
+        List<KeywordAndIdResponse> industryKeywords = getINDUSTRYKeywordAndIdResponses(keywords);
+
+        // KeywordResponse 생성 및 반환
+        return KeywordResponse.builder()
+                .self(selfKeywords)
+                .competitor(competitorKeywords)
+                .industry(industryKeywords)
+                .build();
 
     }
 
@@ -109,9 +108,34 @@ public class KeywordServiceImpl implements KeywordService {
         return keywordRepository.findKeywordByAccountIdAndClientId(accountId, clientId);
     }
 
-    private Map<CategoryType, List<Keyword>> getKeywordsByCategoryType(List<Keyword> keywords) {
+    private List<KeywordAndIdResponse> getSELFKeywordAndIdResponses(List<Keyword> keywords) {
         return keywords.stream()
-                .collect(Collectors.groupingBy(keyword -> keyword.getCategory().getCategoryType()));
+                .filter(keyword -> keyword.getCategory().getCategoryType() == CategoryType.SELF)
+                .map(keyword -> KeywordAndIdResponse.builder()
+                        .keywordId(keyword.getId())
+                        .keywordName(keyword.getKeyword())
+                        .build())
+                .toList();
+    }
+
+    private List<KeywordAndIdResponse> getCOMPETITORKeywordAndIdResponses(List<Keyword> keywords) {
+        return keywords.stream()
+                .filter(keyword -> keyword.getCategory().getCategoryType() == CategoryType.COMPETITOR)
+                .map(keyword -> KeywordAndIdResponse.builder()
+                        .keywordId(keyword.getId())
+                        .keywordName(keyword.getKeyword())
+                        .build())
+                .toList();
+    }
+
+    private List<KeywordAndIdResponse> getINDUSTRYKeywordAndIdResponses(List<Keyword> keywords) {
+        return keywords.stream()
+                .filter(keyword -> keyword.getCategory().getCategoryType() == CategoryType.INDUSTRY)
+                .map(keyword -> KeywordAndIdResponse.builder()
+                        .keywordId(keyword.getId())
+                        .keywordName(keyword.getKeyword())
+                        .build())
+                .toList();
     }
 
 }

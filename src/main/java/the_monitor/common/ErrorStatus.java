@@ -41,6 +41,7 @@ public enum ErrorStatus implements BaseErrorCode {
 
     // Client
     _CLIENT_NOT_FOUND(HttpStatus.NOT_FOUND, "CLIENT404", "해당 클라이언트를 찾을 수 없습니다."),
+    _CLIENT_FORBIDDEN(HttpStatus.FORBIDDEN, "CLIENT403", "해당 클라이언트에 접속할 수 없습니다,"),
 
     // Report
     _REPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "REPORT404", "해당 리포트를 찾을 수 없습니다."),
