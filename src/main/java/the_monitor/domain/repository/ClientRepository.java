@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface ClientRepository extends JpaRepository<Client, Long> {
     List<Client> findAllByAccountId(@Param("accountId") Long accountId);
+
+    List<Client> findByNameContainingIgnoreCase(String searchText);
 }
