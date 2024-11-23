@@ -10,10 +10,10 @@ import java.util.Map;
 
 public interface KeywordService {
 
-    List<KeywordResponse> getKeywords(Long clientId);
+    KeywordResponse getKeywords(Long clientId);
 
     List<Keyword> getKeywordByAccountIdAndClientIdAndCategoryType(Long accountId, Long clientId, CategoryType categoryType);
 
-    List<KeywordResponse> updateKeywords(Long clientId, KeywordUpdateRequest keywordUpdateRequest);
+    KeywordResponse updateKeywords(Long clientId, KeywordUpdateRequest keywordUpdateRequest);
 
 }
