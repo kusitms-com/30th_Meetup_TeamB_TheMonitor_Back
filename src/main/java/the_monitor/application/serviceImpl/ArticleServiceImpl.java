@@ -5,6 +5,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import the_monitor.application.dto.ArticleGoogleDto;
 import the_monitor.application.dto.response.ArticleResponse;
 import the_monitor.application.service.ArticleService;
 import the_monitor.application.service.GoogleSearchService;
@@ -12,11 +13,15 @@ import the_monitor.application.service.KeywordService;
 import the_monitor.common.PageResponse;
 import the_monitor.domain.enums.CategoryType;
 import the_monitor.domain.model.Account;
+import the_monitor.domain.model.Category;
 import the_monitor.domain.model.Keyword;
+import the_monitor.domain.repository.ArticleRepository;
 import the_monitor.domain.repository.ReportArticleRepository;
 import the_monitor.infrastructure.jwt.JwtProvider;
 import the_monitor.infrastructure.security.CustomUserDetails;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,46 +31,35 @@ import java.util.List;
 public class ArticleServiceImpl implements ArticleService {
 
     private final GoogleSearchService googleSearchService;
-    private final ReportArticleRepository articleRepository;
-    private final JwtProvider jwtProvider;
+    private final ArticleRepository articleRepository;
     private final KeywordService keywordService;
 
-    private static final int ARTICLE_SAVE_START_TIME = 9;
-    private static final int ARTICLE_SAVE_END_TIME = 7;
+    @Override
+    @Transactional
+    public String saveArticles(Long clientId) {
+        Long accountId = getAccountId();
 
-//    @Scheduled(cron = "0 0 7 * * *")
-//    @Transactional
-//    public void dailyMonitoring() {
-//
-//        List<Keyword> keywords = keywordService.getAllKeywords();
-//
-//        for (Keyword keyword : keywords) {
-//
-//            saveArticlesFromGoogle(keyword);
-//
-//        }
-//
-//    }
+        for (CategoryType categoryType : CategoryType.values()) {
+            List<Keyword> keywords = keywordService.getKeywordByAccountIdAndClientIdAndCategoryType(accountId, clientId, categoryType);
 
-//    private void saveArticlesFromGoogle(Keyword keyword) {
-//
-//        List<ArticleGoogleDto> articleDtos = googleSearchService.toDto(keyword);
-//
-//        LocalDateTime startTime = LocalDateTime.now().minusDays(1).withHour(ARTICLE_SAVE_START_TIME).withMinute(0);
-//        LocalDateTime endTime = LocalDateTime.now().withHour(ARTICLE_SAVE_END_TIME).withMinute(0);
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-//
-//        for (ArticleGoogleDto dto : articleDtos) {
-//            if (!dto.getPublishDate().isEmpty()) {
-//                LocalDateTime publishDate = LocalDateTime.parse(dto.getPublishDate(), formatter);
-//
-//                if (publishDate.isAfter(startTime) && publishDate.isBefore(endTime)) {
-//                    articleRepository.save(dto.toEntity(keyword));
-//                }
-//            }
-//        }
-//
-//    }
+            for (Keyword keyword : keywords) {
+                saveArticlesFromGoogle(keyword);
+            }
+        }
+
+        return "기사 저장 완료";
+
+    }
+
+    private void saveArticlesFromGoogle(Keyword keyword) {
+
+        ArticleResponse articleResponse = googleSearchService.toDto(keyword.getKeyword());
+
+        for (ArticleGoogleDto dto : articleResponse.getGoogleArticles()) {
+            articleRepository.save(dto.toEntity(keyword));
+        }
+
+    }
 
     @Override
     public PageResponse<ArticleResponse> getArticlesGroupByCategory(Long clientId, CategoryType categoryType, int page) {
@@ -104,7 +98,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public PageResponse<ArticleResponse> getArticlesBySearch(String keyword, int page) {
 
-        ArticleResponse articleResponse = googleSearchService.searchArticlesWithoutSaving(keyword, "w1", page, 10);
+        ArticleResponse articleResponse = googleSearchService.searchArticlesWithoutSaving(keyword, "w1", page, 20);
 
         return PageResponse.<ArticleResponse>builder()
                 .listPageResponse(List.of(articleResponse))

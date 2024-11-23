@@ -3,6 +3,8 @@ package the_monitor.application.dto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import the_monitor.domain.model.Article;
+import the_monitor.domain.model.Keyword;
 
 @Getter
 @NoArgsConstructor
@@ -33,6 +35,19 @@ public class ArticleGoogleDto {
         this.publishDate = publishDate;
         this.reporterName = reporterName;
 
+    }
+
+    public Article toEntity(Keyword keyword) {
+        return Article.builder()
+                .title(title)
+                .body(body)
+                .url(url)
+                .imageUrl(imageUrl)
+                .publisherName(publisherName)
+                .publishDate(publishDate)
+                .reporterName(reporterName)
+                .keyword(keyword)
+                .build();
     }
 
 }

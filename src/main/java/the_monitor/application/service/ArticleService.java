@@ -8,6 +8,8 @@ import the_monitor.domain.enums.CategoryType;
 
 public interface ArticleService {
 
+    String saveArticles(Long clientId);
+
     PageResponse<ArticleResponse> getArticlesGroupByCategory(Long clientId, CategoryType categoryType, int page);
 
     PageResponse<ArticleResponse> getArticlesBySearch(String keyword, int page);
