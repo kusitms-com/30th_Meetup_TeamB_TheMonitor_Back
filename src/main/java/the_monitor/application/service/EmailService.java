@@ -5,6 +5,7 @@ import jakarta.mail.MessagingException;
 import org.springframework.web.multipart.MultipartFile;
 import the_monitor.application.dto.request.EmailUpdateRequest;
 import the_monitor.application.dto.response.EmailResponse;
+import the_monitor.application.dto.response.EmailSendResponse;
 import the_monitor.domain.model.Client;
 
 import java.io.UnsupportedEncodingException;
@@ -19,4 +20,6 @@ public interface EmailService {
     EmailResponse getEmails(Long clientId);
 
     EmailResponse updateEmails(Long clientId, EmailUpdateRequest emailUpdateRequest, MultipartFile signatureImage);
+
+    EmailSendResponse sendReportEmail(Long clientId, String subject, String content) throws MessagingException, UnsupportedEncodingException;
 }

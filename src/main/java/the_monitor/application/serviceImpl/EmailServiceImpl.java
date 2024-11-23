@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import the_monitor.application.dto.request.EmailUpdateRequest;
 import the_monitor.application.dto.response.EmailResponse;
+import the_monitor.application.dto.response.EmailSendResponse;
 import the_monitor.application.service.EmailService;
 import the_monitor.application.service.S3Service;
 import the_monitor.common.ApiException;
@@ -43,6 +44,7 @@ public class EmailServiceImpl implements EmailService {
     private final ClientRepository clientRepository;
     private final SignatureRepository signatureRepository;
     private final S3Service s3Service;
+    private final JavaMailSender mailSender;
 
     @Override
     public void sendEmail(String toEmail, String subject, String body) throws MessagingException, UnsupportedEncodingException {
@@ -171,6 +173,51 @@ public class EmailServiceImpl implements EmailService {
                 .ccs(ccEmails)
                 .signatureImageUrl(signatureImageUrl)
                 .build();
+    }
+
+    @Override
+    public EmailSendResponse sendReportEmail(Long clientId, String subject, String content) throws MessagingException, UnsupportedEncodingException {
+        try {
+
+            // 1. Client 조회
+            Client client = clientRepository.findById(clientId)
+                    .orElseThrow(() ->  new ApiException(ErrorStatus._CLIENT_NOT_FOUND));
+
+            // 2. 수신자 이메일 조회
+            List<String> toEmails = clientMailRecipientRepository.findAllByClient(client).stream()
+                    .map(recipient -> recipient.getAddress())
+                    .toList();
+
+            // 3. 참조 이메일 조회
+            List<String> ccEmails = clientMailCCRepository.findAllByClient(client).stream()
+                    .map(cc -> cc.getAddress())
+                    .toList();
+
+
+            // 4. 이메일 전송 준비
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
+            helper.setFrom("themonitor2024@gmail.com","The Monitor");
+
+            helper.setTo(toEmails.toArray(new String[0])); // 수신자
+            if (!ccEmails.isEmpty()) {
+                helper.setCc(ccEmails.toArray(new String[0])); // 참조자
+            }
+            helper.setSubject(subject);
+            helper.setText(content, true);
+
+            // 5. 이메일 전송
+            mailSender.send(mimeMessage);
+
+            // 6. 응답 빌드
+            return EmailSendResponse.builder()
+                    .toEmails(toEmails)
+                    .ccEmails(ccEmails)
+                    .build();
+
+        } catch (MessagingException e) {
+            throw new ApiException(ErrorStatus._EMAIL_SEND_FAIL);
+        }
     }
 
 }
