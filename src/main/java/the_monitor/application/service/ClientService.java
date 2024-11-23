@@ -2,6 +2,7 @@ package the_monitor.application.service;
 
 import org.springframework.web.multipart.MultipartFile;
 import the_monitor.application.dto.request.ClientRequest;
+import the_monitor.application.dto.request.ClientUpdateRequest;
 import the_monitor.application.dto.response.ClientResponse;
 import the_monitor.domain.model.Client;
 
@@ -16,4 +17,8 @@ public interface ClientService {
     Client findClientById(Long clientId);
 
     ClientResponse getClient(Long clientId);
+
+    String deleteClientById(Long clientId);
+
+    String updateClient(Long clientId, ClientUpdateRequest request, MultipartFile logo);
 }
