@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import the_monitor.domain.enums.CategoryType;
 import the_monitor.domain.model.Report;
 import the_monitor.domain.model.ReportArticle;
+import the_monitor.domain.model.ReportCategory;
 
 @Getter
 @NoArgsConstructor
@@ -33,6 +34,9 @@ public class ReportArticleUpdateRequest {
     @NotBlank(message = "기자명은 필수입니다.")
     private String reporterName;
 
+    @NotBlank(message = "카테고리ID는 필수입니다.")
+    private Long reportCategoryId;
+
     @Builder
     public ReportArticleUpdateRequest(String categoryType,
                                       String category,
@@ -40,7 +44,8 @@ public class ReportArticleUpdateRequest {
                                       String url,
                                       String publishedDate,
                                       String pulisherName,
-                                      String reporterName) {
+                                      String reporterName,
+                                      Long reportCategoryId) {
 
         this.categoryType = categoryType;
         this.category = category;
@@ -52,16 +57,15 @@ public class ReportArticleUpdateRequest {
 
     }
 
-    public ReportArticle toEntity(Report report) {
+    public ReportArticle toEntity(ReportCategory reportCategory) {
         return ReportArticle.builder()
                 .categoryType(CategoryType.valueOf(categoryType))
-                .category(category)
                 .title(articleTitle)
                 .url(url)
                 .publishDate(publishedDate)
                 .publisherName(pulisherName)
                 .reporterName(reporterName)
-                .report(report)
+                .reportCategory(reportCategory)
                 .build();
     }
 

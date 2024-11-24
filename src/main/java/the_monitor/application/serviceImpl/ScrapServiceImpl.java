@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import the_monitor.application.dto.ArticleGoogleDto;
 import the_monitor.application.dto.ReportArticleDto;
 import the_monitor.application.dto.ScrapArticleDto;
 import the_monitor.application.dto.request.ScrapIdsRequest;

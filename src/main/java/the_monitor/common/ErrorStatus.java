@@ -39,6 +39,9 @@ public enum ErrorStatus implements BaseErrorCode {
 
     _UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON500", "알 수 없는 오류가 발생했습니다."),
 
+    // Article
+    _ARTICLE_NOT_FOUND(HttpStatus.NOT_FOUND, "ARTICLE404", "해당 기사를 찾을 수 없습니다."),
+
     // Client
     _CLIENT_NOT_FOUND(HttpStatus.NOT_FOUND, "CLIENT404", "해당 클라이언트를 찾을 수 없습니다."),
     _CLIENT_FORBIDDEN(HttpStatus.FORBIDDEN, "CLIENT403", "해당 클라이언트에 접속할 수 없습니다,"),
@@ -48,6 +51,9 @@ public enum ErrorStatus implements BaseErrorCode {
     _REPORT_FORBIDDEN(HttpStatus.FORBIDDEN, "REPORT403", "해당 리포트에 접근할 수 없습니다."),
     _REPORT_ARTICLE_NOT_FOUND(HttpStatus.NOT_FOUND, "REPORT404", "해당 리포트 기사를 찾을 수 없습니다."),
     _INVALID_REPORT_ARTICLE_SUMMARY_LENGTH(HttpStatus.BAD_REQUEST, "REPORT400", "리포트 기사 요약은 100자 이하로 입력해주세요."),
+
+    // ReportCategory
+    _REPORT_CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "REPORT404", "해당 리포트 카테고리를 찾을 수 없습니다."),
     // SCRAP
     _SCRAP_NOT_FOUND(HttpStatus.NOT_FOUND, "SCRAP404", "해당 스크랩을 찾을 수 없습니다.");
 

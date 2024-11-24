@@ -25,6 +25,9 @@ public class Keyword extends BaseTimeEntity {
     @Column(name = "keyword_result_count")
     private int resultCount;
 
+    @OneToMany(mappedBy = "keyword", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Article> articles;
+
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     @JsonBackReference
@@ -33,10 +36,12 @@ public class Keyword extends BaseTimeEntity {
     @Builder
     public Keyword(String keyword,
                    Category category,
+                   List<Article> articles,
                    int resultCount) {
 
         this.keyword = keyword;
         this.category = category;
+        this.articles = articles;
         this.resultCount = resultCount;
 
     }
