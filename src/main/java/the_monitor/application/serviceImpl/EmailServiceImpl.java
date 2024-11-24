@@ -20,11 +20,9 @@ import the_monitor.common.ErrorStatus;
 import the_monitor.domain.model.Client;
 import the_monitor.domain.model.ClientMailCC;
 import the_monitor.domain.model.ClientMailRecipient;
-import the_monitor.domain.model.Signature;
 import the_monitor.domain.repository.ClientMailCCRepository;
 import the_monitor.domain.repository.ClientMailRecipientRepository;
 import the_monitor.domain.repository.ClientRepository;
-import the_monitor.domain.repository.SignatureRepository;
 import the_monitor.infrastructure.security.CustomUserDetails;
 
 import java.io.UnsupportedEncodingException;
@@ -42,7 +40,6 @@ public class EmailServiceImpl implements EmailService {
     private final ClientMailRecipientRepository clientMailRecipientRepository;
     private final ClientMailCCRepository clientMailCCRepository;
     private final ClientRepository clientRepository;
-    private final SignatureRepository signatureRepository;
     private final S3Service s3Service;
     private final JavaMailSender mailSender;
 
@@ -107,10 +104,9 @@ public class EmailServiceImpl implements EmailService {
                 .map(ClientMailCC::getAddress)
                 .collect(Collectors.toList());
 
-        // 서명 이미지 URL 가져오기
         String signatureImageUrl = null;
-        if (client.getSignature() != null) {
-            signatureImageUrl = client.getSignature().getSignatureUrl();
+        if (client.getSignatureUrl() != null) {
+            signatureImageUrl = client.getSignatureUrl();
         }
 
         return EmailResponse.builder()
@@ -137,24 +133,22 @@ public class EmailServiceImpl implements EmailService {
 
         String signatureImageUrl = null;
 
-        // 서명 이미지 처리
+// 서명 이미지 처리
         if (signatureImage != null && !signatureImage.isEmpty()) {
+            // S3에 이미지 업로드 후 URL 가져오기
             String imageUrl = s3Service.uploadFile(signatureImage);
 
-            Signature signature = client.getSignature();
-            if (signature == null) {
-                signature = Signature.builder()
-                        .signatureUrl(imageUrl)
-                        .client(client)
-                        .build();
-            } else {
-                signature.updateImageUrl(imageUrl);
-            }
+            // Client의 signatureUrl 필드 업데이트
+            client.updateImageUrl(imageUrl);
 
-            signatureRepository.save(signature);
-            signatureImageUrl = imageUrl; // 반환할 서명 이미지 URL 설정
-        } else if (client.getSignature() != null) {
-            signatureImageUrl = client.getSignature().getSignatureUrl(); // 기존 이미지 URL 반환
+            // 변경된 Client 엔티티 저장
+            clientRepository.save(client);
+
+            // 반환할 서명 이미지 URL 설정
+            signatureImageUrl = imageUrl;
+        } else if (client.getSignatureUrl() != null) {
+            // 기존 서명 이미지 URL 반환
+            signatureImageUrl = client.getSignatureUrl();
         }
 
         List<String> recipientEmails = clientMailRecipientRepository.findAllByClient(client)

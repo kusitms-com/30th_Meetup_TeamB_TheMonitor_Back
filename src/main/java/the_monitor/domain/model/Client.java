@@ -32,6 +32,9 @@ public class Client extends BaseTimeEntity {
     @Column(name = "client_logo", nullable = true)
     private String logo;
 
+    @Column(name = "signature_url",  nullable = true)
+    private String signatureUrl;
+
     @ManyToOne
     @JoinColumn(name = "account_id", nullable = false)
     @JsonBackReference
@@ -54,15 +57,11 @@ public class Client extends BaseTimeEntity {
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Report> reports = new ArrayList<>();
 
-    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private Signature signature;
-
     @Builder
     public Client(String name,
                   String managerName,
                   String logo,
                   Account account) {
-
 
         this.name = name;
         this.managerName = managerName;
@@ -96,5 +95,8 @@ public class Client extends BaseTimeEntity {
         if (logoUrl != null) {
             this.logo = logoUrl;
         }
+    }
+    public void updateImageUrl(String newImageUrl) {
+        this.signatureUrl = newImageUrl;
     }
 }
