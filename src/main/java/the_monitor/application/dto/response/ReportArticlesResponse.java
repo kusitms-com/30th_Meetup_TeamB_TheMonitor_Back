@@ -14,13 +14,27 @@ import java.util.Map;
 @NoArgsConstructor
 public class ReportArticlesResponse {
 
-    @JsonInclude
-    private Map<CategoryType, List<ReportArticle>> reportArticles;
+    private String publishedDate;
+    private String headLine;
+    private String url;
+    private String media;
+    private String reporter;
+    private String summary;
 
     @Builder
-    public ReportArticlesResponse(Map<CategoryType, List<ReportArticle>> reportArticles) {
+    public ReportArticlesResponse(String publishedDate,
+                                  String headLine,
+                                  String url,
+                                  String media,
+                                  String reporter,
+                                  String summary) {
 
-        this.reportArticles = reportArticles;
+        this.publishedDate = publishedDate;
+        this.headLine = headLine;
+        this.url = url;
+        this.media = media;
+        this.reporter = reporter;
+        this.summary = summary;
 
     }
 

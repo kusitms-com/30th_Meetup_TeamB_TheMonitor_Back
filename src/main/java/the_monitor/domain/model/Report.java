@@ -34,38 +34,35 @@ public class Report extends BaseTimeEntity {
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
-    @OneToMany(mappedBy = "report", fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<ReportArticle> reportArticles = new ArrayList<>();;
+    @OneToMany(mappedBy = "report", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<ReportCategory> reportCategories = new ArrayList<>();;
 
     @Builder
     public Report(String title,
                   Client client,
                   String logo,
                   String color,
-                  List<ReportArticle> reportArticles) {
+                  List<ReportCategory> reportCategories) {
 
         this.title = title;
         this.client = client;
         this.logo = logo;
         this.color = color;
-        this.reportArticles = reportArticles;
+        this.reportCategories = reportCategories;
 
     }
 
-    public void addReportArticles(List<ReportArticle> reportArticles) {
-        this.reportArticles = reportArticles;
-    }
+    public void updateHeadContents(String title, String color, String logo) {
 
-    public void updateTitle(String title) {
         this.title = title;
-    }
-
-    public void updateLogo(String logo) {
         this.logo = logo;
+        this.color = color;
+
     }
 
-    public void updateColor(String color) {
-        this.color = color;
+    public void addReportCategories(List<ReportCategory> reportCategories) {
+        this.reportCategories = reportCategories;
+        reportCategories.forEach(reportCategory -> reportCategory.setReport(this));
     }
 
 }

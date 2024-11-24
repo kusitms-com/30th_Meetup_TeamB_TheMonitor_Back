@@ -10,9 +10,12 @@ import the_monitor.application.dto.response.ArticleResponse;
 import the_monitor.application.service.ArticleService;
 import the_monitor.application.service.GoogleSearchService;
 import the_monitor.application.service.KeywordService;
+import the_monitor.common.ApiException;
+import the_monitor.common.ErrorStatus;
 import the_monitor.common.PageResponse;
 import the_monitor.domain.enums.CategoryType;
 import the_monitor.domain.model.Account;
+import the_monitor.domain.model.Article;
 import the_monitor.domain.model.Category;
 import the_monitor.domain.model.Keyword;
 import the_monitor.domain.repository.ArticleRepository;
@@ -33,6 +36,14 @@ public class ArticleServiceImpl implements ArticleService {
     private final GoogleSearchService googleSearchService;
     private final ArticleRepository articleRepository;
     private final KeywordService keywordService;
+
+    @Override
+    public Article findArticleById(Long articleId) {
+
+        return articleRepository.findById(articleId)
+                .orElseThrow(() -> new ApiException(ErrorStatus._ARTICLE_NOT_FOUND));
+
+    }
 
     @Override
     @Transactional

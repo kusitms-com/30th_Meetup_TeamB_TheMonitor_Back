@@ -3,8 +3,8 @@ package the_monitor.application.dto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import the_monitor.domain.model.Report;
 import the_monitor.domain.model.ReportArticle;
+import the_monitor.domain.model.ReportCategory;
 
 @Getter
 @NoArgsConstructor
@@ -37,11 +37,11 @@ public class ReportArticleDto {
 
     }
 
-    public ReportArticle toEntity(Report report) {
+    public ReportArticle toEntity(ReportCategory reportCategory) {
         return ReportArticle.builder()
-                .report(report)
+                .reportCategory(reportCategory)
                 .publishDate(publishedDate)
-                .category(keyword)
+//                .category(keyword)
                 .title(headLine)
                 .url(url)
                 .publisherName(media)

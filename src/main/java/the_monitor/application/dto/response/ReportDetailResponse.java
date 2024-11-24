@@ -1,5 +1,6 @@
 package the_monitor.application.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,21 +15,23 @@ import java.util.Map;
 @NoArgsConstructor
 public class ReportDetailResponse {
 
-    private Long reportId;
     private String title;
-    private String logo;
     private String color;
+    private String logo;
+
+    @JsonProperty("articles")
+    private List<ReportCategoryTypeResponse> reportCategoryTypeResponses;
 
     @Builder
-    public ReportDetailResponse(Long reportId,
-                                String title,
+    public ReportDetailResponse(String title,
+                                String color,
                                 String logo,
-                                String color) {
+                                List<ReportCategoryTypeResponse> reportCategoryTypeResponses) {
 
-        this.reportId = reportId;
         this.title = title;
-        this.logo = logo;
         this.color = color;
+        this.logo = logo;
+        this.reportCategoryTypeResponses = reportCategoryTypeResponses;
 
     }
 
