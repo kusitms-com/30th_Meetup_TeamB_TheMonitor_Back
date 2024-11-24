@@ -18,6 +18,14 @@ public class ArticleController {
 
     private final ArticleService articleService;
 
+    @Operation(summary = "기사 저장", description = "키워드에 해당하는 기사를 저장합니다.")
+    @PostMapping()
+    public ApiResponse<String> saveArticles(Long clientId) {
+
+        return ApiResponse.onSuccess(articleService.saveArticles(clientId));
+
+    }
+
     @Operation(summary = "전체 기사 출력", description = "카테고리별로 모든 키워드의 기사들을 출력합니다.")
     @GetMapping()
     public ApiResponse<PageResponse<ArticleResponse>> getArticles(@RequestParam("clientId") Long clientId,

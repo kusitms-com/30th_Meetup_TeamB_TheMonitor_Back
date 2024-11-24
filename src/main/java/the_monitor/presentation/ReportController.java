@@ -8,9 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import the_monitor.application.dto.request.*;
-import the_monitor.application.dto.response.ReportArticlesResponse;
-import the_monitor.application.dto.response.ReportDetailResponse;
-import the_monitor.application.dto.response.ReportListResponse;
+import the_monitor.application.dto.response.*;
 import the_monitor.application.service.ReportService;
 import the_monitor.common.ApiResponse;
 
@@ -49,6 +47,7 @@ public class ReportController {
 
     }
 
+    // Response 변경 요망
     @Operation(summary = "보고서 상세 조회", description = "보고서 상세 정보를 조회합니다.")
     @GetMapping("/details")
     public ApiResponse<ReportDetailResponse> getReportDetail(@RequestParam("clientId") Long clientId,
@@ -57,14 +56,7 @@ public class ReportController {
 
     }
 
-    @Operation(summary = "보고서 기사 조회", description = "보고서에 포함된 기사를 조회합니다.")
-    @GetMapping("/articles")
-    public ApiResponse<ReportArticlesResponse> getReportArticles(@RequestParam("clientId") Long clientId,
-                                                                 @RequestParam("reportId") Long reportId) {
-        return ApiResponse.onSuccessData("보고서 기사 조회", reportService.getReportArticles(clientId, reportId));
-
-    }
-
+    // 수동 추가 시 Default로 넣어야 함.
     @Operation(summary = "보고서 기사 수동 추가", description = "보고서에 포함된 기사를 수동 추가합니다.")
     @PostMapping("/articles/update")
     public ApiResponse<String> updateReportArticle(@RequestParam("clientId") Long clientId,
@@ -96,33 +88,14 @@ public class ReportController {
 
     }
 
-    @Operation(summary = "보고서 제목 수정", description = "보고서 제목을 수정합니다.")
-    @PatchMapping("/title")
-    public ApiResponse<String> updateReportTitle(@RequestParam("clientId") Long clientId,
-                                                 @RequestParam("reportId") Long reportId,
-                                                 @RequestBody ReportUpdateTitleRequest request) {
+    @Operation(summary = "보고서 Head Content 수정", description = "보고서 제목, 색상, 로고를 수정합니다. (로고 빼고 바뀌는 거 없으면 그대로 주세요. null (x)")
+    @PatchMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<String> updateReportHeadContents(@RequestParam("clientId") Long clientId,
+                                                        @RequestParam("reportId") Long reportId,
+                                                        @RequestPart ReportUpdateHeadContentsRequest request,
+                                                        @RequestPart(value = "logo", required = false) MultipartFile logo) {
 
-        return ApiResponse.onSuccess(reportService.updateReportTitle(clientId, reportId, request));
-
-    }
-
-    @Operation(summary = "보고서 색상 수정", description = "보고서 색상을 수정합니다.")
-    @PatchMapping("/color")
-    public ApiResponse<String> updateReportColor(@RequestParam("clientId") Long clientId,
-                                                 @RequestParam("reportId") Long reportId,
-                                                 @RequestBody ReportUpdateColorRequest request) {
-
-        return ApiResponse.onSuccess(reportService.updateReportColor(clientId, reportId, request));
-
-    }
-
-    @Operation(summary = "보고서 로고 수정", description = "보고서 로고를 수정합니다.")
-    @PatchMapping(value = "/logo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<String> updateReportLogo(@RequestParam("clientId") Long clientId,
-                                                @RequestParam("reportId") Long reportId,
-                                                @RequestPart("logo") MultipartFile logo) {
-
-        return ApiResponse.onSuccess(reportService.updateReportLogo(clientId, reportId, logo));
+        return ApiResponse.onSuccess(reportService.updateReportHeadContents(clientId, reportId, request, logo));
 
     }
 
@@ -132,6 +105,15 @@ public class ReportController {
                                                        @RequestBody ReportSearchTitleRequest request) {
 
         return ApiResponse.onSuccessData("보고서 검색", reportService.searchReport(clientId, request));
+
+    }
+
+    @Operation(summary = "보고서 카테고리 조회", description = "보고서 카테고리를 조회합니다.")
+    @GetMapping("/categories")
+    public ApiResponse<ReportCategoryTypeListResponse> getReportCategories(@RequestParam("clientId") Long clientId,
+                                                                   @RequestParam("reportId") Long reportId) {
+
+        return ApiResponse.onSuccessData("보고서 카테고리 조회", reportService.getReportCategoryList(clientId, reportId));
 
     }
 

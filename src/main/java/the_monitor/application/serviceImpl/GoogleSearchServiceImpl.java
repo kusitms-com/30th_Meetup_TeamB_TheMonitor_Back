@@ -40,31 +40,29 @@ public class GoogleSearchServiceImpl implements GoogleSearchService {
     @Value("${google.api.base-url:https://www.googleapis.com/customsearch/v1}")
     private String baseUrl;
 
-//    @Override
-//    public ArticleResponse toDto(String keyword) {
-//
-//        List<ArticleGoogleDto> allResults = new ArrayList<>();
-//        int start = 1;
-//        boolean hasMoreResults = true;
-//        int totalResults = 0;
-//
-//        while (hasMoreResults) {
-//            ArticleResponse pageResults = searchArticles(keyword, "d1", start);
-//
-//            if (pageResults.getGoogleArticles().isEmpty()) {
-//                hasMoreResults = false;
-//            } else {
-//                allResults.addAll(pageResults.getGoogleArticles());
-//                totalResults = pageResults.getTotalResults(); // 전체 결과 수 업데이트
-//                start += 10;
-//            }
-//        }
-//
-//        return ArticleResponse.builder()
-//                .googleArticles(allResults)
-//                .totalResults(totalResults)
-//                .build();
-//    }
+    @Override
+    public ArticleResponse toDto(String keyword) {
+
+        List<ArticleGoogleDto> allResults = new ArrayList<>();
+        int start = 1;
+        boolean hasMoreResults = true;
+        int totalResults = 0;
+
+        while (start <= 100) {
+            ArticleResponse pageResults = searchArticles(keyword, "d1", start);
+
+            allResults.addAll(pageResults.getGoogleArticles());
+            totalResults = pageResults.getTotalResults(); // 전체 결과 수 업데이트
+            start += 20;
+
+        }
+
+        return ArticleResponse.builder()
+                .googleArticles(allResults)
+                .totalResults(totalResults)
+                .build();
+
+    }
 
     @Override
     public ArticleResponse searchArticlesWithoutSaving(String keyword, String dateRestrict, int page, int size) {
@@ -118,6 +116,7 @@ public class GoogleSearchServiceImpl implements GoogleSearchService {
             JsonNode items = root.path("items");
 
             for (JsonNode item : items) {
+                if (!isContainYoutube(item.path("pagemap").path("metatags").get(0).path("og:url").asText())) continue;
                 String title = item.path("title").asText();
                 String snippet = item.path("snippet").asText();
                 String link = item.path("link").asText();
@@ -174,6 +173,10 @@ public class GoogleSearchServiceImpl implements GoogleSearchService {
                 .totalResults(totalResults)
                 .build();
 
+    }
+
+    private boolean isContainYoutube(String orgUrl) {
+        return orgUrl.contains("youtube");
     }
 
 }

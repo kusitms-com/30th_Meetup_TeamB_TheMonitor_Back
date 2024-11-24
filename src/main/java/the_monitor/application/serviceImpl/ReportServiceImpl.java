@@ -1,25 +1,22 @@
 package the_monitor.application.serviceImpl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import the_monitor.application.dto.ReportArticleDto;
-import the_monitor.application.dto.ReportCategoryArticleDto;
 import the_monitor.application.dto.request.*;
-import the_monitor.application.dto.response.ReportArticlesResponse;
-import the_monitor.application.dto.response.ReportDetailResponse;
-import the_monitor.application.dto.response.ReportListResponse;
+import the_monitor.application.dto.response.*;
 import the_monitor.application.service.*;
 import the_monitor.common.ApiException;
 import the_monitor.common.ErrorStatus;
 import the_monitor.domain.enums.CategoryType;
 import the_monitor.domain.model.*;
 import the_monitor.domain.repository.ReportArticleRepository;
+import the_monitor.domain.repository.ReportCategoryRepository;
 import the_monitor.domain.repository.ReportRepository;
-import the_monitor.domain.repository.ScrapRepository;
 import the_monitor.infrastructure.security.CustomUserDetails;
 
 import java.util.*;
@@ -28,12 +25,15 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class ReportServiceImpl implements ReportService {
 
     private final ReportRepository reportRepository;
+    private final ReportCategoryRepository reportCategoryRepository;
     private final ReportArticleRepository reportArticleRepository;
 
     private final AccountService accountService;
+    private final ArticleService articleService;
     private final ClientService clientService;
 
     private final S3Service s3Service;
@@ -60,13 +60,7 @@ public class ReportServiceImpl implements ReportService {
 
         Client client = findClientById(clientId);
 
-        String logoUrl;
-        if (logo == null){
-            logoUrl = client.getLogo();
-        } else {
-            logoUrl = s3Service.uploadFile(logo);
-        }
-
+        String logoUrl = getLogoUrl(logo, client.getLogo());
 
         Report report = reportRepository.save(request.toEntity(client, logoUrl));
         // 각 카테고리별로 ReportArticle 생성 및 저장
@@ -92,22 +86,10 @@ public class ReportServiceImpl implements ReportService {
         validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
 
         return ReportDetailResponse.builder()
-                .reportId(report.getId())
-                .title(report.getTitle())
-                .logo(report.getLogo())
                 .color(report.getColor())
-                .build();
-
-    }
-
-    @Override
-    public ReportArticlesResponse getReportArticles(Long clientId, Long reportId) {
-
-        Report report = findByClientIdAndReportId(clientId, reportId);
-        validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
-
-        return ReportArticlesResponse.builder()
-                .reportArticles(getCategorizedArticles(report))
+                .logo(report.getLogo())
+                .title(report.getTitle())
+                .reportCategoryTypeResponses(List.of(buildCategoryTypeResponse(report.getReportCategories())))
                 .build();
 
     }
@@ -119,7 +101,9 @@ public class ReportServiceImpl implements ReportService {
         Report report = findByClientIdAndReportId(clientId, reportId);
         validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
 
-        reportArticleRepository.save(request.toEntity(report));
+        ReportCategory reportCategory = findReportCategoryById(reportId, request.getReportCategoryId());
+
+        reportArticleRepository.save(request.toEntity(reportCategory));
 
         return "보고서 기사 추가 완료";
 
@@ -140,6 +124,22 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     @Transactional
+    public String updateReportHeadContents(Long clientId, Long reportId, ReportUpdateHeadContentsRequest request, MultipartFile logo) {
+
+        Report report = findByClientIdAndReportId(clientId, reportId);
+        validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
+
+        String logoUrl = getLogoUrl(logo, findClientById(clientId).getLogo());
+
+        report.updateHeadContents(request.getTitle(), request.getColor(), logoUrl);
+
+        return "보고서 헤드 컨텐츠 수정 완료";
+
+    }
+
+
+    @Override
+    @Transactional
     public String updateReportArticleSummary(Long clientId, Long reportId, Long reportArticleId, ReportUpdateSummaryRequest request) {
 
         Report report = findByClientIdAndReportId(clientId, reportId);
@@ -152,47 +152,7 @@ public class ReportServiceImpl implements ReportService {
 
         reportArticle.updateSummary(request.getSummary());
 
-        return "��고서 기사 요약 수정 완료";
-
-    }
-
-
-    @Override
-    @Transactional
-    public String updateReportTitle(Long clientId, Long reportId, ReportUpdateTitleRequest request) {
-
-        Report report = findByClientIdAndReportId(clientId, reportId);
-        validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
-
-        report.updateTitle(request.getTitle());
-
-        return "보고서 제목 수정 완료";
-
-    }
-
-    @Override
-    @Transactional
-    public String updateReportColor(Long clientId, Long reportId, ReportUpdateColorRequest request) {
-
-        Report report = findByClientIdAndReportId(clientId, reportId);
-        validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
-
-        report.updateColor(request.getColor());
-
-        return "보고서 색상 수정 완료";
-
-    }
-
-    @Override
-    @Transactional
-    public String updateReportLogo(Long clientId, Long reportId, MultipartFile logo) {
-
-        Report report = findByClientIdAndReportId(clientId, reportId);
-        validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
-
-        report.updateLogo(s3Service.updateFile(report.getLogo(), logo));
-
-        return "보고서 로고 수정 완료";
+        return "보고서 기사 요약 수정 완료";
 
     }
 
@@ -212,60 +172,33 @@ public class ReportServiceImpl implements ReportService {
 
     }
 
-    // ReportCreateRequest로부터 ReportArticle 생성 및 저장
-    private void createAndSaveReportArticlesByCategories(Report report, ReportCreateRequest request) {
+    @Override
+    public ReportCategoryTypeListResponse getReportCategoryList(Long clientId, Long reportId) {
+        // 1. Report 조회 및 권한 검증
+        Report report = findByClientIdAndReportId(clientId, reportId);
+        validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
 
-
-        List<ReportArticle> reportArticleList = new ArrayList<>();
-
-        request.getReportArticles().forEach(reportCategoryArticleDto -> {
-
-            CategoryType categoryType = reportCategoryArticleDto.getCategoryType();
-            List<ReportArticleDto> reportArticles = reportCategoryArticleDto.getReportArticles();
-
-            // 각 ReportArticleDto를 처리
-            reportArticles.forEach(reportArticleDto -> {
-                // ReportArticle 엔티티 생성
-                ReportArticle reportArticle = reportArticleDto.toEntity(report);
-
-                // 내용 길이 검증
-                validContentLength(reportArticle.getSummary());
-
-                // CategoryType 설정
-                reportArticle.updateCategoryType(categoryType);
-
-                reportArticleRepository.save(reportArticle);
-
-                reportArticleList.add(reportArticle);
-
-            });
-
-        });
-
-        report.addReportArticles(reportArticleList);
-
-    }
-
-    // ReportArticle 리스트를 CategoryType으로 그룹화
-    private Map<CategoryType, List<ReportArticle>> getCategorizedArticles(Report report) {
-        return report.getReportArticles().stream()
+        // 2. ReportCategory 조회 및 유형별 분류
+        Map<CategoryType, List<ReportCategoryListResponse>> categoryMap = reportCategoryRepository.findByReportId(reportId).stream()
                 .collect(Collectors.groupingBy(
-                        ReportArticle::getCategoryType,
-                        Collectors.mapping(reportArticle -> ReportArticle.builder()
-                                .title(reportArticle.getTitle())
-                                .url(reportArticle.getUrl())
-                                .publisherName(reportArticle.getPublisherName())
-                                .reporterName(reportArticle.getReporterName())
-                                .publishDate(reportArticle.getPublishDate())
-                                .report(report)
-                                .build(), Collectors.toList())
+                        ReportCategory::getCategoryType, // CategoryType 기준으로 그룹화
+                        Collectors.mapping(this::buildCategoryListResponse, Collectors.toList()) // ReportCategory -> ReportCategoryListResponse 매핑
                 ));
+
+        // 3. ReportCategoryTypeListResponse 생성 및 반환
+        return ReportCategoryTypeListResponse.builder()
+                .reportCategorySelfResponses(categoryMap.getOrDefault(CategoryType.SELF, List.of()))
+                .reportCategoryCompetitorResponses(categoryMap.getOrDefault(CategoryType.COMPETITOR, List.of()))
+                .reportCategoryIndustryResponses(categoryMap.getOrDefault(CategoryType.INDUSTRY, List.of()))
+                .build();
     }
 
     private Long getAccountId() {
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         return userDetails.getAccountId();
+
     }
 
     private Account getAccountFromId(Long accountId) {
@@ -276,9 +209,19 @@ public class ReportServiceImpl implements ReportService {
         return clientService.findClientById(clientId);
     }
 
+    private ReportCategory findReportCategoryById(Long reportId, Long reportCategoryId) {
+
+        return reportCategoryRepository.findByIdAndReportId(reportCategoryId, reportId);
+
+    }
+
     // Client ID와 Report ID로 Report 조회
     private Report findByClientIdAndReportId(Long clientId, Long reportId) {
         return reportRepository.findReportByClientIdAndReportId(clientId, reportId);
+    }
+
+    private String getLogoUrl(MultipartFile logo, String clientLogo) {
+        return (logo == null) ? clientLogo : s3Service.uploadFile(logo);
     }
 
     // Account가 보고서에 권한이 있는지 확인
@@ -291,6 +234,135 @@ public class ReportServiceImpl implements ReportService {
     private void validContentLength(String content) {
         if (content.length() > 100)
             throw new ApiException(ErrorStatus._INVALID_REPORT_ARTICLE_SUMMARY_LENGTH);
+    }
+
+    // ReportCreateRequest로부터 ReportArticle 생성 및 저장
+    private void createAndSaveReportArticlesByCategories(Report report, ReportCreateRequest request) {
+
+        // ReportCategory 리스트 생성
+        List<ReportCategory> reportCategoryList = new ArrayList<>();
+
+        // 유형별 카테고리 처리
+        ReportCategoryTypeRequest categoryTypeRequest = request.getReportCategoryTypeRequest();
+
+        // SELF 유형 처리
+        processCategoryType(report, categoryTypeRequest.getReportCategorySelfRequests(), CategoryType.SELF, reportCategoryList);
+
+        // COMPETITOR 유형 처리
+        processCategoryType(report, categoryTypeRequest.getReportCategoryCompetitorRequests(), CategoryType.COMPETITOR, reportCategoryList);
+
+        // INDUSTRY 유형 처리
+        processCategoryType(report, categoryTypeRequest.getReportCategoryIndustryRequests(), CategoryType.INDUSTRY, reportCategoryList);
+
+        // Report에 모든 ReportCategory 추가
+        report.addReportCategories(reportCategoryList);
+
+    }
+
+    private void processCategoryType(Report report,
+                                     List<ReportCategoryRequest> categoryRequests,
+                                     CategoryType categoryType,
+                                     List<ReportCategory> reportCategoryList) {
+
+        categoryRequests.forEach(categoryRequest -> {
+            // ReportCategory 생성
+            ReportCategory reportCategory = createReportCategory(report, categoryRequest, categoryType);
+
+            // ReportArticle 생성 및 연결
+            List<ReportArticle> reportArticles = createReportArticles(categoryRequest, reportCategory);
+
+            // ReportCategory에 ReportArticles 추가
+            reportCategory.addReportArticles(reportArticles);
+
+            // ReportCategory 리스트에 추가
+            reportCategoryList.add(reportCategory);
+
+        });
+
+    }
+
+    private ReportCategory createReportCategory(Report report, ReportCategoryRequest categoryRequest, CategoryType categoryType) {
+
+        return categoryRequest.toEntity(report, categoryType);
+
+    }
+
+    private List<ReportArticle> createReportArticles(ReportCategoryRequest categoryRequest, ReportCategory reportCategory) {
+
+        return categoryRequest.getArticleId().stream()
+                .map(articleId -> {
+                    return copyReportArticleFromArticle(articleId, reportCategory);
+                })
+                .collect(Collectors.toList());
+
+    }
+
+    private ReportArticle copyReportArticleFromArticle(Long articleId, ReportCategory reportCategory) {
+
+        Article article = articleService.findArticleById(articleId);
+
+        return ReportArticle.builder()
+                .title(article.getTitle())
+                .url(article.getUrl())
+                .publisherName(article.getPublisherName())
+                .reporterName(article.getReporterName())
+                .publishDate(article.getPublishDate())
+                .categoryType(reportCategory.getCategoryType())
+                .reportCategory(reportCategory)
+                .build();
+    }
+
+    // 보고서 상세조회
+    private ReportCategoryTypeResponse buildCategoryTypeResponse(List<ReportCategory> reportCategories) {
+        // 유형별로 분류
+        Map<CategoryType, List<ReportCategoryResponse>> categoryMap = reportCategories.stream()
+                .collect(Collectors.groupingBy(
+                        ReportCategory::getCategoryType, // CategoryType 기준으로 그룹화
+                        Collectors.mapping(this::buildCategoryResponse, Collectors.toList()) // ReportCategory -> ReportCategoryResponse
+                ));
+
+        return ReportCategoryTypeResponse.builder()
+                .reportCategorySelfResponses(categoryMap.getOrDefault(CategoryType.SELF, List.of()))
+                .reportCategoryCompetitorResponses(categoryMap.getOrDefault(CategoryType.COMPETITOR, List.of()))
+                .reportCategoryIndustryResponses(categoryMap.getOrDefault(CategoryType.INDUSTRY, List.of()))
+                .build();
+
+    }
+
+    private ReportCategoryResponse buildCategoryResponse(ReportCategory category) {
+
+        List<ReportArticlesResponse> articlesResponses = category.getReportArticles().stream()
+                .map(this::buildArticlesResponse)
+                .collect(Collectors.toList());
+
+        return ReportCategoryResponse.builder()
+                .reportCategoryId(category.getId())
+                .reportCategoryName(category.getName())
+                .reportCategoryDescription(category.getDescription())
+                .reportArticlesResponses(articlesResponses)
+                .build();
+
+    }
+
+    private ReportArticlesResponse buildArticlesResponse(ReportArticle article) {
+
+        return ReportArticlesResponse.builder()
+                .publishedDate(article.getPublishDate() != null ? article.getPublishDate().toString() : null)
+                .headLine(article.getTitle())
+                .url(article.getUrl())
+                .media(article.getPublisherName())
+                .reporter(article.getReporterName())
+                .summary(article.getSummary())
+                .build();
+
+    }
+
+    private ReportCategoryListResponse buildCategoryListResponse(ReportCategory category) {
+        return ReportCategoryListResponse.builder()
+                .reportCategoryId(category.getId())
+                .reportCategoryName(category.getName())
+                .reportCategoryDescription(category.getDescription())
+                .build();
     }
 
 }
