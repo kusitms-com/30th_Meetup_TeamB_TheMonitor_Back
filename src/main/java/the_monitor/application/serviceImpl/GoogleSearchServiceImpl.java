@@ -49,11 +49,11 @@ public class GoogleSearchServiceImpl implements GoogleSearchService {
         int totalResults = 0;
 
         while (start <= 100) {
-            ArticleResponse pageResults = searchArticles(keyword, "d1", start);
+            ArticleResponse pageResults = searchArticles(keyword, start);
 
             allResults.addAll(pageResults.getGoogleArticles());
             totalResults = pageResults.getTotalResults(); // 전체 결과 수 업데이트
-            start += 20;
+            start += 10;
 
         }
 
@@ -65,18 +65,18 @@ public class GoogleSearchServiceImpl implements GoogleSearchService {
     }
 
     @Override
-    public ArticleResponse searchArticlesWithoutSaving(String keyword, String dateRestrict, int page, int size) {
+    public ArticleResponse searchArticlesWithoutSaving(String keyword, int page, int size) {
 
         int start = (page - 1) * size + 1;
 
-        ArticleResponse articleResponse = searchArticles(keyword, dateRestrict, start);
+        ArticleResponse articleResponse = searchArticles(keyword, start);
         return mapToArticleResponseList(keyword,articleResponse.getGoogleArticles(), articleResponse.getTotalResults());
 
     }
 
 //    public int getTotalResults
 
-    public ArticleResponse searchArticles(String query, String dateRestrict, int start) {
+    public ArticleResponse searchArticles(String query, int start) {
 
         String url = UriComponentsBuilder.fromHttpUrl(baseUrl)
                 .queryParam("q", query)
@@ -84,7 +84,6 @@ public class GoogleSearchServiceImpl implements GoogleSearchService {
                 .queryParam("cx", searchEngineId)
                 .queryParam("num", 10)
                 .queryParam("start", start)
-//                .queryParam("dateRestrict", dateRestrict)
                 .build(false)
                 .toUriString();
 

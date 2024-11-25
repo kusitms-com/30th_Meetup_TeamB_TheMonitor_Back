@@ -94,6 +94,8 @@ public class ReportServiceImpl implements ReportService {
 
     }
 
+
+    // 수정 요망
     @Override
     @Transactional
     public String updateReportArticle(Long clientId, Long reportId, ReportArticleUpdateRequest request) {
@@ -101,9 +103,9 @@ public class ReportServiceImpl implements ReportService {
         Report report = findByClientIdAndReportId(clientId, reportId);
         validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
 
-        ReportCategory reportCategory = findReportCategoryById(reportId, request.getReportCategoryId());
+//        ReportCategory reportCategory = findReportCategoryById(reportId, request.getReportCategoryId());
 
-        reportArticleRepository.save(request.toEntity(reportCategory));
+//        reportArticleRepository.save(request.toEntity(reportCategory));
 
         return "보고서 기사 추가 완료";
 
@@ -124,22 +126,6 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     @Transactional
-    public String updateReportHeadContents(Long clientId, Long reportId, ReportUpdateHeadContentsRequest request, MultipartFile logo) {
-
-        Report report = findByClientIdAndReportId(clientId, reportId);
-        validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
-
-        String logoUrl = getLogoUrl(logo, findClientById(clientId).getLogo());
-
-        report.updateHeadContents(request.getTitle(), request.getColor(), logoUrl);
-
-        return "보고서 헤드 컨텐츠 수정 완료";
-
-    }
-
-
-    @Override
-    @Transactional
     public String updateReportArticleSummary(Long clientId, Long reportId, Long reportArticleId, ReportUpdateSummaryRequest request) {
 
         Report report = findByClientIdAndReportId(clientId, reportId);
@@ -153,6 +139,46 @@ public class ReportServiceImpl implements ReportService {
         reportArticle.updateSummary(request.getSummary());
 
         return "보고서 기사 요약 수정 완료";
+
+    }
+
+    @Override
+    @Transactional
+    public String updateReportTitle(Long clientId, Long reportId, ReportUpdateTitleRequest request) {
+
+        Report report = findByClientIdAndReportId(clientId, reportId);
+        validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
+
+        report.updateTitle(request.getTitle());
+
+        return "보고서 제목 수정 완료";
+
+    }
+
+    @Override
+    @Transactional
+    public String updateReportColor(Long clientId, Long reportId, ReportUpdateColorRequest request) {
+
+        Report report = findByClientIdAndReportId(clientId, reportId);
+        validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
+
+        report.updateColor(request.getColor());
+
+        return "보고서 색상 수정 완료";
+
+    }
+
+    @Override
+    @Transactional
+    public String updateReportLogo(Long clientId, Long reportId, MultipartFile logo) {
+
+        Report report = findByClientIdAndReportId(clientId, reportId);
+        validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
+
+        String logoUrl = getLogoUrl(logo, report.getClient().getLogo());
+        report.updateLogo(logoUrl);
+
+        return "보고서 로고 수정 완료";
 
     }
 

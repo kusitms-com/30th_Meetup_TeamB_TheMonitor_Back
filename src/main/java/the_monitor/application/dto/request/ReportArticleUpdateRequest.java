@@ -17,7 +17,7 @@ public class ReportArticleUpdateRequest {
     private String categoryType;
 
     @NotBlank(message = "키워드는 필수입니다.")
-    private String category;
+    private String keyword;
 
     @NotBlank(message = "기사 제목은 필수입니다.")
     private String articleTitle;
@@ -34,12 +34,10 @@ public class ReportArticleUpdateRequest {
     @NotBlank(message = "기자명은 필수입니다.")
     private String reporterName;
 
-    @NotBlank(message = "카테고리ID는 필수입니다.")
-    private Long reportCategoryId;
 
     @Builder
     public ReportArticleUpdateRequest(String categoryType,
-                                      String category,
+                                      String keyword,
                                       String articleTitle,
                                       String url,
                                       String publishedDate,
@@ -47,7 +45,7 @@ public class ReportArticleUpdateRequest {
                                       String reporterName) {
 
         this.categoryType = categoryType;
-        this.category = category;
+        this.keyword = keyword;
         this.articleTitle = articleTitle;
         this.url = url;
         this.publishedDate = publishedDate;
@@ -60,6 +58,7 @@ public class ReportArticleUpdateRequest {
         return ReportArticle.builder()
                 .categoryType(CategoryType.valueOf(categoryType))
                 .title(articleTitle)
+                .keyword(keyword)
                 .url(url)
                 .publishDate(publishedDate)
                 .publisherName(publisherName)
