@@ -94,6 +94,8 @@ public class ReportServiceImpl implements ReportService {
 
     }
 
+
+    // 수정 요망
     @Override
     @Transactional
     public String updateReportArticle(Long clientId, Long reportId, ReportArticleUpdateRequest request) {
@@ -101,9 +103,9 @@ public class ReportServiceImpl implements ReportService {
         Report report = findByClientIdAndReportId(clientId, reportId);
         validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
 
-        ReportCategory reportCategory = findReportCategoryById(reportId, request.getReportCategoryId());
+//        ReportCategory reportCategory = findReportCategoryById(reportId, request.getReportCategoryId());
 
-        reportArticleRepository.save(request.toEntity(reportCategory));
+//        reportArticleRepository.save(request.toEntity(reportCategory));
 
         return "보고서 기사 추가 완료";
 

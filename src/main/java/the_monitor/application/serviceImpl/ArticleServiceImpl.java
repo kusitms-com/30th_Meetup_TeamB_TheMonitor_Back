@@ -1,6 +1,9 @@
 package the_monitor.application.serviceImpl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -73,50 +76,80 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public PageResponse<ArticleResponse> getArticlesGroupByCategory(Long clientId, CategoryType categoryType, int page) {
+    public PageResponse<ArticleResponse> getArticlesByClientAndCategoryType(Long clientId, CategoryType categoryType, int page) {
 
-        Long accountId = getAccountId();
+        // 페이지네이션 처리
+        Pageable pageable = PageRequest.of(page - 1, 10); // 페이지는 0부터 시작, size는 10
 
-        // Account ID, Client ID, Category Type에 따른 키워드 목록 가져오기
-        List<Keyword> keywords = keywordService.getKeywordByAccountIdAndClientIdAndCategoryType(accountId, clientId, categoryType);
+        // Repository 메서드 호출
+        Page<Article> articlePage = articleRepository.findByClientIdAndCategoryType(clientId, categoryType, pageable);
 
-        // 키워드들을 OR 연산자로 묶기
-        String combinedKeywords = keywords.stream()
-                .map(Keyword::getKeyword)
-                .reduce((keyword1, keyword2) -> keyword1 + " OR " + keyword2)
-                .orElse(""); // 키워드가 없을 경우 빈 문자열 반환
+        // 조회된 기사들을 ArticleResponse로 변환
+        List<ArticleGoogleDto> articleDtos = articlePage.getContent().stream()
+                .map(article -> ArticleGoogleDto.builder()
+                        .title(article.getTitle())
+                        .body(article.getBody())
+                        .url(article.getUrl())
+                        .imageUrl(article.getImageUrl())
+                        .publisherName(article.getPublisherName())
+                        .publishDate(article.getPublishDate())
+                        .reporterName(article.getReporterName())
+                        .build())
+                .toList();
 
-        if (combinedKeywords.isEmpty()) {
-            return PageResponse.<ArticleResponse>builder()
-                    .listPageResponse(new ArrayList<>())
-                    .totalCount(0L)
-                    .size(0)
-                    .build();
-        }
-
-        // OR로 묶은 키워드를 기반으로 검색
-        ArticleResponse combinedArticleResponse = googleSearchService.searchArticlesWithoutSaving(combinedKeywords, "w1", page, 10);
-
-        return PageResponse.<ArticleResponse>builder()
-                .listPageResponse(List.of(combinedArticleResponse))
-                .totalCount((long) combinedArticleResponse.getTotalResults())
-                .size(10)
+        ArticleResponse articleResponse = ArticleResponse.builder()
+                .googleArticles(articleDtos)
+                .totalResults((int) articlePage.getTotalElements())
                 .build();
-
-    }
-
-
-    @Override
-    public PageResponse<ArticleResponse> getArticlesBySearch(String keyword, int page) {
-
-        ArticleResponse articleResponse = googleSearchService.searchArticlesWithoutSaving(keyword, "w1", page, 20);
 
         return PageResponse.<ArticleResponse>builder()
                 .listPageResponse(List.of(articleResponse))
-                .totalCount((long) articleResponse.getTotalResults())
-                .size(10)
+                .totalCount(articlePage.getTotalElements())
+                .size(articlePage.getSize())
+                .build();
+    }
+
+    @Override
+    public PageResponse<ArticleResponse> getArticlesByKeyword(Long clientId, CategoryType categoryType, Long keywordId, int page) {
+
+        Long accountId = getAccountId();
+
+        // 특정 Keyword 가져오기
+        Keyword keyword = keywordService.getKeywordByIdAndAccountIdAndClientIdAndCategoryType(keywordId, accountId, clientId, categoryType);
+
+        if (keyword == null) {
+            throw new IllegalArgumentException("Keyword not found");
+        }
+
+        // 페이지네이션 처리
+        Pageable pageable = PageRequest.of(page - 1, 10); // 페이지는 0부터 시작, size는 10
+
+        // DB에서 특정 Keyword에 해당하는 Article 조회
+        Page<Article> articlePage = articleRepository.findByKeyword(keyword, pageable);
+
+        // 조회된 기사들을 ArticleResponse로 변환
+        List<ArticleGoogleDto> articleDtos = articlePage.getContent().stream()
+                .map(article -> ArticleGoogleDto.builder()
+                        .title(article.getTitle())
+                        .body(article.getBody())
+                        .url(article.getUrl())
+                        .imageUrl(article.getImageUrl())
+                        .publisherName(article.getPublisherName())
+                        .publishDate(article.getPublishDate())
+                        .reporterName(article.getReporterName())
+                        .build())
+                .toList();
+
+        ArticleResponse articleResponse = ArticleResponse.builder()
+                .googleArticles(articleDtos)
+                .totalResults((int) articlePage.getTotalElements())
                 .build();
 
+        return PageResponse.<ArticleResponse>builder()
+                .listPageResponse(List.of(articleResponse))
+                .totalCount(articlePage.getTotalElements())
+                .size(articlePage.getSize())
+                .build();
     }
 
 
