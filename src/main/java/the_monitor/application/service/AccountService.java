@@ -29,8 +29,9 @@ public interface AccountService {
 
     List<Account> getAccountList();
 
-//    String resetPassword(AccountPasswordResetRequest request) throws UnsupportedEncodingException;
-
     ApiResponse checkTokenValidity(HttpServletRequest request, HttpServletResponse response);
+
+    String setClientId(Long clientId);
+
 }
 

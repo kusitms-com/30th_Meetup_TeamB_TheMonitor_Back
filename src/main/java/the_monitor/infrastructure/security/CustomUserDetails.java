@@ -25,7 +25,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getPassword() {
-        return null;  // 필요 시 암호화된 비밀번호
+        return null; // 필요 시 암호화된 비밀번호
     }
 
     @Override
