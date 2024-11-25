@@ -22,7 +22,11 @@ public interface ReportService {
 
     String updateReportArticleSummary(Long clientId, Long reportId, Long reportArticleId, ReportUpdateSummaryRequest request);
 
-    String updateReportHeadContents(Long clientId, Long reportId, ReportUpdateHeadContentsRequest request, MultipartFile logo);
+    String updateReportTitle(Long clientId, Long reportId, ReportUpdateTitleRequest request);
+
+    String updateReportColor(Long clientId, Long reportId, ReportUpdateColorRequest request);
+
+    String updateReportLogo(Long clientId, Long reportId, MultipartFile logo);
 
     List<ReportListResponse> searchReport(Long clientId, ReportSearchTitleRequest request);
 
