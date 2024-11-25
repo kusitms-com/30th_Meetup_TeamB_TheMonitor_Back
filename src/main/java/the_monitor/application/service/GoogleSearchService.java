@@ -10,6 +10,6 @@ public interface GoogleSearchService {
 
     ArticleResponse toDto(String keyword);
 
-    ArticleResponse searchArticlesWithoutSaving(String keyword, String dateRestrict, int page, int size);
+    ArticleResponse searchArticlesWithoutSaving(String keyword, int page, int size);
 
 }

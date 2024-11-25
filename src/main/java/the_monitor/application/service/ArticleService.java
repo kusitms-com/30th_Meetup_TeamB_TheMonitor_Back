@@ -11,9 +11,9 @@ public interface ArticleService {
 
     String saveArticles(Long clientId);
 
-    PageResponse<ArticleResponse> getArticlesGroupByCategory(Long clientId, CategoryType categoryType, int page);
+    PageResponse<ArticleResponse> getArticlesByClientAndCategoryType(Long clientId, CategoryType categoryType, int page);
 
-    PageResponse<ArticleResponse> getArticlesBySearch(String keyword, int page);
+    PageResponse<ArticleResponse> getArticlesByKeyword(Long clientId, CategoryType categoryType, Long keywordId, int page);
 
     Article findArticleById(Long articleId);
 }

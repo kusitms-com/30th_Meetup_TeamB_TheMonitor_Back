@@ -24,6 +24,9 @@ public class ReportArticle extends BaseTimeEntity {
     @Column(name = "report_article_title", nullable = false)
     private String title;
 
+    @Column(name = "report_article_keyword", nullable = false)
+    private String keyword;
+
     @Column(name = "report_article_url", nullable = false)
     private String url;
 
@@ -49,6 +52,7 @@ public class ReportArticle extends BaseTimeEntity {
 
     @Builder
     public ReportArticle(String title,
+                         String keyword,
                          String url,
                          String publisherName,
                          String reporterName,
@@ -58,6 +62,7 @@ public class ReportArticle extends BaseTimeEntity {
                          ReportCategory reportCategory) {
 
         this.title = title;
+        this.keyword = keyword;
         this.url = url;
         this.publisherName = publisherName;
         this.reporterName = reporterName;

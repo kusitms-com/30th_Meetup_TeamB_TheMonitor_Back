@@ -88,14 +88,33 @@ public class ReportController {
 
     }
 
-    @Operation(summary = "보고서 Head Content 수정", description = "보고서 제목, 색상, 로고를 수정합니다. (로고 빼고 바뀌는 거 없으면 그대로 주세요. null (x)")
-    @PatchMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<String> updateReportHeadContents(@RequestParam("clientId") Long clientId,
+    @Operation(summary = "보고서 제목 수정", description = "보고서 제목을 수정합니다.")
+    @PatchMapping(value = "/title")
+    public ApiResponse<String> updateReportTitle(@RequestParam("clientId") Long clientId,
                                                         @RequestParam("reportId") Long reportId,
-                                                        @RequestPart ReportUpdateHeadContentsRequest request,
+                                                        @RequestBody ReportUpdateTitleRequest request) {
+
+        return ApiResponse.onSuccess(reportService.updateReportTitle(clientId, reportId, request));
+
+    }
+
+    @Operation(summary = "보고서 색상 수정", description = "보고서 색상을 수정합니다.")
+    @PatchMapping(value = "/color")
+    public ApiResponse<String> updateReportColor(@RequestParam("clientId") Long clientId,
+                                                        @RequestParam("reportId") Long reportId,
+                                                        @RequestBody ReportUpdateColorRequest request) {
+
+        return ApiResponse.onSuccess(reportService.updateReportColor(clientId, reportId, request));
+
+    }
+
+    @Operation(summary = "보고서 로고 수정", description = "보고서 로고를 수정합니다.")
+    @PatchMapping(value = "/logo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<String> updateReportlogo(@RequestParam("clientId") Long clientId,
+                                                        @RequestParam("reportId") Long reportId,
                                                         @RequestPart(value = "logo", required = false) MultipartFile logo) {
 
-        return ApiResponse.onSuccess(reportService.updateReportHeadContents(clientId, reportId, request, logo));
+        return ApiResponse.onSuccess(reportService.updateReportLogo(clientId, reportId, logo));
 
     }
 
