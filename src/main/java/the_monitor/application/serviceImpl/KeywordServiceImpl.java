@@ -55,10 +55,11 @@ public class KeywordServiceImpl implements KeywordService {
 
         Map<CategoryType, List<String>> keywordsByCategory = keywordUpdateRequest.getKeywordsByCategory();
 
-        Long accountId = getAccountIdFromAuthentication();
+        Long accountId = getAccountIdFromAuthentication(); // JWT에서 accountId 추출
 
-        // 클라이언트 확인
-        Client client = findClientById(clientId);
+        // accountId와 clientId를 함께 검증
+        Client client = clientRepository.findByIdAndAccountId(clientId, accountId)
+                .orElseThrow(() -> new ApiException(ErrorStatus._CLIENT_FORBIDDEN));
 
         // 기존 키워드 삭제
         keywordRepository.deleteAllByClientId(clientId);
