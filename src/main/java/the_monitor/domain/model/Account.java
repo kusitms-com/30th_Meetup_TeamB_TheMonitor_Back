@@ -44,6 +44,9 @@ public class Account extends BaseTimeEntity {
     @JsonIgnore
     private List<Client> clients;
 
+    @Column(name = "account_selected_client_id")
+    private Long selectedClientId;
+
     @Builder
     public Account(String email,
                    String password,
@@ -63,6 +66,10 @@ public class Account extends BaseTimeEntity {
 
     public void resetPassword(String password) {
         this.password = password;
+    }
+
+    public void setClientId(Long clientId) {
+        this.selectedClientId = clientId;
     }
 
 }

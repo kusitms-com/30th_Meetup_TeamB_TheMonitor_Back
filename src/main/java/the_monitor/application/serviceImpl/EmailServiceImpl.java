@@ -91,8 +91,8 @@ public class EmailServiceImpl implements EmailService {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         Long accountId = userDetails.getAccountId();
 
-        Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new ApiException(ErrorStatus._CLIENT_NOT_FOUND));
+        Client client = clientRepository.findByIdAndAccountId(clientId, accountId)
+                .orElseThrow(() -> new ApiException(ErrorStatus._CLIENT_FORBIDDEN));
 
         List<String> recipients = clientMailRecipientRepository.findAllByClient(client)
                 .stream()
@@ -123,8 +123,8 @@ public class EmailServiceImpl implements EmailService {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         Long accountId = userDetails.getAccountId();
 
-        Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new ApiException(ErrorStatus._CLIENT_NOT_FOUND));
+        Client client = clientRepository.findByIdAndAccountId(clientId, accountId)
+                .orElseThrow(() -> new ApiException(ErrorStatus._CLIENT_FORBIDDEN));
 
         clientMailRecipientRepository.deleteAllByClient(client);
         clientMailCCRepository.deleteAllByClient(client);

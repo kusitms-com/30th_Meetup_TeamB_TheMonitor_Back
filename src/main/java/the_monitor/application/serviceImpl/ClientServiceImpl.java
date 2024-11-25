@@ -129,9 +129,11 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public ClientGetResponse getClient(Long clientId){
+        Long accountId = getAccountIdFromJwt();
 
-        Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new ApiException(ErrorStatus._CLIENT_NOT_FOUND));
+        // clientId와 accountId를 동시에 검증
+        Client client = clientRepository.findByIdAndAccountId(clientId, accountId)
+                .orElseThrow(() -> new ApiException(ErrorStatus._CLIENT_FORBIDDEN));
 
         // Client 객체를 ClientResponse로 변환
         return ClientGetResponse.builder()
@@ -186,9 +188,11 @@ public class ClientServiceImpl implements ClientService {
     @Override
     @Transactional
     public String updateClient(Long clientId, ClientUpdateRequest request, MultipartFile logo) {
-        // 1. 고객사 조회
-        Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new IllegalArgumentException("Client not found with id: " + clientId));
+        Long accountId = getAccountIdFromJwt();
+
+        // clientId와 accountId를 동시에 검증
+        Client client = clientRepository.findByIdAndAccountId(clientId, accountId)
+                .orElseThrow(() -> new ApiException(ErrorStatus._CLIENT_FORBIDDEN));
 
         String logoPath;
         logoPath = (logo != null) ? s3Service.uploadFile(logo) : defaultLogoUrl;

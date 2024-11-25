@@ -72,4 +72,11 @@ public class AccountController {
 
     }
 
+    @PostMapping("set-client")
+    public ApiResponse<String> setClient(@RequestParam("clientId") Long clientId) {
+
+        return ApiResponse.onSuccess(accountService.setClientId(clientId));
+
+    }
+
 }
