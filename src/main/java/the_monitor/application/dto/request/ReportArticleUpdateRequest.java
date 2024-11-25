@@ -29,7 +29,7 @@ public class ReportArticleUpdateRequest {
     private String publishedDate;
 
     @NotBlank(message = "미디어는 필수입니다.")
-    private String pulisherName;
+    private String publisherName;
 
     @NotBlank(message = "기자명은 필수입니다.")
     private String reporterName;
@@ -43,16 +43,15 @@ public class ReportArticleUpdateRequest {
                                       String articleTitle,
                                       String url,
                                       String publishedDate,
-                                      String pulisherName,
-                                      String reporterName,
-                                      Long reportCategoryId) {
+                                      String publisherName,
+                                      String reporterName) {
 
         this.categoryType = categoryType;
         this.category = category;
         this.articleTitle = articleTitle;
         this.url = url;
         this.publishedDate = publishedDate;
-        this.pulisherName = pulisherName;
+        this.publisherName = publisherName;
         this.reporterName = reporterName;
 
     }
@@ -63,7 +62,7 @@ public class ReportArticleUpdateRequest {
                 .title(articleTitle)
                 .url(url)
                 .publishDate(publishedDate)
-                .publisherName(pulisherName)
+                .publisherName(publisherName)
                 .reporterName(reporterName)
                 .reportCategory(reportCategory)
                 .build();

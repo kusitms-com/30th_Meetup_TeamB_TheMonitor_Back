@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import the_monitor.common.ErrorStatus;
 import the_monitor.domain.model.Account;
 import the_monitor.domain.repository.AccountRepository;
 import the_monitor.infrastructure.jwt.JwtProvider;
+import the_monitor.infrastructure.security.CustomUserDetails;
 
 import java.util.List;
 
@@ -242,17 +244,30 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
-//    @Override
-//    public String resetPassword(AccountPasswordResetRequest request) throws UnsupportedEncodingException {
-//
-//        Account account = accountRepository.findAccountByEmail(request.getEmail());
-//
-//        if (account.getPassword().equals(request.getPassword())) throw new ApiException(ErrorStatus._SAME_PASSWORD);
-//        account.resetPassword(request.getPassword());
-//        accountRepository.save(account);
-//
-//        return "비밀번호 재설정 완료";
-//
-//    }
+    private Long getAccountId() {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        return userDetails.getAccountId();
+
+    }
+
+    private Account findAccountById() {
+
+        return accountRepository.findById(getAccountId())
+                .orElseThrow(() -> new ApiException(ErrorStatus._ACCOUNT_NOT_FOUND));
+
+    }
+
+    public String setClientId(Long clientId) {
+
+        Account account = findAccountById();
+        account.setClientId(clientId);
+        accountRepository.save(account);
+
+        return "클라이언트 ID 설정 완료";
+
+    }
+
 
 }
