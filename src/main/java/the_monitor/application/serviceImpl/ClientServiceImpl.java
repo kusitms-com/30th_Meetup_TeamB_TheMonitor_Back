@@ -200,12 +200,23 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public List<ClientResponse> searchClient(String searchText){
-        if (searchText == null || searchText.trim().isEmpty()) {
-            return List.of(); // 빈 리스트 반환
-        }
-        List<Client> clients = clientRepository.findByNameContainingIgnoreCase(searchText);
+    public List<ClientResponse> searchClient(String searchText) {
+        // JWT에서 accountId 추출
+        Long extractedAccountId = getAccountIdFromJwt();
 
+        // 계정 검증
+        Account account = accountRepository.findById(extractedAccountId)
+                .orElseThrow(() -> new ApiException(ErrorStatus._ACCOUNT_NOT_FOUND));
+
+        // 검색 텍스트가 없으면 빈 리스트 반환
+        if (searchText == null || searchText.trim().isEmpty()) {
+            return List.of();
+        }
+
+        // 해당 계정의 클라이언트 중 검색
+        List<Client> clients = clientRepository.findByAccountAndNameContainingIgnoreCase(account, searchText);
+
+        // 결과 변환 및 반환
         return clients.stream()
                 .map(client -> ClientResponse.builder()
                         .clientId(client.getId())

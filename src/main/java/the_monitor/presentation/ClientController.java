@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 import the_monitor.application.dto.request.ClientRequest;
 import the_monitor.application.dto.request.ClientUpdateRequest;
 import the_monitor.application.dto.request.ReportUpdateTitleRequest;
+import the_monitor.application.dto.request.SearchRequest;
 import the_monitor.application.dto.response.ClientGetResponse;
 import the_monitor.application.dto.response.ClientResponse;
 import the_monitor.application.service.ClientService;
@@ -66,8 +67,8 @@ public class ClientController {
     }
 
     @Operation(summary = "고객사 검색", description = "검색된 고객사를 알려줍니다.")
-    @GetMapping(value = "/search")
-    public ApiResponse<List<ClientResponse>> searchClient(@RequestParam(name = "searchText") String searchText) {
-        return ApiResponse.onSuccessData("검색 성공", clientService.searchClient(searchText));
+    @PostMapping(value = "/search")
+    public ApiResponse<List<ClientResponse>> searchClient(@RequestBody SearchRequest searchRequest) {
+        return ApiResponse.onSuccessData("검색 성공", clientService.searchClient(searchRequest.getSearchText()));
     }
 }
