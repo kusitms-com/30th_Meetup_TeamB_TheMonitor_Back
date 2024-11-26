@@ -9,10 +9,12 @@ import org.springframework.transaction.annotation.Transactional;
 import the_monitor.application.dto.request.KeywordUpdateRequest;
 import the_monitor.application.dto.response.KeywordAndIdResponse;
 import the_monitor.application.dto.response.KeywordResponse;
+import the_monitor.application.service.AccountService;
 import the_monitor.application.service.KeywordService;
 import the_monitor.common.ApiException;
 import the_monitor.common.ErrorStatus;
 import the_monitor.domain.enums.CategoryType;
+import the_monitor.domain.model.Account;
 import the_monitor.domain.model.Client;
 import the_monitor.domain.model.Keyword;
 import the_monitor.domain.repository.ClientRepository;
@@ -31,26 +33,33 @@ public class KeywordServiceImpl implements KeywordService {
     private final KeywordRepository keywordRepository;
     private final ClientRepository clientRepository;
     private final CategoryServiceImpl categoryServiceImpl;
+    private final AccountService accountService;
 
 
     @Override
-    public KeywordResponse getKeywords(Long clientId) {
+    public KeywordResponse getKeywords() {
 
         Long accountId = getAccountIdFromAuthentication();
+
+        Long clientId = getClientIdFromAuthentication();
 
         return getKeywordResponses(accountId, clientId);
 
     }
 
     @Override
-    public List<Keyword> getKeywordByAccountIdAndClientIdAndCategoryType(Long accountId, Long clientId, CategoryType categoryType) {
+    public List<Keyword> getKeywordByAccountIdAndClientIdAndCategoryType(Long accountId, CategoryType categoryType) {
+
+        Long clientId = getClientIdFromAuthentication();
 
         return keywordRepository.findKeywordByAccountIdAndClientIdAndCategoryType(accountId, clientId, categoryType);
 
     }
 
     @Override
-    public Keyword getKeywordByIdAndAccountIdAndClientIdAndCategoryType(Long keywordId, Long accountId, Long clientId, CategoryType categoryType) {
+    public Keyword getKeywordByIdAndAccountIdAndClientIdAndCategoryType(Long keywordId, Long accountId, CategoryType categoryType) {
+
+        Long clientId = getClientIdFromAuthentication();
 
         return keywordRepository.findByIdAndAccountIdAndClientIdAndCategoryType(keywordId, accountId, clientId, categoryType)
                 .orElseThrow(() -> new IllegalArgumentException("Keyword not found with the given parameters"));
@@ -59,7 +68,9 @@ public class KeywordServiceImpl implements KeywordService {
 
     @Transactional
     @Override
-    public KeywordResponse updateKeywords(Long clientId, KeywordUpdateRequest keywordUpdateRequest) {
+    public KeywordResponse updateKeywords(KeywordUpdateRequest keywordUpdateRequest) {
+
+        Long clientId = getClientIdFromAuthentication();
 
         Map<CategoryType, List<String>> keywordsByCategory = keywordUpdateRequest.getKeywordsByCategory();
 
@@ -87,9 +98,13 @@ public class KeywordServiceImpl implements KeywordService {
         return userDetails.getAccountId();
     }
 
-    private Client findClientById(Long clientId) {
-        return clientRepository.findById(clientId)
-                .orElseThrow(() -> new ApiException(ErrorStatus._CLIENT_NOT_FOUND));
+    private Account findAccountById() {
+        return accountService.findAccountById(getAccountIdFromAuthentication());
+    }
+
+    private Long getClientIdFromAuthentication() {
+        Account account = findAccountById();
+        return account.getSelectedClientId();
     }
 
 
@@ -149,5 +164,7 @@ public class KeywordServiceImpl implements KeywordService {
                         .build())
                 .toList();
     }
+
+
 
 }
