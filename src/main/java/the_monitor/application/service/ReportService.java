@@ -26,7 +26,7 @@ public interface ReportService {
 
     String updateReportColor(Long reportId, ReportUpdateColorRequest request);
 
-    String updateReportLogo(, Long reportId, MultipartFile logo);
+    String updateReportLogo(Long reportId, MultipartFile logo);
 
     List<ReportListResponse> searchReport(ReportSearchTitleRequest request);
 
