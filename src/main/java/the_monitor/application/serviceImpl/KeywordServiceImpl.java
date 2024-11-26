@@ -123,6 +123,7 @@ public class KeywordServiceImpl implements KeywordService {
                 .map(keyword -> KeywordAndIdResponse.builder()
                         .keywordId(keyword.getId())
                         .keywordName(keyword.getKeyword())
+                        .categoryType(CategoryType.SELF)
                         .build())
                 .toList();
     }
@@ -133,6 +134,7 @@ public class KeywordServiceImpl implements KeywordService {
                 .map(keyword -> KeywordAndIdResponse.builder()
                         .keywordId(keyword.getId())
                         .keywordName(keyword.getKeyword())
+                        .categoryType(CategoryType.COMPETITOR)
                         .build())
                 .toList();
     }
@@ -143,6 +145,7 @@ public class KeywordServiceImpl implements KeywordService {
                 .map(keyword -> KeywordAndIdResponse.builder()
                         .keywordId(keyword.getId())
                         .keywordName(keyword.getKeyword())
+                        .categoryType(CategoryType.INDUSTRY)
                         .build())
                 .toList();
     }
