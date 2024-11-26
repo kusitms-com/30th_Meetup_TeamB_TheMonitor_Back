@@ -47,6 +47,10 @@ public class ApiResponse<T> {
 
     }
 
+    public static <T> ApiResponse<T> onCustomSuccessData(String code, String message, T result) {
+        return new ApiResponse<>(true, code, message, result);
+    }
+
     public static <T> ApiResponse<T> onSuccess(String message) {
 
         return new ApiResponse<>(true, SuccessStatus._OK.getCode(),
@@ -67,5 +71,7 @@ public class ApiResponse<T> {
         return new ApiResponse<>(false, code, message, data);
 
     }
+
+
 
 }

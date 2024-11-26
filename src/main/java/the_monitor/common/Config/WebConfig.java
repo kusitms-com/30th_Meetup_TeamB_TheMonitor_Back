@@ -23,6 +23,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/**")
                 .allowedOrigins("https://the-monitor.o-r.kr",
                         "http://the-monitor.o-r.kr",
+                        "https://the-monitor.vercel.app/",
                         "http://localhost:5173",
                         "http://localhost:8080")
                 .allowedMethods("*")
