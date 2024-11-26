@@ -261,6 +261,8 @@ public class AccountServiceImpl implements AccountService {
 
     }
 
+    @Override
+    @Transactional
     public String setClientId(Long clientId) {
 
         Account account = findAccountById();
