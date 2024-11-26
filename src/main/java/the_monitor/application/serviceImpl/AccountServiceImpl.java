@@ -109,12 +109,15 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public String accountSignIn(AccountSignInRequest request, HttpServletResponse response, HttpSession session) {
-
+    public ApiResponse<String> accountSignIn(AccountSignInRequest request, HttpServletResponse response, HttpSession session) {
         Account account = accountRepository.findAccountByEmail(request.getEmail());
 
-        if (account == null) throw new ApiException(ErrorStatus._ACCOUNT_NOT_FOUND);
-        if (!account.getPassword().equals(request.getPassword())) throw new ApiException(ErrorStatus._WRONG_PASSWORD);
+        if (account == null) {
+            return ApiResponse.onCustomSuccessData("ACCOUNT404", "계정을 찾을 수 없습니다.", null); // isSuccess: true
+        }
+        if (!account.getPassword().equals(request.getPassword())) {
+            return ApiResponse.onCustomSuccessData("ACCOUNT400", "비밀번호가 일치하지 않습니다.", null); // isSuccess: true
+        }
 
         // AccessToken 발급 및 응답 헤더에 추가
         String accessToken = jwtProvider.generateAccessToken(account);
@@ -123,8 +126,7 @@ public class AccountServiceImpl implements AccountService {
         // RefreshToken 발급 및 세션에 저장
         jwtProvider.storeRefreshTokenInSession(account, session);
 
-        return "로그인 성공";
-
+        return ApiResponse.onSuccessData("로그인 성공", accessToken);
     }
 
     @Override
