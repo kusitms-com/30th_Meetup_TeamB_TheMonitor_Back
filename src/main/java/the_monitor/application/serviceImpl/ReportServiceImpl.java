@@ -39,7 +39,9 @@ public class ReportServiceImpl implements ReportService {
     private final S3Service s3Service;
 
     @Override
-    public List<ReportListResponse> getReports(Long clientId) {
+    public List<ReportListResponse> getReports() {
+
+        Long clientId = getClientIdFromAuthentication();
 
         Client client = findClientById(clientId);
 
@@ -56,7 +58,9 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     @Transactional
-    public String createReports(Long clientId, ReportCreateRequest request, MultipartFile logo) {
+    public String createReports(ReportCreateRequest request, MultipartFile logo) {
+
+        Long clientId = getClientIdFromAuthentication();
 
         Client client = findClientById(clientId);
 
@@ -71,7 +75,9 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     @Transactional
-    public String deleteReports(Long clientId, Long reportId) {
+    public String deleteReports(Long reportId) {
+
+        Long clientId = getClientIdFromAuthentication();
 
         validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), findByClientIdAndReportId(clientId, reportId));
         reportRepository.deleteById(reportId);
@@ -80,7 +86,9 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public ReportDetailResponse getReportDetail(Long clientId, Long reportId) {
+    public ReportDetailResponse getReportDetail(Long reportId) {
+
+        Long clientId = getClientIdFromAuthentication();
 
         Report report = findByClientIdAndReportId(clientId, reportId);
         validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
@@ -98,7 +106,9 @@ public class ReportServiceImpl implements ReportService {
     // 수정 요망
     @Override
     @Transactional
-    public String updateReportArticle(Long clientId, Long reportId, ReportArticleUpdateRequest request) {
+    public String updateReportArticle(Long reportId, ReportArticleUpdateRequest request) {
+
+        Long clientId = getClientIdFromAuthentication();
 
         Report report = findByClientIdAndReportId(clientId, reportId);
         validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
@@ -115,9 +125,11 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     @Transactional
-    public String deleteReportArticle(Long clientId, Long reportId, Long reportArticleId) {
+    public String deleteReportArticle(Long reportId, Long reportArticleId) {
 
-            Report report = findByClientIdAndReportId(clientId, reportId);
+        Long clientId = getClientIdFromAuthentication();
+
+        Report report = findByClientIdAndReportId(clientId, reportId);
             validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
 
             reportArticleRepository.deleteById(reportArticleId);
@@ -128,7 +140,9 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     @Transactional
-    public String updateReportArticleSummary(Long clientId, Long reportId, Long reportArticleId, ReportUpdateSummaryRequest request) {
+    public String updateReportArticleSummary(Long reportId, Long reportArticleId, ReportUpdateSummaryRequest request) {
+
+        Long clientId = getClientIdFromAuthentication();
 
         Report report = findByClientIdAndReportId(clientId, reportId);
         validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
@@ -146,7 +160,9 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     @Transactional
-    public String updateReportTitle(Long clientId, Long reportId, ReportUpdateTitleRequest request) {
+    public String updateReportTitle(Long reportId, ReportUpdateTitleRequest request) {
+
+        Long clientId = getClientIdFromAuthentication();
 
         Report report = findByClientIdAndReportId(clientId, reportId);
         validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
@@ -159,7 +175,9 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     @Transactional
-    public String updateReportColor(Long clientId, Long reportId, ReportUpdateColorRequest request) {
+    public String updateReportColor(Long reportId, ReportUpdateColorRequest request) {
+
+        Long clientId = getClientIdFromAuthentication();
 
         Report report = findByClientIdAndReportId(clientId, reportId);
         validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
@@ -172,7 +190,9 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     @Transactional
-    public String updateReportLogo(Long clientId, Long reportId, MultipartFile logo) {
+    public String updateReportLogo(Long reportId, MultipartFile logo) {
+
+        Long clientId = getClientIdFromAuthentication();
 
         Report report = findByClientIdAndReportId(clientId, reportId);
         validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
@@ -185,7 +205,9 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public List<ReportListResponse> searchReport(Long clientId, ReportSearchTitleRequest request) {
+    public List<ReportListResponse> searchReport(ReportSearchTitleRequest request) {
+
+        Long clientId = getClientIdFromAuthentication();
 
         List<Report> reports = reportRepository.findByClientIdAndTitleContaining(clientId, request.getSearchTitle());
 
@@ -201,7 +223,10 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public ReportCategoryTypeListResponse getReportCategoryList(Long clientId, Long reportId) {
+    public ReportCategoryTypeListResponse getReportCategoryList(Long reportId) {
+
+        Long clientId = getClientIdFromAuthentication();
+
         // 1. Report 조회 및 권한 검증
         Report report = findByClientIdAndReportId(clientId, reportId);
         validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
@@ -228,6 +253,16 @@ public class ReportServiceImpl implements ReportService {
         return userDetails.getAccountId();
 
     }
+
+    private Account findAccountById() {
+        return accountService.findAccountById(getAccountId());
+    }
+
+    private Long getClientIdFromAuthentication() {
+        Account account = findAccountById();
+        return account.getSelectedClientId();
+    }
+
 
     private Account getAccountFromId(Long accountId) {
         return accountService.findAccountById(accountId);

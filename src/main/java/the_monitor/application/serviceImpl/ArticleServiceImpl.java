@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import the_monitor.application.dto.ArticleGoogleDto;
 import the_monitor.application.dto.response.ArticleResponse;
+import the_monitor.application.service.AccountService;
 import the_monitor.application.service.ArticleService;
 import the_monitor.application.service.GoogleSearchService;
 import the_monitor.application.service.KeywordService;
@@ -37,6 +38,7 @@ import java.util.List;
 public class ArticleServiceImpl implements ArticleService {
 
     private final GoogleSearchService googleSearchService;
+    private final AccountService accountService;
     private final ArticleRepository articleRepository;
     private final KeywordService keywordService;
 
@@ -50,11 +52,11 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     @Transactional
-    public String saveArticles(Long clientId) {
-        Long accountId = getAccountId();
+    public String saveArticles() {
+        Long accountId = getAccountIdFromAuthentication();
 
         for (CategoryType categoryType : CategoryType.values()) {
-            List<Keyword> keywords = keywordService.getKeywordByAccountIdAndClientIdAndCategoryType(accountId, clientId, categoryType);
+            List<Keyword> keywords = keywordService.getKeywordByAccountIdAndClientIdAndCategoryType(accountId, categoryType);
 
             for (Keyword keyword : keywords) {
                 saveArticlesFromGoogle(keyword);
@@ -76,7 +78,9 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public PageResponse<ArticleResponse> getArticlesByClientAndCategoryType(Long clientId, CategoryType categoryType, int page) {
+    public PageResponse<ArticleResponse> getArticlesByClientAndCategoryType(CategoryType categoryType, int page) {
+
+        Long clientId = getClientIdFromAuthentication();
 
         // 페이지네이션 처리
         Pageable pageable = PageRequest.of(page - 1, 10); // 페이지는 0부터 시작, size는 10
@@ -97,7 +101,7 @@ public class ArticleServiceImpl implements ArticleService {
                         .reporterName(article.getReporterName())
                         .build())
                 .toList();
-
+      
         ArticleResponse articleResponse = ArticleResponse.builder()
                 .googleArticles(articleDtos)
                 .totalResults((int) articlePage.getTotalElements())
@@ -108,15 +112,17 @@ public class ArticleServiceImpl implements ArticleService {
                 .totalCount(articlePage.getTotalElements())
                 .size(articlePage.getSize())
                 .build();
+
     }
 
-    @Override
-    public PageResponse<ArticleResponse> getArticlesByKeyword(Long clientId, CategoryType categoryType, Long keywordId, int page) {
 
-        Long accountId = getAccountId();
+    @Override
+    public PageResponse<ArticleResponse> getArticlesByKeyword(CategoryType categoryType, Long keywordId, int page) {
+
+        Long accountId = getAccountIdFromAuthentication();
 
         // 특정 Keyword 가져오기
-        Keyword keyword = keywordService.getKeywordByIdAndAccountIdAndClientIdAndCategoryType(keywordId, accountId, clientId, categoryType);
+        Keyword keyword = keywordService.getKeywordByIdAndAccountIdAndClientIdAndCategoryType(keywordId, accountId, categoryType);
 
         if (keyword == null) {
             throw new IllegalArgumentException("Keyword not found");
@@ -129,6 +135,10 @@ public class ArticleServiceImpl implements ArticleService {
         Page<Article> articlePage = articleRepository.findByKeyword(keyword, pageable);
 
         // 조회된 기사들을 ArticleResponse로 변환
+        return getArticleResponsePageResponse(articlePage);
+    }
+
+    private PageResponse<ArticleResponse> getArticleResponsePageResponse(Page<Article> articlePage) {
         List<ArticleGoogleDto> articleDtos = articlePage.getContent().stream()
                 .map(article -> ArticleGoogleDto.builder()
                         .title(article.getTitle())
@@ -153,11 +163,19 @@ public class ArticleServiceImpl implements ArticleService {
                 .build();
     }
 
-
-    private Long getAccountId() {
+    private Long getAccountIdFromAuthentication() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         return userDetails.getAccountId();
+    }
+
+    private Account findAccountById() {
+        return accountService.findAccountById(getAccountIdFromAuthentication());
+    }
+
+    private Long getClientIdFromAuthentication() {
+        Account account = findAccountById();
+        return account.getSelectedClientId();
     }
 
 }

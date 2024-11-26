@@ -28,10 +28,8 @@ public class ReportArticleUpdateRequest {
     @NotBlank(message = "발행일자는 필수입니다.")
     private String publishedDate;
 
-    @NotBlank(message = "미디어는 필수입니다.")
     private String media;
 
-    @NotBlank(message = "기자명은 필수입니다.")
     private String reporter;
 
 

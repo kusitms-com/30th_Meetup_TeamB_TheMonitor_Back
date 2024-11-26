@@ -52,8 +52,7 @@ public class AccountController {
     @PostMapping("/signIn")
     public ApiResponse<String> Login(@RequestBody @Valid AccountSignInRequest request, HttpServletResponse response, HttpSession session) {
 
-        return ApiResponse.onSuccess(accountService.accountSignIn(request, response, session));
-
+        return accountService.accountSignIn(request, response, session);
     }
 
     @Operation(summary = "토큰 유효성 검사", description = "토큰 유효성 검사")

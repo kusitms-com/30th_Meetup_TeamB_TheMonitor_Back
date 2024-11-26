@@ -21,7 +21,7 @@ public interface AccountService {
 
     String accountSignUp(AccountSignUpRequest request);
 
-    String accountSignIn(AccountSignInRequest request, HttpServletResponse response, HttpSession session);
+    ApiResponse<String> accountSignIn(AccountSignInRequest request, HttpServletResponse response, HttpSession session);
 
     String checkEmail(String email);
 

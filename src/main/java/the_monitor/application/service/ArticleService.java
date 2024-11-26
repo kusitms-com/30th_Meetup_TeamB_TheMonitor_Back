@@ -9,11 +9,11 @@ import the_monitor.domain.model.Article;
 
 public interface ArticleService {
 
-    String saveArticles(Long clientId);
+    String saveArticles();
 
-    PageResponse<ArticleResponse> getArticlesByClientAndCategoryType(Long clientId, CategoryType categoryType, int page);
+    PageResponse<ArticleResponse> getArticlesByClientAndCategoryType(CategoryType categoryType, int page);
 
-    PageResponse<ArticleResponse> getArticlesByKeyword(Long clientId, CategoryType categoryType, Long keywordId, int page);
+    PageResponse<ArticleResponse> getArticlesByKeyword(CategoryType categoryType, Long keywordId, int page);
 
     Article findArticleById(Long articleId);
 }

@@ -85,7 +85,7 @@ public class ClientServiceImpl implements ClientService {
         emailServiceImpl.saveEmails(clientRequest.getRecipientEmails(), clientRequest.getCcEmails(), client);
 
         // 기사 저장
-        articleService.saveArticles(client.getId());
+        articleService.saveArticles();
 
         // ClientResponse 반환
         return ClientResponse.builder()
