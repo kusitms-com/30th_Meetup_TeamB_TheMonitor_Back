@@ -19,8 +19,10 @@ import the_monitor.domain.repository.ReportCategoryRepository;
 import the_monitor.domain.repository.ReportRepository;
 import the_monitor.infrastructure.security.CustomUserDetails;
 
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +40,8 @@ public class ReportServiceImpl implements ReportService {
 
     private final S3Service s3Service;
 
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     @Override
     public List<ReportListResponse> getReports() {
 
@@ -49,6 +53,8 @@ public class ReportServiceImpl implements ReportService {
                 .map(report -> ReportListResponse.builder()
                         .reportId(report.getId())
                         .title(report.getTitle())
+                        .createdAt(report.getCreatedAt().format(FORMATTER))
+                        .updatedAt(report.getUpdatedAt().format(FORMATTER))
                         .build())
                 .collect(Collectors.toList());
 
@@ -212,6 +218,8 @@ public class ReportServiceImpl implements ReportService {
                 .map(report -> ReportListResponse.builder()
                         .reportId(report.getId())
                         .title(report.getTitle())
+                        .createdAt(report.getCreatedAt().format(FORMATTER))
+                        .updatedAt(report.getUpdatedAt().format(FORMATTER))
                         .build())
                 .collect(Collectors.toList());
 
