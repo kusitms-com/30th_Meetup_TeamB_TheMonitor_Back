@@ -52,12 +52,16 @@ public class Report extends BaseTimeEntity {
 
     }
 
-    public void updateHeadContents(String title, String color, String logo) {
-
+    public void updateTitle(String title) {
         this.title = title;
-        this.logo = logo;
-        this.color = color;
+    }
 
+    public void updateLogo(String logo) {
+        this.logo = logo;
+    }
+
+    public void updateColor(String color) {
+        this.color = color;
     }
 
     public void addReportCategories(List<ReportCategory> reportCategories) {

@@ -8,24 +8,28 @@ import java.util.List;
 
 public interface ReportService {
 
-    List<ReportListResponse> getReports(Long clientId);
+    List<ReportListResponse> getReports();
 
-    String createReports(Long clientId, ReportCreateRequest request, MultipartFile logo);
+    String createReports(ReportCreateRequest request, MultipartFile logo);
 
-    String deleteReports(Long clientId, Long reportId);
+    String deleteReports(Long reportId);
 
-    ReportDetailResponse getReportDetail(Long clientId, Long reportId);
+    ReportDetailResponse getReportDetail(Long reportId);
 
-    String updateReportArticle(Long clientId, Long reportId, ReportArticleUpdateRequest request);
+    String updateReportArticle(Long reportId, ReportArticleUpdateRequest request);
 
-    String deleteReportArticle(Long clientId, Long reportId, Long reportArticleId);
+    String deleteReportArticle(Long reportId, Long reportArticleId);
 
-    String updateReportArticleSummary(Long clientId, Long reportId, Long reportArticleId, ReportUpdateSummaryRequest request);
+    String updateReportArticleSummary(Long reportId, Long reportArticleId, ReportUpdateSummaryRequest request);
 
-    String updateReportHeadContents(Long clientId, Long reportId, ReportUpdateHeadContentsRequest request, MultipartFile logo);
+    String updateReportTitle(Long reportId, ReportUpdateTitleRequest request);
 
-    List<ReportListResponse> searchReport(Long clientId, ReportSearchTitleRequest request);
+    String updateReportColor(Long reportId, ReportUpdateColorRequest request);
 
-    ReportCategoryTypeListResponse getReportCategoryList(Long clientId, Long reportId);
+    String updateReportLogo(Long reportId, MultipartFile logo);
+
+    List<ReportListResponse> searchReport(ReportSearchTitleRequest request);
+
+    ReportCategoryTypeListResponse getReportCategoryList(Long reportId);
 
 }

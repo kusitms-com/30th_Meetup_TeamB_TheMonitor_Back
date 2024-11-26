@@ -17,10 +17,10 @@ public class ReportArticleUpdateRequest {
     private String categoryType;
 
     @NotBlank(message = "키워드는 필수입니다.")
-    private String category;
+    private String keyword;
 
     @NotBlank(message = "기사 제목은 필수입니다.")
-    private String articleTitle;
+    private String headLine;
 
     @NotBlank(message = "url은 필수입니다.")
     private String url;
@@ -28,42 +28,39 @@ public class ReportArticleUpdateRequest {
     @NotBlank(message = "발행일자는 필수입니다.")
     private String publishedDate;
 
-    @NotBlank(message = "미디어는 필수입니다.")
-    private String publisherName;
+    private String media;
 
-    @NotBlank(message = "기자명은 필수입니다.")
-    private String reporterName;
+    private String reporter;
 
-    @NotBlank(message = "카테고리ID는 필수입니다.")
-    private Long reportCategoryId;
 
     @Builder
     public ReportArticleUpdateRequest(String categoryType,
-                                      String category,
-                                      String articleTitle,
+                                      String keyword,
+                                      String headLine,
                                       String url,
                                       String publishedDate,
-                                      String publisherName,
-                                      String reporterName) {
+                                      String media,
+                                      String reporter) {
 
         this.categoryType = categoryType;
-        this.category = category;
-        this.articleTitle = articleTitle;
+        this.keyword = keyword;
+        this.headLine = headLine;
         this.url = url;
         this.publishedDate = publishedDate;
-        this.publisherName = publisherName;
-        this.reporterName = reporterName;
+        this.media = media;
+        this.reporter = reporter;
 
     }
 
     public ReportArticle toEntity(ReportCategory reportCategory) {
         return ReportArticle.builder()
                 .categoryType(CategoryType.valueOf(categoryType))
-                .title(articleTitle)
+                .title(headLine)
+                .keyword(keyword)
                 .url(url)
                 .publishDate(publishedDate)
-                .publisherName(publisherName)
-                .reporterName(reporterName)
+                .publisherName(media)
+                .reporterName(reporter)
                 .reportCategory(reportCategory)
                 .build();
     }

@@ -9,6 +9,7 @@ import the_monitor.application.dto.response.ClientGetResponse;
 import the_monitor.application.dto.response.ClientResponse;
 import the_monitor.application.dto.response.EmailSendResponse;
 import the_monitor.application.dto.response.ReportListResponse;
+import the_monitor.application.service.ArticleService;
 import the_monitor.application.service.CategoryService;
 import the_monitor.application.service.ClientService;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ClientServiceImpl implements ClientService {
 
     private final ClientRepository clientRepository;
@@ -47,23 +49,10 @@ public class ClientServiceImpl implements ClientService {
     private final JwtProvider jwtProvider;
     private final S3Service s3Service;
     private final EmailServiceImpl emailServiceImpl;
+    private final ArticleService articleService;
 
     @Value("${cloud.aws.s3.default-logo-url}")
     private String defaultLogoUrl;
-
-    @Autowired
-    public ClientServiceImpl(ClientRepository clientRepository, CategoryService categoryService, AccountRepository accountRepository, KeywordRepository keywordRepository,
-                             ClientMailRecipientRepository clientMailRecipientRepository, ClientMailCCRepository clientMailCCRepository, JwtProvider jwtProvider, S3Service s3Service, EmailServiceImpl emailServiceImpl) {
-        this.clientRepository = clientRepository;
-        this.categoryService = categoryService;
-        this.accountRepository = accountRepository;
-        this.keywordRepository = keywordRepository;
-        this.clientMailRecipientRepository = clientMailRecipientRepository;
-        this.clientMailCCRepository = clientMailCCRepository;
-        this.jwtProvider = jwtProvider;
-        this.s3Service = s3Service;
-        this.emailServiceImpl = emailServiceImpl;
-    }
 
     @Transactional
     public ClientResponse createClient(ClientRequest clientRequest, MultipartFile logo) {
@@ -94,6 +83,9 @@ public class ClientServiceImpl implements ClientService {
 
         // 이메일 수신자와 참조인 저장
         emailServiceImpl.saveEmails(clientRequest.getRecipientEmails(), clientRequest.getCcEmails(), client);
+
+        // 기사 저장
+        articleService.saveArticles();
 
         // ClientResponse 반환
         return ClientResponse.builder()

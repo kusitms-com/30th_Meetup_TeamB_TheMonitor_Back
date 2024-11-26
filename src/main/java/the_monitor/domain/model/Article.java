@@ -77,5 +77,7 @@ public class Article extends BaseTimeEntity {
         this.keyword = keyword;
 
     }
-
+    public void setScrapStatus(boolean isScraped) {
+        this.isScraped = isScraped;
+    }
 }

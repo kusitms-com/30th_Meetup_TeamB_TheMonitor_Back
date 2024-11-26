@@ -31,6 +31,9 @@ public class ReportCategory extends BaseTimeEntity {
     @Column(name = "report_category_description", nullable = true)
     private String description;
 
+    @Column(name = "report_category_is_default")
+    private boolean isDefault;
+
     @ManyToOne
     @JoinColumn(name = "report_id", nullable = false)
     private Report report;
@@ -43,13 +46,15 @@ public class ReportCategory extends BaseTimeEntity {
                           String name,
                           String description,
                           Report report,
-                          List<ReportArticle> reportArticles) {
+                          List<ReportArticle> reportArticles,
+                          boolean isDefault) {
 
         this.categoryType = categoryType;
         this.name = name;
         this.description = description;
         this.report = report;
         this.reportArticles = reportArticles;
+        this.isDefault = isDefault;
 
     }
 
