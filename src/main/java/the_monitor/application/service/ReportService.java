@@ -10,7 +10,7 @@ public interface ReportService {
 
     List<ReportListResponse> getReports();
 
-    String createReports(ReportCreateRequest request, MultipartFile logo);
+    ReportCreateResponse createReports(Long clientId, ReportCreateRequest request, MultipartFile logo);
 
     String deleteReports(Long reportId);
 
