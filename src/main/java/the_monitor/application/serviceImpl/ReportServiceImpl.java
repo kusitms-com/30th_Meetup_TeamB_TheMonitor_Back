@@ -103,9 +103,9 @@ public class ReportServiceImpl implements ReportService {
         Report report = findByClientIdAndReportId(clientId, reportId);
         validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
 
-//        ReportCategory reportCategory = findReportCategoryById(reportId, request.getReportCategoryId());
+        ReportCategory reportCategory = setDefaultCategory(report);
 
-//        reportArticleRepository.save(request.toEntity(reportCategory));
+        reportArticleRepository.save(request.toEntity(reportCategory));
 
         return "보고서 기사 추가 완료";
 
@@ -388,6 +388,16 @@ public class ReportServiceImpl implements ReportService {
                 .reportCategoryId(category.getId())
                 .reportCategoryName(category.getName())
                 .reportCategoryDescription(category.getDescription())
+                .build();
+    }
+
+    private ReportCategory setDefaultCategory(Report report) {
+        return ReportCategory.builder()
+                .categoryType(CategoryType.SELF)
+                .name("default")
+                .description("기본 카테고리입니다.")
+                .report(report)
+                .isDefault(true)
                 .build();
     }
 
