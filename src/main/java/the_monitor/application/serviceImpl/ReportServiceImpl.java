@@ -49,8 +49,6 @@ public class ReportServiceImpl implements ReportService {
                 .map(report -> ReportListResponse.builder()
                         .reportId(report.getId())
                         .title(report.getTitle())
-                        .createdAt(String.valueOf(report.getCreatedAt()))
-                        .updatedAt(String.valueOf(report.getUpdatedAt()))
                         .build())
                 .collect(Collectors.toList());
 
@@ -58,9 +56,7 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     @Transactional
-    public String createReports(ReportCreateRequest request, MultipartFile logo) {
-
-        Long clientId = getClientIdFromAuthentication();
+    public ReportCreateResponse createReports(Long clientId, ReportCreateRequest request, MultipartFile logo) {
 
         Client client = findClientById(clientId);
 
@@ -70,7 +66,9 @@ public class ReportServiceImpl implements ReportService {
         // 각 카테고리별로 ReportArticle 생성 및 저장
         createAndSaveReportArticlesByCategories(report, request);
 
-        return "보고서 생성 성공";
+        return ReportCreateResponse.builder()
+                .reportId(report.getId())
+                .build();
     }
 
     @Override
@@ -101,7 +99,6 @@ public class ReportServiceImpl implements ReportService {
                 .build();
 
     }
-
 
     // 수정 요망
     @Override
@@ -215,8 +212,6 @@ public class ReportServiceImpl implements ReportService {
                 .map(report -> ReportListResponse.builder()
                         .reportId(report.getId())
                         .title(report.getTitle())
-                        .createdAt(String.valueOf(report.getCreatedAt()))
-                        .updatedAt(String.valueOf(report.getUpdatedAt()))
                         .build())
                 .collect(Collectors.toList());
 
