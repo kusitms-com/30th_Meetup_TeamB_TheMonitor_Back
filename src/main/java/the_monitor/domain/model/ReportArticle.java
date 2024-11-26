@@ -30,10 +30,10 @@ public class ReportArticle extends BaseTimeEntity {
     @Column(name = "report_article_url", nullable = false)
     private String url;
 
-    @Column(name = "report_article_publisher_name", nullable = false)
+    @Column(name = "report_article_publisher_name", nullable = true)
     private String publisherName;
 
-    @Column(name = "report_article_reporter_name", nullable = false)
+    @Column(name = "report_article_reporter_name", nullable = true)
     private String reporterName;
 
     @Column(name = "report_article_publish_date", nullable = false)
