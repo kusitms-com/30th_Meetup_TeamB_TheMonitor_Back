@@ -87,6 +87,7 @@ public class ArticleServiceImpl implements ArticleService {
         // 조회된 기사들을 ArticleResponse로 변환
         List<ArticleGoogleDto> articleDtos = articlePage.getContent().stream()
                 .map(article -> ArticleGoogleDto.builder()
+                        .articleId(article.getId())
                         .title(article.getTitle())
                         .body(article.getBody())
                         .url(article.getUrl())

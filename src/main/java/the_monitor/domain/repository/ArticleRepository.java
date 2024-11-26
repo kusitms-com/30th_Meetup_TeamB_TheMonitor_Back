@@ -24,4 +24,5 @@ public interface ArticleRepository extends JpaArticleRepository {
                                                 @Param("categoryType") CategoryType categoryType,
                                                 Pageable pageable);
 
+    List<Article> findAllByKeyword_Category_Client_IdAndIsScrapedTrue(Long clientId);
 }

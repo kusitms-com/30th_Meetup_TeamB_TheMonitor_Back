@@ -10,6 +10,7 @@ import the_monitor.domain.enums.CategoryType;
 @NoArgsConstructor
 public class ScrapArticleDto {
 
+    private Long articleId;
     private String title;
     private String body;
     private String url;
@@ -20,7 +21,8 @@ public class ScrapArticleDto {
     private CategoryType categoryType;
 
     @Builder
-    public ScrapArticleDto(String title,
+    public ScrapArticleDto(Long articleId,
+                           String title,
                            String body,
                            String url,
                            String imageUrl,
@@ -29,6 +31,7 @@ public class ScrapArticleDto {
                            String reporterName,
                            CategoryType categoryType) {
 
+        this.articleId = articleId;
         this.title = title;
         this.body = body;
         this.url = url;

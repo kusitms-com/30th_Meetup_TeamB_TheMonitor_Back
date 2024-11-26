@@ -10,6 +10,7 @@ import the_monitor.domain.model.Keyword;
 @NoArgsConstructor
 public class ArticleGoogleDto {
 
+    private Long articleId;
     private String title;
     private String body;
     private String url;
@@ -19,14 +20,15 @@ public class ArticleGoogleDto {
     private String reporterName;
 
     @Builder
-    public ArticleGoogleDto(String title,
+    public ArticleGoogleDto(Long articleId,
+                            String title,
                             String body,
                             String url,
                             String imageUrl,
                             String publisherName,
                             String publishDate,
                             String reporterName) {
-
+        this.articleId = articleId;
         this.title = title;
         this.body = body;
         this.url = url;
@@ -48,6 +50,10 @@ public class ArticleGoogleDto {
                 .reporterName(reporterName)
                 .keyword(keyword)
                 .build();
+    }
+
+    public void setArticleId(Long articleId) {
+        this.articleId = articleId;
     }
 
 }
