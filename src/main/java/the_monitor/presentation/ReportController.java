@@ -125,4 +125,31 @@ public class ReportController {
 
     }
 
+    @Operation(summary = "보고서 기사 카테고리 수정", description = "보고서에 포함된 기사의 카테고리를 수정합니다.")
+    @PatchMapping("/articles/category")
+    public ApiResponse<String> updateReportArticleCategory(@RequestParam("reportId") Long reportId,
+                                                           @RequestParam("reportArticleId") Long reportArticleId,
+                                                           @RequestParam("newCategoryId") Long newCategoryId) {
+
+        return ApiResponse.onSuccess(reportService.updateReportArticleCategory(reportId, reportArticleId, newCategoryId));
+
+    }
+
+    @Operation(summary = "보고서 카테고리 삭제", description = "보고서 카테고리를 삭제합니다.")
+    @PatchMapping("/category/delete")
+    public ApiResponse<String> deleteReportCategory(@RequestParam("reportId") Long reportId,
+                                                    @RequestParam("categoryId") Long categoryId) {
+
+        return ApiResponse.onSuccess(reportService.deleteReportCategory(reportId, categoryId));
+
+    }
+
+    @Operation
+    @PostMapping("/category")
+    public ApiResponse<String> createReportCategory(@RequestParam("reportId") Long reportId,
+                                                    @RequestBody ReportCategoryCreateRequest request) {
+
+        return ApiResponse.onSuccess(reportService.createReportCategory(reportId, request));
+
+    }
 }
