@@ -47,7 +47,7 @@ public class ReportArticle extends BaseTimeEntity {
     private CategoryType categoryType;
 
     @ManyToOne
-    @JoinColumn(name = "report_category_id", nullable = false)
+    @JoinColumn(name = "report_category_id", nullable = true)
     private ReportCategory reportCategory;
 
     @Builder

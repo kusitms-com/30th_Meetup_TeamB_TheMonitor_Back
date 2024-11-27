@@ -14,6 +14,7 @@ public class ReportCategoryResponse {
     private Long reportCategoryId;
     private String reportCategoryName;
     private String reportCategoryDescription;
+    private boolean isDefault;
 
     private List<ReportArticlesResponse> reportArticlesResponses = new ArrayList<>();
 
@@ -21,11 +22,13 @@ public class ReportCategoryResponse {
     public ReportCategoryResponse(Long reportCategoryId,
                                   String reportCategoryName,
                                   String reportCategoryDescription,
+                                  boolean isDefault,
                                   List<ReportArticlesResponse> reportArticlesResponses) {
 
         this.reportCategoryId = reportCategoryId;
         this.reportCategoryName = reportCategoryName;
         this.reportCategoryDescription = reportCategoryDescription;
+        this.isDefault = isDefault;
         this.reportArticlesResponses = reportArticlesResponses;
 
     }
