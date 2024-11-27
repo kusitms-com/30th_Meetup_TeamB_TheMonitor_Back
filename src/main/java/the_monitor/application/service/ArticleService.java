@@ -9,7 +9,7 @@ import the_monitor.domain.model.Article;
 
 public interface ArticleService {
 
-    String saveArticles();
+    String saveArticles(Long clientId);
 
     PageResponse<ArticleResponse> getArticlesByClientAndCategoryType(CategoryType categoryType, int page);
 

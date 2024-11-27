@@ -50,9 +50,7 @@ public class KeywordServiceImpl implements KeywordService {
     }
 
     @Override
-    public List<Keyword> getKeywordByAccountIdAndClientIdAndCategoryType(Long accountId, CategoryType categoryType) {
-
-        Long clientId = getClientIdFromAuthentication();
+    public List<Keyword> getKeywordByAccountIdAndClientIdAndCategoryType(Long accountId, Long clientId, CategoryType categoryType) {
 
         return keywordRepository.findKeywordsByAccountIdAndClientIdAndCategoryType(accountId, clientId, categoryType);
 

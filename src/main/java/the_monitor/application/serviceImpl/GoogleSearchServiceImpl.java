@@ -91,6 +91,8 @@ public class GoogleSearchServiceImpl implements GoogleSearchService {
                 HttpEntity<String> entity = new HttpEntity<>(headers);
                 ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
 
+                System.out.println("검색어 : " + query + " / 페이지 : " + start);
+
                 if (response.getStatusCode() == HttpStatus.OK) {
                     return parseResponse(response.getBody());
                 } else {
