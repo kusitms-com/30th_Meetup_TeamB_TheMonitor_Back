@@ -89,29 +89,7 @@ public class ArticleServiceImpl implements ArticleService {
         Page<Article> articlePage = articleRepository.findByClientIdAndCategoryType(clientId, categoryType, pageable);
 
         // 조회된 기사들을 ArticleResponse로 변환
-        List<ArticleGoogleDto> articleDtos = articlePage.getContent().stream()
-                .map(article -> ArticleGoogleDto.builder()
-                        .articleId(article.getId())
-                        .title(article.getTitle())
-                        .body(article.getBody())
-                        .url(article.getUrl())
-                        .imageUrl(article.getImageUrl())
-                        .publisherName(article.getPublisherName())
-                        .publishDate(article.getPublishDate())
-                        .reporterName(article.getReporterName())
-                        .build())
-                .toList();
-      
-        ArticleResponse articleResponse = ArticleResponse.builder()
-                .googleArticles(articleDtos)
-                .totalResults((int) articlePage.getTotalElements())
-                .build();
-
-        return PageResponse.<ArticleResponse>builder()
-                .listPageResponse(List.of(articleResponse))
-                .totalCount(articlePage.getTotalElements())
-                .size(articlePage.getSize())
-                .build();
+        return getArticleResponsePageResponse(articlePage);
 
     }
 
@@ -119,10 +97,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public PageResponse<ArticleResponse> getArticlesByKeyword(CategoryType categoryType, Long keywordId, int page) {
 
-        Long accountId = getAccountIdFromAuthentication();
-
-        // 특정 Keyword 가져오기
-        Keyword keyword = keywordService.getKeywordByIdAndAccountIdAndClientIdAndCategoryType(keywordId, accountId, categoryType);
+        Keyword keyword = keywordService.findKeywordByIdAndCategoryType(keywordId, categoryType);
 
         if (keyword == null) {
             throw new IllegalArgumentException("Keyword not found");
@@ -141,6 +116,7 @@ public class ArticleServiceImpl implements ArticleService {
     private PageResponse<ArticleResponse> getArticleResponsePageResponse(Page<Article> articlePage) {
         List<ArticleGoogleDto> articleDtos = articlePage.getContent().stream()
                 .map(article -> ArticleGoogleDto.builder()
+                        .articleId(article.getId())
                         .title(article.getTitle())
                         .body(article.getBody())
                         .url(article.getUrl())

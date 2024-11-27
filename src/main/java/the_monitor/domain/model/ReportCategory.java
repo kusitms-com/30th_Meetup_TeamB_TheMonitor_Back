@@ -32,7 +32,7 @@ public class ReportCategory extends BaseTimeEntity {
     private String description;
 
     @Column(name = "report_category_is_default")
-    private boolean isDefault;
+    private Boolean isDefault;
 
     @ManyToOne
     @JoinColumn(name = "report_id", nullable = false)

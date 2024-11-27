@@ -41,6 +41,6 @@ public class EmailController {
     @Operation(summary = "이메일 전송", description = "완성된 보고서를 고객사에게 전송합니다.")
     @PostMapping(value = "/send", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiResponse<EmailSendResponse> sendReport(@RequestPart(name="sendEmail") @Valid EmailSendRequest emailSendRequest) throws MessagingException, UnsupportedEncodingException {
-        return ApiResponse.onSuccessData("이메일 전송 성공", emailService.sendReportEmail(emailSendRequest.getSubject(), emailSendRequest.getContent()));
+        return ApiResponse.onSuccessData("이메일 전송 성공", emailService.sendReportEmailWithAttachment(emailSendRequest.getSubject(), emailSendRequest.getContent()));
     }
 }

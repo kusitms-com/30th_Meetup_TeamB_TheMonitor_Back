@@ -118,11 +118,10 @@ public class ReportServiceImpl implements ReportService {
         Report report = findByClientIdAndReportId(clientId, reportId);
         validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
 
-        ReportCategory reportCategory = setDefaultCategory(report, request.getCategoryType());
+        ReportArticle reportArticle = request.toEntity();
+        reportArticleRepository.save(reportArticle);
 
-        reportCategoryRepository.save(reportCategory);
-
-        reportArticleRepository.save(request.toEntity(reportCategory));
+        setReportArticleDefaultCategory(report, reportArticle, CategoryType.valueOf(request.getCategoryType()));
 
         return "보고서 기사 추가 완료";
 
@@ -227,6 +226,7 @@ public class ReportServiceImpl implements ReportService {
 
     }
 
+    // 보고서 카테고리 조회
     @Override
     public ReportCategoryTypeListResponse getReportCategoryList(Long reportId) {
 
@@ -271,6 +271,7 @@ public class ReportServiceImpl implements ReportService {
 
     }
 
+    // 보고서 카테고리 삭제
     @Override
     @Transactional
     public String deleteReportCategory(Long reportId, Long categoryId) {
@@ -285,7 +286,7 @@ public class ReportServiceImpl implements ReportService {
             List<ReportArticle> articles = reportCategory.getReportArticles();
 
             for (ReportArticle article : articles) {
-                article.setReportCategory(setDefaultCategory(report, article.getCategoryType().name()));
+                setReportArticleDefaultCategory(report, article, article.getCategoryType());
             }
 
             reportCategoryRepository.delete(reportCategory);
@@ -306,6 +307,24 @@ public class ReportServiceImpl implements ReportService {
         reportCategoryRepository.save(request.toEntity(report));
 
         return "보고서 카테고리 생성 완료";
+
+    }
+
+    // 미디어 기자 수정
+    @Override
+    @Transactional
+    public String updateReportArticleOptions(Long reportId, Long reportArticleId, ReportArticleUpdateOptionsRequest request) {
+
+        Long clientId = getClientIdFromAuthentication();
+
+        Report report = findByClientIdAndReportId(clientId, reportId);
+        validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
+
+        ReportArticle reportArticle = findReportArticleById(reportArticleId);
+
+        reportArticle.updateMediaReporter(request.isMedia(), request.isReporter());
+
+        return "보고서 기사 미디어 기자 수정 완료";
 
     }
 
@@ -379,6 +398,10 @@ public class ReportServiceImpl implements ReportService {
         // ReportCategory 리스트 생성
         List<ReportCategory> reportCategoryList = new ArrayList<>();
 
+        reportCategoryRepository.save(setDefaultCategory(report, CategoryType.SELF.name()));
+        reportCategoryRepository.save(setDefaultCategory(report, CategoryType.COMPETITOR.name()));
+        reportCategoryRepository.save(setDefaultCategory(report, CategoryType.INDUSTRY.name()));
+
         // 유형별 카테고리 처리
         ReportCategoryTypeRequest categoryTypeRequest = request.getReportCategoryTypeRequest();
 
@@ -446,6 +469,7 @@ public class ReportServiceImpl implements ReportService {
                 .publishDate(article.getPublishDate())
                 .categoryType(reportCategory.getCategoryType())
                 .reportCategory(reportCategory)
+                .keyword(article.getKeyword().toString())
                 .build();
     }
 
@@ -477,6 +501,7 @@ public class ReportServiceImpl implements ReportService {
                 .reportCategoryName(category.getName())
                 .reportCategoryDescription(category.getDescription())
                 .reportArticlesResponses(articlesResponses)
+                .isDefault(category.isDefault())
                 .build();
 
     }
@@ -501,6 +526,7 @@ public class ReportServiceImpl implements ReportService {
                 .reportCategoryId(category.getId())
                 .reportCategoryName(category.getName())
                 .reportCategoryDescription(category.getDescription())
+                .isDefault(category.isDefault())
                 .build();
     }
 
@@ -512,6 +538,16 @@ public class ReportServiceImpl implements ReportService {
                 .report(report)
                 .isDefault(true)
                 .build();
+    }
+
+    private void setReportArticleDefaultCategory(Report report, ReportArticle reportArticle, CategoryType categoryType) {
+
+        ReportCategory defaultCategory = reportCategoryRepository.findByReportAndCategoryTypeAndIsDefault(report, categoryType, true);
+
+        // 기본 ReportCategory 설정
+        reportArticle.setReportCategory(defaultCategory);
+        reportArticleRepository.save(reportArticle);
+
     }
 
 }
