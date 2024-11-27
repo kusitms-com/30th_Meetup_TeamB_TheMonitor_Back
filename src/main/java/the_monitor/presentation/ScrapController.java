@@ -22,17 +22,22 @@ public class ScrapController {
 
     @Operation(summary = "스크랩하기", description = "기사를 스크랩하여 scrapId를 반환합니다.")
     @PostMapping()
-    public ApiResponse<ScrapReportArticeResponse> scrapArticle(@RequestParam("clientId") Long clientId,
-                                                               @RequestBody ScrapReportArticleRequest request) {
+    public ApiResponse<ScrapReportArticeResponse> scrapArticle(@RequestParam("articleId") Long articleId) {
 
-        return ApiResponse.onSuccessData("기사 스크랩 성공", scrapService.scrapArticle(clientId, request));
+        return ApiResponse.onSuccessData("기사 스크랩 성공", scrapService.scrapArticle(articleId));
 
     }
 
     @Operation(summary = "스크랩한 기사 조회", description = "스크랩한 기사들을 조회합니다.")
     @GetMapping
-    public ApiResponse<List<ScrapArticleDto>> getScrapedArticlesByClientId(@RequestParam("clientId") Long clientId) {
-        return ApiResponse.onSuccessData("스크랩 기사 조회 성공", scrapService.getScrapedArticlesByClientId(clientId));
+    public ApiResponse<List<ScrapArticleDto>> getScrapedArticlesByClientId() {
+        return ApiResponse.onSuccessData("스크랩 기사 조회 성공", scrapService.getScrapedArticlesByClientId());
+    }
+
+    @Operation(summary = "스크랩 삭제", description = "스크랩을 삭제합니다")
+    @DeleteMapping()
+    public ApiResponse<String> deleteScrapArticle(@RequestParam("articleId") Long articleId) {
+        return ApiResponse.onSuccessData("스크랩 취소", scrapService.unscrapArticle(articleId));
     }
 
 }
