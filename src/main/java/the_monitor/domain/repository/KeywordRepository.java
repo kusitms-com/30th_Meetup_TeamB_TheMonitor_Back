@@ -31,22 +31,16 @@ public interface KeywordRepository extends JpaRepository<Keyword, Long> {
             "WHERE ac.id = :accountId " +
             "AND cl.id = :clientId " +
             "AND c.categoryType = :categoryType")
-    List<Keyword> findKeywordByAccountIdAndClientIdAndCategoryType(@Param("accountId") Long accountId,
+    List<Keyword> findKeywordsByAccountIdAndClientIdAndCategoryType(@Param("accountId") Long accountId,
                                                                    @Param("clientId") Long clientId,
                                                                    @Param("categoryType") CategoryType categoryType);
 
     @Query("SELECT k FROM Keyword k " +
             "JOIN k.category c " +
-            "JOIN c.client cl " +
-            "JOIN cl.account ac " +
             "WHERE k.id = :keywordId " +
-            "AND ac.id = :accountId " +
-            "AND cl.id = :clientId " +
             "AND c.categoryType = :categoryType")
-    Optional<Keyword> findByIdAndAccountIdAndClientIdAndCategoryType(@Param("keywordId") Long keywordId,
-                                                                     @Param("accountId") Long accountId,
-                                                                     @Param("clientId") Long clientId,
-                                                                     @Param("categoryType") CategoryType categoryType);
+    Keyword findKeywordByIdAndCategoryType(@Param("keywordId") Long keywordId,
+                                           @Param("categoryType") CategoryType categoryType);
 
     @Modifying
     @Query("DELETE FROM Keyword k " +
