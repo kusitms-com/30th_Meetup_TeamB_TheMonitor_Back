@@ -32,7 +32,7 @@ public class ReportCategory extends BaseTimeEntity {
     private String description;
 
     @Column(name = "report_category_is_default")
-    private Boolean isDefault;
+    private boolean isDefault;
 
     @ManyToOne
     @JoinColumn(name = "report_id", nullable = false)
@@ -59,7 +59,7 @@ public class ReportCategory extends BaseTimeEntity {
     }
 
     public void addReportArticles(List<ReportArticle> reportArticles) {
-        this.reportArticles = reportArticles;
+        this.reportArticles = reportArticles; // 리스트에 개별 ReportArticle 추가
         reportArticles.forEach(reportArticle -> reportArticle.setReportCategory(this)); // 양방향 연관 관계 설정
     }
 
