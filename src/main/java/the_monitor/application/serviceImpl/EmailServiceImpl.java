@@ -13,13 +13,16 @@ import org.springframework.web.multipart.MultipartFile;
 import the_monitor.application.dto.request.EmailUpdateRequest;
 import the_monitor.application.dto.response.EmailResponse;
 import the_monitor.application.dto.response.EmailSendResponse;
+import the_monitor.application.service.AccountService;
 import the_monitor.application.service.EmailService;
 import the_monitor.application.service.S3Service;
 import the_monitor.common.ApiException;
 import the_monitor.common.ErrorStatus;
+import the_monitor.domain.model.Account;
 import the_monitor.domain.model.Client;
 import the_monitor.domain.model.ClientMailCC;
 import the_monitor.domain.model.ClientMailRecipient;
+import the_monitor.domain.repository.AccountRepository;
 import the_monitor.domain.repository.ClientMailCCRepository;
 import the_monitor.domain.repository.ClientMailRecipientRepository;
 import the_monitor.domain.repository.ClientRepository;
@@ -42,6 +45,8 @@ public class EmailServiceImpl implements EmailService {
     private final ClientRepository clientRepository;
     private final S3Service s3Service;
     private final JavaMailSender mailSender;
+
+    private final AccountRepository accountRepository;
 
     @Override
     public void sendEmail(String toEmail, String subject, String body) throws MessagingException, UnsupportedEncodingException {
@@ -86,10 +91,10 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public EmailResponse getEmails(Long clientId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        Long accountId = userDetails.getAccountId();
+    public EmailResponse getEmails() {
+
+        Long accountId = getAccountId();
+        Long clientId = getClientIdFromAuthentication();
 
         Client client = clientRepository.findByIdAndAccountId(clientId, accountId)
                 .orElseThrow(() -> new ApiException(ErrorStatus._CLIENT_FORBIDDEN));
@@ -118,10 +123,10 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     @Transactional
-    public EmailResponse updateEmails(Long clientId, EmailUpdateRequest emailUpdateRequest, MultipartFile signatureImage) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        Long accountId = userDetails.getAccountId();
+    public EmailResponse updateEmails(EmailUpdateRequest emailUpdateRequest, MultipartFile signatureImage) {
+
+        Long accountId = getAccountId();
+        Long clientId = getClientIdFromAuthentication();
 
         Client client = clientRepository.findByIdAndAccountId(clientId, accountId)
                 .orElseThrow(() -> new ApiException(ErrorStatus._CLIENT_FORBIDDEN));
@@ -170,8 +175,10 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public EmailSendResponse sendReportEmail(Long clientId, String subject, String content) throws MessagingException, UnsupportedEncodingException {
+    public EmailSendResponse sendReportEmail(String subject, String content) throws MessagingException, UnsupportedEncodingException {
         try {
+
+            Long clientId = getClientIdFromAuthentication();
 
             // 1. Client 조회
             Client client = clientRepository.findById(clientId)
@@ -212,6 +219,23 @@ public class EmailServiceImpl implements EmailService {
         } catch (MessagingException e) {
             throw new ApiException(ErrorStatus._EMAIL_SEND_FAIL);
         }
+    }
+
+    private Long getAccountId() {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        return userDetails.getAccountId();
+
+    }
+
+    private Account findAccountById() {
+        return accountRepository.findAccountById(getAccountId());
+    }
+
+    private Long getClientIdFromAuthentication() {
+        Account account = findAccountById();
+        return account.getSelectedClientId();
     }
 
 }

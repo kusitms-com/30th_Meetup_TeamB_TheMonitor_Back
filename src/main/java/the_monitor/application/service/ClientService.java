@@ -17,7 +17,7 @@ public interface ClientService {
 
     Client findClientById(Long clientId);
 
-    ClientGetResponse getClient(Long clientId);
+    ClientGetResponse getClient();
 
     String deleteClientById(Long clientId);
 
