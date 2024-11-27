@@ -72,10 +72,7 @@ public class ArticleServiceImpl implements ArticleService {
         ArticleResponse articleResponse = googleSearchService.toDto(keyword.getKeyword());
 
         for (ArticleGoogleDto dto : articleResponse.getGoogleArticles()) {
-//            articleRepository.save(dto.toEntity(keyword));
-            Article article = dto.toEntity(keyword);
-            System.out.println("Saving article: " + article);
-            articleRepository.save(article);
+            articleRepository.save(dto.toEntity(keyword));
         }
 
     }
@@ -102,8 +99,10 @@ public class ArticleServiceImpl implements ArticleService {
 
         Long accountId = getAccountIdFromAuthentication();
 
+        Long clientId = getClientIdFromAuthentication();
+
         // 특정 Keyword 가져오기
-        Keyword keyword = keywordService.getKeywordByIdAndAccountIdAndClientIdAndCategoryType(keywordId, accountId, categoryType);
+        Keyword keyword = keywordService.getKeywordByIdAndAccountIdAndClientIdAndCategoryType(keywordId, clientId, accountId, categoryType);
 
         if (keyword == null) {
             throw new IllegalArgumentException("Keyword not found");

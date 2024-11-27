@@ -23,10 +23,10 @@ public class Article extends BaseTimeEntity {
     @Column(name = "article_body", nullable = false)
     private String body;
 
-    @Column(name = "article_url", nullable = false)
+    @Column(name = "article_url", nullable = false, length = 1024)
     private String url;
 
-    @Column(name = "article_image_url")
+    @Column(name = "article_image_url", length = 1024)
     private String imageUrl;
 
     @Column(name = "article_publisher_name")
