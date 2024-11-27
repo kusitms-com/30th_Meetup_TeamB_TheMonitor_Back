@@ -14,6 +14,7 @@ import java.util.Map;
 @NoArgsConstructor
 public class ReportArticlesResponse {
 
+    private Long repirtArticleId;
     private String publishedDate;
     private String headLine;
     private String url;
@@ -22,13 +23,15 @@ public class ReportArticlesResponse {
     private String summary;
 
     @Builder
-    public ReportArticlesResponse(String publishedDate,
+    public ReportArticlesResponse(Long ReportArticleId,
+                                  String publishedDate,
                                   String headLine,
                                   String url,
                                   String media,
                                   String reporter,
                                   String summary) {
 
+        this.repirtArticleId = ReportArticleId;
         this.publishedDate = publishedDate;
         this.headLine = headLine;
         this.url = url;
