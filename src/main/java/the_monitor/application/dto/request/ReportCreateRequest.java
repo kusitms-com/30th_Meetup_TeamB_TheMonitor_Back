@@ -17,7 +17,11 @@ public class ReportCreateRequest {
 
     private String reportTitle;
     private String color;
+
+    @JsonProperty("isMedia")
     private boolean isMedia;
+
+    @JsonProperty("isReporter")
     private boolean isReporter;
 
     @JsonProperty("articles")
@@ -44,6 +48,8 @@ public class ReportCreateRequest {
                 .title(reportTitle)
                 .color(color)
                 .logo(logoUrl)
+                .isMedia(isMedia)
+                .isReporter(isReporter)
                 .build();
     }
 

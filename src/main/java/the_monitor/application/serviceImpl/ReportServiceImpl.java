@@ -7,7 +7,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import the_monitor.application.dto.ReportOptionsDto;
 import the_monitor.application.dto.request.*;
 import the_monitor.application.dto.response.*;
 import the_monitor.application.service.*;
@@ -70,6 +69,9 @@ public class ReportServiceImpl implements ReportService {
         Client client = findClientById(clientId);
 
         String logoUrl = getLogoUrl(logo, client.getLogo());
+
+        System.out.println("Media: " + request.isMedia());
+        System.out.println("Reporter: " + request.isReporter());
 
         Report report = reportRepository.save(request.toEntity(client, logoUrl));
         // 각 카테고리별로 ReportArticle 생성 및 저장
@@ -321,11 +323,7 @@ public class ReportServiceImpl implements ReportService {
         Report report = findByClientIdAndReportId(clientId, reportId);
         validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
 
-        List<ReportArticle> reportArticles = findReportArticleByReportId(reportId);
-
-        for (ReportArticle reportArticle : reportArticles) {
-            reportArticle.updateMediaReporter(request.isMedia(), request.isReporter());
-        }
+        report.updateReportOptions(request.isMedia(), request.isReporter());
 
         return "보고서 기사 미디어 기자 수정 완료";
 
@@ -340,14 +338,9 @@ public class ReportServiceImpl implements ReportService {
         Report report = findByClientIdAndReportId(clientId, reportId);
         validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
 
-        List<ReportArticle> reportArticles = findReportArticleByReportId(reportId);
-
-        boolean isMedia = reportArticles.stream().allMatch(ReportArticle::isMedia);
-        boolean isReporter = reportArticles.stream().allMatch(ReportArticle::isReporter);
-
         return ReportOptionsResponse.builder()
-                .isMedia(isMedia)
-                .isReporter(isReporter)
+                .isMedia(report.isMedia())
+                .isReporter(report.isReporter())
                 .build();
 
     }
@@ -429,20 +422,18 @@ public class ReportServiceImpl implements ReportService {
         reportCategoryRepository.save(setDefaultCategory(report, CategoryType.COMPETITOR.name()));
         reportCategoryRepository.save(setDefaultCategory(report, CategoryType.INDUSTRY.name()));
 
-        // 미디어 기자 옵션 생성
-        ReportOptionsDto options = buildReportOptionsDto(request);
 
         // 유형별 카테고리 처리
         ReportCategoryTypeRequest categoryTypeRequest = request.getReportCategoryTypeRequest();
 
         // SELF 유형 처리
-        processCategoryType(report, categoryTypeRequest.getReportCategorySelfRequests(), CategoryType.SELF, reportCategoryList, options);
+        processCategoryType(report, categoryTypeRequest.getReportCategorySelfRequests(), CategoryType.SELF, reportCategoryList);
 
         // COMPETITOR 유형 처리
-        processCategoryType(report, categoryTypeRequest.getReportCategoryCompetitorRequests(), CategoryType.COMPETITOR, reportCategoryList, options);
+        processCategoryType(report, categoryTypeRequest.getReportCategoryCompetitorRequests(), CategoryType.COMPETITOR, reportCategoryList);
 
         // INDUSTRY 유형 처리
-        processCategoryType(report, categoryTypeRequest.getReportCategoryIndustryRequests(), CategoryType.INDUSTRY, reportCategoryList, options);
+        processCategoryType(report, categoryTypeRequest.getReportCategoryIndustryRequests(), CategoryType.INDUSTRY, reportCategoryList);
 
         // Report에 모든 ReportCategory 추가
         report.addReportCategories(reportCategoryList);
@@ -452,15 +443,14 @@ public class ReportServiceImpl implements ReportService {
     private void processCategoryType(Report report,
                                      List<ReportCategoryRequest> categoryRequests,
                                      CategoryType categoryType,
-                                     List<ReportCategory> reportCategoryList,
-                                     ReportOptionsDto options) {
+                                     List<ReportCategory> reportCategoryList) {
 
         categoryRequests.forEach(categoryRequest -> {
             // ReportCategory 생성
             ReportCategory reportCategory = createReportCategory(report, categoryRequest, categoryType);
 
             // ReportArticle 생성 및 연결
-            List<ReportArticle> reportArticles = createReportArticles(categoryRequest, reportCategory, options);
+            List<ReportArticle> reportArticles = createReportArticles(categoryRequest, reportCategory);
 
             // ReportCategory에 ReportArticles 추가
             reportCategory.addReportArticles(reportArticles);
@@ -472,30 +462,23 @@ public class ReportServiceImpl implements ReportService {
 
     }
 
-    private ReportOptionsDto buildReportOptionsDto(ReportCreateRequest request) {
-        return ReportOptionsDto.builder()
-                .isMedia(request.isMedia())
-                .isReporter(request.isReporter())
-                .build();
-    }
-
     private ReportCategory createReportCategory(Report report, ReportCategoryRequest categoryRequest, CategoryType categoryType) {
 
         return categoryRequest.toEntity(report, categoryType);
 
     }
 
-    private List<ReportArticle> createReportArticles(ReportCategoryRequest categoryRequest, ReportCategory reportCategory, ReportOptionsDto options) {
+    private List<ReportArticle> createReportArticles(ReportCategoryRequest categoryRequest, ReportCategory reportCategory) {
 
         return categoryRequest.getArticleId().stream()
                 .map(articleId -> {
-                    return copyReportArticleFromArticle(articleId, reportCategory, options);
+                    return copyReportArticleFromArticle(articleId, reportCategory);
                 })
                 .collect(Collectors.toList());
 
     }
 
-    private ReportArticle copyReportArticleFromArticle(Long articleId, ReportCategory reportCategory, ReportOptionsDto options) {
+    private ReportArticle copyReportArticleFromArticle(Long articleId, ReportCategory reportCategory) {
 
         Article article = articleService.findArticleById(articleId);
 
@@ -508,8 +491,6 @@ public class ReportServiceImpl implements ReportService {
                 .categoryType(reportCategory.getCategoryType())
                 .reportCategory(reportCategory)
                 .keyword(article.getKeyword().toString())
-                .isMedia(options.isMedia())
-                .isReporter(options.isReporter())
                 .build();
 
     }

@@ -1,5 +1,6 @@
 package the_monitor.application.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,7 +9,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ReportOptionsResponse {
 
+    @JsonProperty("isMedia")
     private boolean isMedia;
+    @JsonProperty("isReporter")
     private boolean isReporter;
 
     @Builder
