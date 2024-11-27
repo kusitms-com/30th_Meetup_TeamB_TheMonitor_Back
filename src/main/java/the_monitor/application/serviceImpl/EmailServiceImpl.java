@@ -28,6 +28,7 @@ import the_monitor.domain.repository.ClientMailRecipientRepository;
 import the_monitor.domain.repository.ClientRepository;
 import the_monitor.infrastructure.security.CustomUserDetails;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +55,7 @@ public class EmailServiceImpl implements EmailService {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
 
-        helper.setFrom("themonitor2024@gmail.com","The Monitor"); //보내는사람
+        helper.setFrom("themonitor2024@gmail.com", "The Monitor"); //보내는사람
         helper.setTo(toEmail); //받는사람
         helper.setSubject(subject); //메일제목
         helper.setText(body, true); //ture넣을경우 html
@@ -175,42 +176,56 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public EmailSendResponse sendReportEmail(String subject, String content) throws MessagingException, UnsupportedEncodingException {
+    public EmailSendResponse sendReportEmailWithAttachment(String subject, String content)
+            throws MessagingException, UnsupportedEncodingException {
         try {
-
             Long clientId = getClientIdFromAuthentication();
 
             // 1. Client 조회
             Client client = clientRepository.findById(clientId)
-                    .orElseThrow(() ->  new ApiException(ErrorStatus._CLIENT_NOT_FOUND));
+                    .orElseThrow(() -> new ApiException(ErrorStatus._CLIENT_NOT_FOUND));
 
             // 2. 수신자 이메일 조회
             List<String> toEmails = clientMailRecipientRepository.findAllByClient(client).stream()
-                    .map(recipient -> recipient.getAddress())
+                    .map(ClientMailRecipient::getAddress)
                     .toList();
 
             // 3. 참조 이메일 조회
             List<String> ccEmails = clientMailCCRepository.findAllByClient(client).stream()
-                    .map(cc -> cc.getAddress())
+                    .map(ClientMailCC::getAddress)
                     .toList();
 
+            // 4. 최신 파일 찾기
+            String prefix = "reports/" + clientId + "/";
+            String latestFileKey = s3Service.getLatestFileKey(prefix); // 최신 파일 키 찾기
+            if (latestFileKey == null) {
+                throw new ApiException(ErrorStatus._FILE_NOT_FOUND);
+            }
 
-            // 4. 이메일 전송 준비
+            // 5. S3에서 파일 다운로드
+            File attachment = s3Service.downloadFile(latestFileKey);
+
+            // 6. 이메일 전송 준비
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
-            helper.setFrom("themonitor2024@gmail.com","The Monitor");
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "utf-8");
+            helper.setFrom("themonitor2024@gmail.com", "The Monitor");
 
-            helper.setTo(toEmails.toArray(new String[0])); // 수신자
+            helper.setTo(toEmails.toArray(new String[0]));
             if (!ccEmails.isEmpty()) {
-                helper.setCc(ccEmails.toArray(new String[0])); // 참조자
+                helper.setCc(ccEmails.toArray(new String[0]));
             }
             helper.setSubject(subject);
             helper.setText(content, true);
 
-            // 5. 이메일 전송
-            mailSender.send(mimeMessage);
+            // 7. 첨부 파일 추가 (원래 파일 이름 사용)
+            if (attachment != null) {
+                helper.addAttachment(latestFileKey.substring(latestFileKey.lastIndexOf("/") + 1), attachment);
+            }
 
-            // 6. 응답 빌드
+            // 8. 이메일 전송
+            javaMailSender.send(mimeMessage);
+
+            // 9. 응답 빌드
             return EmailSendResponse.builder()
                     .toEmails(toEmails)
                     .ccEmails(ccEmails)
