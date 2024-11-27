@@ -251,6 +251,64 @@ public class ReportServiceImpl implements ReportService {
                 .build();
     }
 
+    // 보고서 기사 카테고리 수정
+    @Override
+    @Transactional
+    public String updateReportArticleCategory(Long reportId, Long reportArticleId, Long newCategoryId) {
+
+        Long clientId = getClientIdFromAuthentication();
+
+        Report report = findByClientIdAndReportId(clientId, reportId);
+        validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
+
+        ReportArticle reportArticle = findReportArticleById(reportArticleId);
+
+        ReportCategory newCategory = findReportCategoryById(newCategoryId);
+
+        reportArticle.updateCategory(newCategory);
+
+        return "보고서 기사 카테고리 수정 완료";
+
+    }
+
+    @Override
+    @Transactional
+    public String deleteReportCategory(Long reportId, Long categoryId) {
+
+            Long clientId = getClientIdFromAuthentication();
+
+            Report report = findByClientIdAndReportId(clientId, reportId);
+            validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
+
+            ReportCategory reportCategory = findReportCategoryById(reportId, categoryId);
+
+            List<ReportArticle> articles = reportCategory.getReportArticles();
+
+            for (ReportArticle article : articles) {
+                article.setReportCategory(setDefaultCategory(report, article.getCategoryType().name()));
+            }
+
+            reportCategoryRepository.delete(reportCategory);
+
+            return "보고서 카테고리 삭제 완료";
+
+    }
+
+    @Override
+    @Transactional
+    public String createReportCategory(Long reportId, ReportCategoryCreateRequest request) {
+
+        Long clientId = getClientIdFromAuthentication();
+
+        Report report = findByClientIdAndReportId(clientId, reportId);
+        validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
+
+        reportCategoryRepository.save(request.toEntity(report));
+
+        return "보고서 카테고리 생성 완료";
+
+    }
+
     private Long getAccountId() {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -268,7 +326,6 @@ public class ReportServiceImpl implements ReportService {
         return account.getSelectedClientId();
     }
 
-
     private Account getAccountFromId(Long accountId) {
         return accountService.findAccountById(accountId);
     }
@@ -282,6 +339,18 @@ public class ReportServiceImpl implements ReportService {
         return reportCategoryRepository.findByIdAndReportId(reportCategoryId, reportId);
 
     }
+
+    private ReportCategory findReportCategoryById(Long reportCategoryId) {
+        return reportCategoryRepository.findById(reportCategoryId)
+                .orElseThrow(() -> new ApiException(ErrorStatus._REPORT_CATEGORY_NOT_FOUND));
+    }
+
+    private ReportArticle findReportArticleById(Long reportArticleId) {
+        return reportArticleRepository.findById(reportArticleId)
+                .orElseThrow(() -> new ApiException(ErrorStatus._REPORT_ARTICLE_NOT_FOUND));
+    }
+
+
 
     // Client ID와 Report ID로 Report 조회
     private Report findByClientIdAndReportId(Long clientId, Long reportId) {

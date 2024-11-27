@@ -32,4 +32,10 @@ public interface ReportService {
 
     ReportCategoryTypeListResponse getReportCategoryList(Long reportId);
 
+    String updateReportArticleCategory(Long reportId, Long reportArticleId, Long newCategoryId);
+
+    String deleteReportCategory(Long reportId, Long categoryId);
+
+    String createReportCategory(Long reportId, ReportCategoryCreateRequest request);
+
 }

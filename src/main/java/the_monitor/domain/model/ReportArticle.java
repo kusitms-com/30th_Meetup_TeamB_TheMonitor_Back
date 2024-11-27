@@ -81,6 +81,10 @@ public class ReportArticle extends BaseTimeEntity {
         this.summary = summary;
     }
 
+    public void updateCategory(ReportCategory reportCategory) {
+        this.reportCategory = reportCategory;
+    }
+
     public void setReportCategory(ReportCategory reportCategory) {
         this.reportCategory = reportCategory;
     }
