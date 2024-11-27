@@ -55,7 +55,9 @@ public enum ErrorStatus implements BaseErrorCode {
     // ReportCategory
     _REPORT_CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "REPORT404", "해당 리포트 카테고리를 찾을 수 없습니다."),
     // SCRAP
-    _SCRAP_NOT_FOUND(HttpStatus.NOT_FOUND, "SCRAP404", "해당 스크랩을 찾을 수 없습니다.");
+    _SCRAP_NOT_FOUND(HttpStatus.NOT_FOUND, "SCRAP404", "해당 스크랩을 찾을 수 없습니다."),
+    //File
+    _FILE_RETRIEVE_FAILED(HttpStatus.NOT_FOUND,"FILE404", "S3에서 최신 파일 조회 중 오류 발생");
 
 
 
