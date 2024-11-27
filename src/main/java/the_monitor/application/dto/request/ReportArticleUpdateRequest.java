@@ -52,7 +52,7 @@ public class ReportArticleUpdateRequest {
 
     }
 
-    public ReportArticle toEntity(ReportCategory reportCategory) {
+    public ReportArticle toEntity() {
         return ReportArticle.builder()
                 .categoryType(CategoryType.valueOf(categoryType))
                 .title(headLine)
@@ -61,7 +61,6 @@ public class ReportArticleUpdateRequest {
                 .publishDate(publishedDate)
                 .publisherName(media)
                 .reporterName(reporter)
-                .reportCategory(reportCategory)
                 .build();
     }
 

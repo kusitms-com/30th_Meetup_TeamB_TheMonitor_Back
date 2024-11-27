@@ -144,7 +144,7 @@ public class ReportController {
 
     }
 
-    @Operation
+    @Operation(summary = "보고서 카테고리 생성", description = "보고서 카테고리를 생성합니다.")
     @PostMapping("/category")
     public ApiResponse<String> createReportCategory(@RequestParam("reportId") Long reportId,
                                                     @RequestBody ReportCategoryCreateRequest request) {
