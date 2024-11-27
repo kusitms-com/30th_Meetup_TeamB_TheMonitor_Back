@@ -30,6 +30,12 @@ public class Report extends BaseTimeEntity {
     @Column(name = "report_color", nullable = false)
     private String color;
 
+    @Column(name = "report_is_media", nullable = false)
+    private boolean isMedia;
+
+    @Column(name = "report_is_reporter", nullable = false)
+    private boolean isReporter;
+
     @ManyToOne
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
@@ -42,13 +48,17 @@ public class Report extends BaseTimeEntity {
                   Client client,
                   String logo,
                   String color,
-                  List<ReportCategory> reportCategories) {
+                  List<ReportCategory> reportCategories,
+                  boolean isMedia,
+                  boolean isReporter) {
 
         this.title = title;
         this.client = client;
         this.logo = logo;
         this.color = color;
         this.reportCategories = reportCategories;
+        this.isMedia = isMedia;
+        this.isReporter = isReporter;
 
     }
 
@@ -62,6 +72,11 @@ public class Report extends BaseTimeEntity {
 
     public void updateColor(String color) {
         this.color = color;
+    }
+
+    public void updateReportOptions(boolean isMedia, boolean isReporter) {
+        this.isMedia = isMedia;
+        this.isReporter = isReporter;
     }
 
     public void addReportCategories(List<ReportCategory> reportCategories) {

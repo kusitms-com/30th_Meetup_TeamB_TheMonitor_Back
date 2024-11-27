@@ -27,7 +27,7 @@ public class ReportArticle extends BaseTimeEntity {
     @Column(name = "report_article_keyword", nullable = false)
     private String keyword;
 
-    @Column(name = "report_article_url", nullable = false)
+    @Column(name = "report_article_url", nullable = false, length = 1024)
     private String url;
 
     @Column(name = "report_article_publisher_name", nullable = true)
@@ -46,12 +46,6 @@ public class ReportArticle extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private CategoryType categoryType;
 
-    @Column(name = "report_article_is_media")
-    private boolean isMedia;
-
-    @Column(name = "report_article_is_reporter")
-    private boolean isReporter;
-
     @ManyToOne
     @JoinColumn(name = "report_category_id", nullable = true)
     private ReportCategory reportCategory;
@@ -65,9 +59,7 @@ public class ReportArticle extends BaseTimeEntity {
                          String publishDate,
                          String summary,
                          CategoryType categoryType,
-                         ReportCategory reportCategory,
-                         boolean isMedia,
-                         boolean isReporter) {
+                         ReportCategory reportCategory) {
 
         this.title = title;
         this.keyword = keyword;
@@ -78,8 +70,6 @@ public class ReportArticle extends BaseTimeEntity {
         this.summary = summary;
         this.categoryType = categoryType;
         this.reportCategory = reportCategory;
-        this.isMedia = isMedia;
-        this.isReporter = isReporter;
 
     }
 
@@ -95,10 +85,6 @@ public class ReportArticle extends BaseTimeEntity {
         this.reportCategory = reportCategory;
     }
 
-    public void updateMediaReporter(boolean isMedia, boolean isReporter) {
-        this.isMedia = isMedia;
-        this.isReporter = isReporter;
-    }
 
     public void setReportCategory(ReportCategory reportCategory) {
         this.reportCategory = reportCategory;
