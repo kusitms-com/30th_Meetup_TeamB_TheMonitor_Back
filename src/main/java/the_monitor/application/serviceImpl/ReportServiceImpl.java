@@ -271,6 +271,7 @@ public class ReportServiceImpl implements ReportService {
 
     }
 
+    // 보고서 카테고리 삭제
     @Override
     @Transactional
     public String deleteReportCategory(Long reportId, Long categoryId) {
@@ -285,7 +286,7 @@ public class ReportServiceImpl implements ReportService {
             List<ReportArticle> articles = reportCategory.getReportArticles();
 
             for (ReportArticle article : articles) {
-                article.setReportCategory(setDefaultCategory(report, article.getCategoryType().name()));
+                setReportArticleDefaultCategory(report, article, article.getCategoryType());
             }
 
             reportCategoryRepository.delete(reportCategory);
