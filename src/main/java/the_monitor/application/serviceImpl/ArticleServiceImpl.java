@@ -99,8 +99,10 @@ public class ArticleServiceImpl implements ArticleService {
 
         Long accountId = getAccountIdFromAuthentication();
 
+        Long clientId = getClientIdFromAuthentication();
+
         // 특정 Keyword 가져오기
-        Keyword keyword = keywordService.getKeywordByIdAndAccountIdAndClientIdAndCategoryType(keywordId, accountId, categoryType);
+        Keyword keyword = keywordService.getKeywordByIdAndAccountIdAndClientIdAndCategoryType(keywordId, clientId, accountId, categoryType);
 
         if (keyword == null) {
             throw new IllegalArgumentException("Keyword not found");

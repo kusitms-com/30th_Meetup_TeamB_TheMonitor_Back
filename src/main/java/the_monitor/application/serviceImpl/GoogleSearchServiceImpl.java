@@ -73,29 +73,37 @@ public class GoogleSearchServiceImpl implements GoogleSearchService {
 
     }
 
-//    public int getTotalResults
-
     public ArticleResponse searchArticles(String query, int start) {
+        int retryCount = 3; // 최대 재시도 횟수
+        int attempt = 0;
+        while (true) {
+            try {
+                String url = UriComponentsBuilder.fromHttpUrl(baseUrl)
+                        .queryParam("q", query)
+                        .queryParam("key", apiKey)
+                        .queryParam("cx", searchEngineId)
+                        .queryParam("num", 10)
+                        .queryParam("start", start)
+                        .build(false)
+                        .toUriString();
 
-        String url = UriComponentsBuilder.fromHttpUrl(baseUrl)
-                .queryParam("q", query)
-                .queryParam("key", apiKey)
-                .queryParam("cx", searchEngineId)
-                .queryParam("num", 10)
-                .queryParam("start", start)
-                .build(false)
-                .toUriString();
+                HttpHeaders headers = new HttpHeaders();
+                HttpEntity<String> entity = new HttpEntity<>(headers);
+                ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
 
-        HttpHeaders headers = new HttpHeaders();
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
-
-        if (response.getStatusCode() == HttpStatus.OK) {
-            return parseResponse(response.getBody());
-        } else {
-            throw new RuntimeException("Failed to search Google: " + response.getStatusCode());
+                if (response.getStatusCode() == HttpStatus.OK) {
+                    return parseResponse(response.getBody());
+                } else {
+                    throw new RuntimeException("Failed to search Google: " + response.getStatusCode());
+                }
+            } catch (Exception e) {
+                attempt++;
+                if (attempt >= retryCount) {
+                    throw new RuntimeException("Failed to search Google after retries: " + e.getMessage(), e);
+                }
+                System.out.println("Retrying... Attempt " + attempt);
+            }
         }
-
     }
 
     private ArticleResponse parseResponse(String jsonResponse) {

@@ -59,9 +59,7 @@ public class KeywordServiceImpl implements KeywordService {
     }
 
     @Override
-    public Keyword getKeywordByIdAndAccountIdAndClientIdAndCategoryType(Long keywordId, Long accountId, CategoryType categoryType) {
-
-        Long clientId = getClientIdFromAuthentication();
+    public Keyword getKeywordByIdAndAccountIdAndClientIdAndCategoryType(Long keywordId, Long accountId, Long clientId, CategoryType categoryType) {
 
         return keywordRepository.findByIdAndAccountIdAndClientIdAndCategoryType(keywordId, accountId, clientId, categoryType)
                 .orElseThrow(() -> new IllegalArgumentException("Keyword not found with the given parameters"));
