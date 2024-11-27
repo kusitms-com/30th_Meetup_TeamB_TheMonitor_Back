@@ -17,15 +17,25 @@ public class ReportCreateRequest {
 
     private String reportTitle;
     private String color;
+    private boolean isMedia;
+    private boolean isReporter;
 
     @JsonProperty("articles")
     private ReportCategoryTypeRequest reportCategoryTypeRequest;
 
     @Builder
-    public ReportCreateRequest(String reportTitle, String color, ReportCategoryTypeRequest reportCategoryTypeRequest) {
+    public ReportCreateRequest(String reportTitle,
+                               String color,
+                               ReportCategoryTypeRequest reportCategoryTypeRequest,
+                               boolean isMedia,
+                               boolean isReporter) {
+
         this.reportTitle = reportTitle;
         this.color = color;
         this.reportCategoryTypeRequest = reportCategoryTypeRequest;
+        this.isMedia = isMedia;
+        this.isReporter = isReporter;
+
     }
 
     public Report toEntity(Client client, String logoUrl) {

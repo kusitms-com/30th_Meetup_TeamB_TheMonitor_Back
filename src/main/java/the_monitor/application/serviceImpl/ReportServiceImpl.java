@@ -7,6 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import the_monitor.application.dto.ReportOptionsDto;
 import the_monitor.application.dto.request.*;
 import the_monitor.application.dto.response.*;
 import the_monitor.application.service.*;
@@ -281,7 +282,7 @@ public class ReportServiceImpl implements ReportService {
             Report report = findByClientIdAndReportId(clientId, reportId);
             validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
 
-            ReportCategory reportCategory = findReportCategoryById(reportId, categoryId);
+            ReportCategory reportCategory = findReportCategoryByIdAndReportId(categoryId, reportId);
 
             List<ReportArticle> articles = reportCategory.getReportArticles();
 
@@ -313,18 +314,41 @@ public class ReportServiceImpl implements ReportService {
     // 미디어 기자 수정
     @Override
     @Transactional
-    public String updateReportArticleOptions(Long reportId, Long reportArticleId, ReportArticleUpdateOptionsRequest request) {
+    public String updateReportArticleOptions(Long reportId, ReportArticleUpdateOptionsRequest request) {
 
         Long clientId = getClientIdFromAuthentication();
 
         Report report = findByClientIdAndReportId(clientId, reportId);
         validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
 
-        ReportArticle reportArticle = findReportArticleById(reportArticleId);
+        List<ReportArticle> reportArticles = findReportArticleByReportId(reportId);
 
-        reportArticle.updateMediaReporter(request.isMedia(), request.isReporter());
+        for (ReportArticle reportArticle : reportArticles) {
+            reportArticle.updateMediaReporter(request.isMedia(), request.isReporter());
+        }
 
         return "보고서 기사 미디어 기자 수정 완료";
+
+    }
+
+    // 보고서 미디어 기자 옵션 조회
+    @Override
+    public ReportOptionsResponse getReportOptions(Long reportId) {
+
+        Long clientId = getClientIdFromAuthentication();
+
+        Report report = findByClientIdAndReportId(clientId, reportId);
+        validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
+
+        List<ReportArticle> reportArticles = findReportArticleByReportId(reportId);
+
+        boolean isMedia = reportArticles.stream().allMatch(ReportArticle::isMedia);
+        boolean isReporter = reportArticles.stream().allMatch(ReportArticle::isReporter);
+
+        return ReportOptionsResponse.builder()
+                .isMedia(isMedia)
+                .isReporter(isReporter)
+                .build();
 
     }
 
@@ -353,7 +377,7 @@ public class ReportServiceImpl implements ReportService {
         return clientService.findClientById(clientId);
     }
 
-    private ReportCategory findReportCategoryById(Long reportId, Long reportCategoryId) {
+    private ReportCategory findReportCategoryByIdAndReportId(Long reportCategoryId, Long reportId) {
 
         return reportCategoryRepository.findByIdAndReportId(reportCategoryId, reportId);
 
@@ -364,12 +388,15 @@ public class ReportServiceImpl implements ReportService {
                 .orElseThrow(() -> new ApiException(ErrorStatus._REPORT_CATEGORY_NOT_FOUND));
     }
 
+
     private ReportArticle findReportArticleById(Long reportArticleId) {
         return reportArticleRepository.findById(reportArticleId)
                 .orElseThrow(() -> new ApiException(ErrorStatus._REPORT_ARTICLE_NOT_FOUND));
     }
 
-
+    private List<ReportArticle> findReportArticleByReportId(Long reportId) {
+        return reportArticleRepository.findByReportId(reportId);
+    }
 
     // Client ID와 Report ID로 Report 조회
     private Report findByClientIdAndReportId(Long clientId, Long reportId) {
@@ -402,17 +429,20 @@ public class ReportServiceImpl implements ReportService {
         reportCategoryRepository.save(setDefaultCategory(report, CategoryType.COMPETITOR.name()));
         reportCategoryRepository.save(setDefaultCategory(report, CategoryType.INDUSTRY.name()));
 
+        // 미디어 기자 옵션 생성
+        ReportOptionsDto options = buildReportOptionsDto(request);
+
         // 유형별 카테고리 처리
         ReportCategoryTypeRequest categoryTypeRequest = request.getReportCategoryTypeRequest();
 
         // SELF 유형 처리
-        processCategoryType(report, categoryTypeRequest.getReportCategorySelfRequests(), CategoryType.SELF, reportCategoryList);
+        processCategoryType(report, categoryTypeRequest.getReportCategorySelfRequests(), CategoryType.SELF, reportCategoryList, options);
 
         // COMPETITOR 유형 처리
-        processCategoryType(report, categoryTypeRequest.getReportCategoryCompetitorRequests(), CategoryType.COMPETITOR, reportCategoryList);
+        processCategoryType(report, categoryTypeRequest.getReportCategoryCompetitorRequests(), CategoryType.COMPETITOR, reportCategoryList, options);
 
         // INDUSTRY 유형 처리
-        processCategoryType(report, categoryTypeRequest.getReportCategoryIndustryRequests(), CategoryType.INDUSTRY, reportCategoryList);
+        processCategoryType(report, categoryTypeRequest.getReportCategoryIndustryRequests(), CategoryType.INDUSTRY, reportCategoryList, options);
 
         // Report에 모든 ReportCategory 추가
         report.addReportCategories(reportCategoryList);
@@ -422,14 +452,15 @@ public class ReportServiceImpl implements ReportService {
     private void processCategoryType(Report report,
                                      List<ReportCategoryRequest> categoryRequests,
                                      CategoryType categoryType,
-                                     List<ReportCategory> reportCategoryList) {
+                                     List<ReportCategory> reportCategoryList,
+                                     ReportOptionsDto options) {
 
         categoryRequests.forEach(categoryRequest -> {
             // ReportCategory 생성
             ReportCategory reportCategory = createReportCategory(report, categoryRequest, categoryType);
 
             // ReportArticle 생성 및 연결
-            List<ReportArticle> reportArticles = createReportArticles(categoryRequest, reportCategory);
+            List<ReportArticle> reportArticles = createReportArticles(categoryRequest, reportCategory, options);
 
             // ReportCategory에 ReportArticles 추가
             reportCategory.addReportArticles(reportArticles);
@@ -441,23 +472,30 @@ public class ReportServiceImpl implements ReportService {
 
     }
 
+    private ReportOptionsDto buildReportOptionsDto(ReportCreateRequest request) {
+        return ReportOptionsDto.builder()
+                .isMedia(request.isMedia())
+                .isReporter(request.isReporter())
+                .build();
+    }
+
     private ReportCategory createReportCategory(Report report, ReportCategoryRequest categoryRequest, CategoryType categoryType) {
 
         return categoryRequest.toEntity(report, categoryType);
 
     }
 
-    private List<ReportArticle> createReportArticles(ReportCategoryRequest categoryRequest, ReportCategory reportCategory) {
+    private List<ReportArticle> createReportArticles(ReportCategoryRequest categoryRequest, ReportCategory reportCategory, ReportOptionsDto options) {
 
         return categoryRequest.getArticleId().stream()
                 .map(articleId -> {
-                    return copyReportArticleFromArticle(articleId, reportCategory);
+                    return copyReportArticleFromArticle(articleId, reportCategory, options);
                 })
                 .collect(Collectors.toList());
 
     }
 
-    private ReportArticle copyReportArticleFromArticle(Long articleId, ReportCategory reportCategory) {
+    private ReportArticle copyReportArticleFromArticle(Long articleId, ReportCategory reportCategory, ReportOptionsDto options) {
 
         Article article = articleService.findArticleById(articleId);
 
@@ -470,7 +508,10 @@ public class ReportServiceImpl implements ReportService {
                 .categoryType(reportCategory.getCategoryType())
                 .reportCategory(reportCategory)
                 .keyword(article.getKeyword().toString())
+                .isMedia(options.isMedia())
+                .isReporter(options.isReporter())
                 .build();
+
     }
 
     // 보고서 상세조회
