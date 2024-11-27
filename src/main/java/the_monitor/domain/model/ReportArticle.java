@@ -46,6 +46,12 @@ public class ReportArticle extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private CategoryType categoryType;
 
+    @Column(name = "report_article_is_media")
+    private boolean isMedia;
+
+    @Column(name = "report_article_is_reporter")
+    private boolean isReporter;
+
     @ManyToOne
     @JoinColumn(name = "report_category_id", nullable = true)
     private ReportCategory reportCategory;
@@ -83,6 +89,11 @@ public class ReportArticle extends BaseTimeEntity {
 
     public void updateCategory(ReportCategory reportCategory) {
         this.reportCategory = reportCategory;
+    }
+
+    public void updateMediaReporter(boolean isMedia, boolean isReporter) {
+        this.isMedia = isMedia;
+        this.isReporter = isReporter;
     }
 
     public void setReportCategory(ReportCategory reportCategory) {

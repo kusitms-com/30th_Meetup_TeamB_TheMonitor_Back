@@ -309,6 +309,24 @@ public class ReportServiceImpl implements ReportService {
 
     }
 
+    // 미디어 기자 수정
+    @Override
+    @Transactional
+    public String updateReportArticleOptions(Long reportId, Long reportArticleId, ReportArticleUpdateOptionsRequest request) {
+
+        Long clientId = getClientIdFromAuthentication();
+
+        Report report = findByClientIdAndReportId(clientId, reportId);
+        validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
+
+        ReportArticle reportArticle = findReportArticleById(reportArticleId);
+
+        reportArticle.updateMediaReporter(request.isMedia(), request.isReporter());
+
+        return "보고서 기사 미디어 기자 수정 완료";
+
+    }
+
     private Long getAccountId() {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -450,6 +468,7 @@ public class ReportServiceImpl implements ReportService {
                 .publishDate(article.getPublishDate())
                 .categoryType(reportCategory.getCategoryType())
                 .reportCategory(reportCategory)
+                .keyword(article.getKeyword().toString())
                 .build();
     }
 

@@ -152,4 +152,14 @@ public class ReportController {
         return ApiResponse.onSuccess(reportService.createReportCategory(reportId, request));
 
     }
+
+    @Operation(summary = "보고서 기사 미디어 기자 변경", description = "보고서에 포함된 기사의 미디어 기자 여부를 변경합니다.")
+    @PatchMapping("/articles/options")
+    public ApiResponse<String> updateReportArticleOptions(@RequestParam("reportId") Long reportId,
+                                                          @RequestParam("reportArticleId") Long reportArticleId,
+                                                          @RequestBody ReportArticleUpdateOptionsRequest request) {
+
+        return ApiResponse.onSuccess(reportService.updateReportArticleOptions(reportId, reportArticleId, request));
+
+    }
 }

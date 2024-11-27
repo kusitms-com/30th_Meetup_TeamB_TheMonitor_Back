@@ -38,4 +38,6 @@ public interface ReportService {
 
     String createReportCategory(Long reportId, ReportCategoryCreateRequest request);
 
+    String updateReportArticleOptions(Long reportId, Long reportArticleId, ReportArticleUpdateOptionsRequest request);
+
 }
