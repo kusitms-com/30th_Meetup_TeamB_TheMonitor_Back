@@ -413,6 +413,7 @@ public class ReportServiceImpl implements ReportService {
     private ReportArticlesResponse buildArticlesResponse(ReportArticle article) {
 
         return ReportArticlesResponse.builder()
+                .ReportArticleId(article.getId())
                 .publishedDate(article.getPublishDate() != null ? article.getPublishDate().toString() : null)
                 .headLine(article.getTitle())
                 .url(article.getUrl())
