@@ -145,6 +145,11 @@ public class GoogleSearchServiceImpl implements GoogleSearchService {
                     reporter = metatagsNode.get(0).path("dable:author").asText("");
                 }
 
+                // publisher와 publishDate가 null이면 추가하지 않음.
+                if (publisher == null || publisher.isEmpty() || publishDate == null || publishDate.isEmpty()) {
+                    continue;
+                }
+
                 ArticleGoogleDto dto = ArticleGoogleDto.builder()
                         .title(title)
                         .body(snippet)
