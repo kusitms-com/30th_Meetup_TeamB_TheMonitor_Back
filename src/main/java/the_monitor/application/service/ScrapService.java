@@ -13,10 +13,12 @@ public interface ScrapService {
 
     Scrap findById(Long scrapId);
 
-    ScrapReportArticeResponse scrapArticle(Long clientId, ScrapReportArticleRequest request);
+    ScrapReportArticeResponse scrapArticle(Long articleId);
 
 //    ScrapArticleListResponse getScrapArticleList(Long clientId, ScrapIdsRequest request);
 
-    List<ScrapArticleDto> getScrapedArticlesByClientId(Long clientId);
+    List<ScrapArticleDto> getScrapedArticlesByClientId();
+
+    String unscrapArticle(Long articleId);
 
 }
