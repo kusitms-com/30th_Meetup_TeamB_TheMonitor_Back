@@ -52,11 +52,11 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     @Transactional
-    public String saveArticles() {
+    public String saveArticles(Long clientId) {
         Long accountId = getAccountIdFromAuthentication();
 
         for (CategoryType categoryType : CategoryType.values()) {
-            List<Keyword> keywords = keywordService.getKeywordByAccountIdAndClientIdAndCategoryType(accountId, categoryType);
+            List<Keyword> keywords = keywordService.getKeywordByAccountIdAndClientIdAndCategoryType(accountId, clientId, categoryType);
 
             for (Keyword keyword : keywords) {
                 saveArticlesFromGoogle(keyword);

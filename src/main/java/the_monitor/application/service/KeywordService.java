@@ -12,7 +12,7 @@ public interface KeywordService {
 
     KeywordResponse getKeywords();
 
-    List<Keyword> getKeywordByAccountIdAndClientIdAndCategoryType(Long accountId, CategoryType categoryType);
+    List<Keyword> getKeywordByAccountIdAndClientIdAndCategoryType(Long accountId, Long clientId, CategoryType categoryType);
 
     Keyword findKeywordByIdAndCategoryType(Long keywordId, CategoryType categoryType);
 
