@@ -146,7 +146,7 @@ public class GoogleSearchServiceImpl implements GoogleSearchService {
                 }
 
                 // publisher와 publishDate가 null이면 추가하지 않음.
-                if (publisher == null || publisher.isEmpty() || publishDate == null || publishDate.isEmpty()) {
+                if ((publisher == null || publisher.isEmpty()) && (publishDate == null || publishDate.isEmpty())) {
                     continue;
                 }
 
