@@ -226,6 +226,7 @@ public class ReportServiceImpl implements ReportService {
 
     }
 
+    // 보고서 카테고리 조회
     @Override
     public ReportCategoryTypeListResponse getReportCategoryList(Long reportId) {
 
@@ -521,7 +522,7 @@ public class ReportServiceImpl implements ReportService {
 
     private void setReportArticleDefaultCategory(Report report, ReportArticle reportArticle, CategoryType categoryType) {
 
-        ReportCategory defaultCategory = reportCategoryRepository.findByCategoryTypeAndIsDefault(categoryType, true);
+        ReportCategory defaultCategory = reportCategoryRepository.findByReportAndCategoryTypeAndIsDefault(report, categoryType, true);
 
         // 기본 ReportCategory 설정
         reportArticle.setReportCategory(defaultCategory);

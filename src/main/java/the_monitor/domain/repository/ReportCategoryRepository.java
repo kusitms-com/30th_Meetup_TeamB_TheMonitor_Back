@@ -3,6 +3,7 @@ package the_monitor.domain.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import the_monitor.domain.enums.CategoryType;
+import the_monitor.domain.model.Report;
 import the_monitor.domain.model.ReportCategory;
 
 import java.util.List;
@@ -14,6 +15,6 @@ public interface ReportCategoryRepository extends JpaRepository<ReportCategory, 
 
     ReportCategory findByIdAndReportId(Long reportCategoryId, Long reportId);
 
-    ReportCategory findByCategoryTypeAndIsDefault(CategoryType categoryType, boolean isDefault);
+    ReportCategory findByReportAndCategoryTypeAndIsDefault(Report report, CategoryType categoryType, boolean isDefault);
 
 }
