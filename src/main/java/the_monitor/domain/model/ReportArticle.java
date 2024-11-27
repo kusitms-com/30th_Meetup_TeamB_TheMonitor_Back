@@ -65,7 +65,9 @@ public class ReportArticle extends BaseTimeEntity {
                          String publishDate,
                          String summary,
                          CategoryType categoryType,
-                         ReportCategory reportCategory) {
+                         ReportCategory reportCategory,
+                         boolean isMedia,
+                         boolean isReporter) {
 
         this.title = title;
         this.keyword = keyword;
@@ -76,6 +78,8 @@ public class ReportArticle extends BaseTimeEntity {
         this.summary = summary;
         this.categoryType = categoryType;
         this.reportCategory = reportCategory;
+        this.isMedia = isMedia;
+        this.isReporter = isReporter;
 
     }
 
