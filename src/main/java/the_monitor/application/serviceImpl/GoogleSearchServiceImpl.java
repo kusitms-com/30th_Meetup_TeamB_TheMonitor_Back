@@ -45,7 +45,6 @@ public class GoogleSearchServiceImpl implements GoogleSearchService {
 
         List<ArticleGoogleDto> allResults = new ArrayList<>();
         int start = 1;
-        boolean hasMoreResults = true;
         int totalResults = 0;
 
         while (start <= 100) {
@@ -91,6 +90,7 @@ public class GoogleSearchServiceImpl implements GoogleSearchService {
         HttpEntity<String> entity = new HttpEntity<>(headers);
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
 
+        System.out.println(query + " 검색 결과: " + response.getStatusCode());
 
         if (response.getStatusCode() == HttpStatus.OK) {
             return parseResponse(response.getBody());
@@ -115,7 +115,7 @@ public class GoogleSearchServiceImpl implements GoogleSearchService {
             JsonNode items = root.path("items");
 
             for (JsonNode item : items) {
-                if (!isContainYoutube(item.path("pagemap").path("metatags").get(0).path("og:url").asText())) continue;
+//                if (!isContainYoutube(item.path("pagemap").path("metatags").get(0).path("og:url").asText())) continue;
                 String title = item.path("title").asText();
                 String snippet = item.path("snippet").asText();
                 String link = item.path("link").asText();
@@ -149,9 +149,8 @@ public class GoogleSearchServiceImpl implements GoogleSearchService {
                         .build();
 
                 searchDetails.add(dto);
+                System.out.println("Parsed DTO: " + dto);
             }
-
-
 
         } catch (IOException e) {
             e.printStackTrace();
