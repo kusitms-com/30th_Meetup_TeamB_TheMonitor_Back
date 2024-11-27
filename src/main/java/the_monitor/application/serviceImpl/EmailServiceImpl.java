@@ -15,6 +15,7 @@ import the_monitor.application.dto.response.EmailResponse;
 import the_monitor.application.dto.response.EmailSendResponse;
 import the_monitor.application.service.AccountService;
 import the_monitor.application.service.EmailService;
+import the_monitor.application.service.ExcelService;
 import the_monitor.application.service.S3Service;
 import the_monitor.common.ApiException;
 import the_monitor.common.ErrorStatus;
@@ -22,13 +23,11 @@ import the_monitor.domain.model.Account;
 import the_monitor.domain.model.Client;
 import the_monitor.domain.model.ClientMailCC;
 import the_monitor.domain.model.ClientMailRecipient;
-import the_monitor.domain.repository.AccountRepository;
-import the_monitor.domain.repository.ClientMailCCRepository;
-import the_monitor.domain.repository.ClientMailRecipientRepository;
-import the_monitor.domain.repository.ClientRepository;
+import the_monitor.domain.repository.*;
 import the_monitor.infrastructure.security.CustomUserDetails;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +43,8 @@ public class EmailServiceImpl implements EmailService {
     private final ClientMailRecipientRepository clientMailRecipientRepository;
     private final ClientMailCCRepository clientMailCCRepository;
     private final ClientRepository clientRepository;
+    private final ReportRepository reportRepository;
+    private final ExcelService excelService;
     private final S3Service s3Service;
     private final JavaMailSender mailSender;
 
@@ -176,8 +177,9 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public EmailSendResponse sendReportEmailWithAttachment(String subject, String content)
+    public EmailSendResponse sendReportEmailWithAttachment(Long reportId, String subject, String content)
             throws MessagingException, UnsupportedEncodingException {
+        File excelFile = null;
         try {
             Long clientId = getClientIdFromAuthentication();
 
@@ -195,17 +197,10 @@ public class EmailServiceImpl implements EmailService {
                     .map(ClientMailCC::getAddress)
                     .toList();
 
-            // 4. 최신 파일 찾기
-            String prefix = "reports/" + clientId + "/";
-            String latestFileKey = s3Service.getLatestFileKey(prefix); // 최신 파일 키 찾기
-            if (latestFileKey == null) {
-                throw new ApiException(ErrorStatus._FILE_NOT_FOUND);
-            }
+            // 4. 엑셀 파일 생성
+            excelFile = excelService.createExcelFile(reportId);
 
-            // 5. S3에서 파일 다운로드
-            File attachment = s3Service.downloadFile(latestFileKey);
-
-            // 6. 이메일 전송 준비
+            // 5. 이메일 전송 준비
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "utf-8");
             helper.setFrom("themonitor2024@gmail.com", "The Monitor");
@@ -217,15 +212,15 @@ public class EmailServiceImpl implements EmailService {
             helper.setSubject(subject);
             helper.setText(content, true);
 
-            // 7. 첨부 파일 추가 (원래 파일 이름 사용)
-            if (attachment != null) {
-                helper.addAttachment(latestFileKey.substring(latestFileKey.lastIndexOf("/") + 1), attachment);
+            // 6. 첨부 파일 추가
+            if (excelFile != null) {
+                helper.addAttachment("report.xlsx", excelFile);
             }
 
-            // 8. 이메일 전송
+            // 7. 이메일 전송
             javaMailSender.send(mimeMessage);
 
-            // 9. 응답 빌드
+            // 8. 응답 빌드
             return EmailSendResponse.builder()
                     .toEmails(toEmails)
                     .ccEmails(ccEmails)
@@ -233,9 +228,15 @@ public class EmailServiceImpl implements EmailService {
 
         } catch (MessagingException e) {
             throw new ApiException(ErrorStatus._EMAIL_SEND_FAIL);
+        } catch (IOException e) {
+            throw new ApiException(ErrorStatus._FILE_OPERATION_FAIL);
+        } finally {
+            // 9. 임시 파일 삭제
+            if (excelFile != null && excelFile.exists()) {
+                excelFile.delete();
+            }
         }
     }
-
     private Long getAccountId() {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

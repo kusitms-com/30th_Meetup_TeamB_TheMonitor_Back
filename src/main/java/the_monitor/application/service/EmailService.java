@@ -21,5 +21,7 @@ public interface EmailService {
 
     EmailResponse updateEmails(EmailUpdateRequest emailUpdateRequest, MultipartFile signatureImage);
 
-    EmailSendResponse sendReportEmailWithAttachment(String subject, String content) throws MessagingException, UnsupportedEncodingException;
+//    EmailSendResponse sendReportEmailWithAttachment(String subject, String content) throws MessagingException, UnsupportedEncodingException;
+
+    EmailSendResponse sendReportEmailWithAttachment(Long reportId, String subject, String content) throws MessagingException, UnsupportedEncodingException;
 }
