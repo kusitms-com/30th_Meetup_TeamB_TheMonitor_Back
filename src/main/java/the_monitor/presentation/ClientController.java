@@ -53,8 +53,8 @@ public class ClientController {
 
     @Operation(summary = "clietId로 고객사 정보 반환", description = "clientId로 고객사 정보를 조회합니다.")
     @GetMapping("/info")
-    public ApiResponse<ClientGetResponse> getClientInfo(@RequestParam("clientId") Long clientId) {
-        return ApiResponse.onSuccessData("클라이언트 정보 조회 성공", clientService.getClient(clientId));
+    public ApiResponse<ClientGetResponse> getClientInfo() {
+        return ApiResponse.onSuccessData("클라이언트 정보 조회 성공", clientService.getClient());
     }
 
     @Operation(summary = "고객사 정보 수정", description = "고객사 정보를 수정합니다.")

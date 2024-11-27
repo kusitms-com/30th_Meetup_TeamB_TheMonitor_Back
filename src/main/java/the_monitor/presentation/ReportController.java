@@ -31,11 +31,10 @@ public class ReportController {
 
     @Operation(summary = "보고서 생성", description = "보고서를 생성합니다.")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<ReportCreateResponse> createReports(@RequestPart("clientId") Long clientId,
-                                             @RequestPart("request") ReportCreateRequest request,
-                                             @RequestPart(value = "logo", required = false) MultipartFile logo) {
+    public ApiResponse<ReportCreateResponse> createReports(@RequestPart("request") ReportCreateRequest request,
+                                                           @RequestPart(value = "logo", required = false) MultipartFile logo) {
 
-        return ApiResponse.onSuccessData("보고서 생성 성공", reportService.createReports(clientId, request, logo));
+        return ApiResponse.onSuccessData("보고서 생성 성공", reportService.createReports(request, logo));
 
     }
 

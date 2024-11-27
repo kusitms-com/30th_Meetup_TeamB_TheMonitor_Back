@@ -17,9 +17,9 @@ public interface EmailService {
 
     void saveEmails(List<String> recipientEmails, List<String> ccEmails, Client client);
 
-    EmailResponse getEmails(Long clientId);
+    EmailResponse getEmails();
 
-    EmailResponse updateEmails(Long clientId, EmailUpdateRequest emailUpdateRequest, MultipartFile signatureImage);
+    EmailResponse updateEmails(EmailUpdateRequest emailUpdateRequest, MultipartFile signatureImage);
 
-    EmailSendResponse sendReportEmail(Long clientId, String subject, String content) throws MessagingException, UnsupportedEncodingException;
+    EmailSendResponse sendReportEmail(String subject, String content) throws MessagingException, UnsupportedEncodingException;
 }

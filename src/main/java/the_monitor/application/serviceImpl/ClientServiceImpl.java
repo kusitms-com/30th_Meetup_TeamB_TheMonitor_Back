@@ -2,6 +2,7 @@ package the_monitor.application.serviceImpl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import the_monitor.application.dto.request.ClientRequest;
 import the_monitor.application.dto.request.ClientUpdateRequest;
@@ -9,11 +10,8 @@ import the_monitor.application.dto.response.ClientGetResponse;
 import the_monitor.application.dto.response.ClientResponse;
 import the_monitor.application.dto.response.EmailSendResponse;
 import the_monitor.application.dto.response.ReportListResponse;
-import the_monitor.application.service.ArticleService;
-import the_monitor.application.service.CategoryService;
-import the_monitor.application.service.ClientService;
+import the_monitor.application.service.*;
 import org.springframework.stereotype.Service;
-import the_monitor.application.service.S3Service;
 import the_monitor.common.ApiException;
 import the_monitor.common.ErrorStatus;
 import the_monitor.domain.enums.CategoryType;
@@ -25,6 +23,7 @@ import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import the_monitor.infrastructure.security.CustomUserDetails;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,6 +49,7 @@ public class ClientServiceImpl implements ClientService {
     private final S3Service s3Service;
     private final EmailServiceImpl emailServiceImpl;
     private final ArticleService articleService;
+    private final AccountService accountService;
 
     @Value("${cloud.aws.s3.default-logo-url}")
     private String defaultLogoUrl;
@@ -120,8 +120,11 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public ClientGetResponse getClient(Long clientId){
-        Long accountId = getAccountIdFromJwt();
+    public ClientGetResponse getClient(){
+
+        Long accountId = getAccountId();
+        Long clientId = getClientIdFromAuthentication();
+
 
         // clientId와 accountId를 동시에 검증
         Client client = clientRepository.findByIdAndAccountId(clientId, accountId)
@@ -221,6 +224,23 @@ public class ClientServiceImpl implements ClientService {
                         .logoUrl(client.getLogo())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    private Long getAccountId() {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        return userDetails.getAccountId();
+
+    }
+
+    private Account findAccountById() {
+        return accountService.findAccountById(getAccountId());
+    }
+
+    private Long getClientIdFromAuthentication() {
+        Account account = findAccountById();
+        return account.getSelectedClientId();
     }
 
 }

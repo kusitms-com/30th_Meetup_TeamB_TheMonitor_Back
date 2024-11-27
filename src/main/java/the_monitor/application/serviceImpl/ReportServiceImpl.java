@@ -62,7 +62,9 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     @Transactional
-    public ReportCreateResponse createReports(Long clientId, ReportCreateRequest request, MultipartFile logo) {
+    public ReportCreateResponse createReports(ReportCreateRequest request, MultipartFile logo) {
+
+        Long clientId = getClientIdFromAuthentication();
 
         Client client = findClientById(clientId);
 
@@ -414,6 +416,7 @@ public class ReportServiceImpl implements ReportService {
 
         return ReportArticlesResponse.builder()
                 .ReportArticleId(article.getId())
+                .keyword(article.getKeyword())
                 .publishedDate(article.getPublishDate() != null ? article.getPublishDate().toString() : null)
                 .headLine(article.getTitle())
                 .url(article.getUrl())
