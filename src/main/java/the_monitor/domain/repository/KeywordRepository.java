@@ -22,7 +22,7 @@ public interface KeywordRepository extends JpaRepository<Keyword, Long> {
             "JOIN cl.account ac " +
             "WHERE ac.id = :accountId " +
             "AND cl.id = :clientId")
-    List<Keyword> findKeywordByAccountIdAndClientId(Long accountId, Long clientId);
+    List<Keyword> findKeywordByAccountIdAndClientId(@Param("accountId") Long accountId, @Param("clientId") Long clientId);
 
     @Query("SELECT k FROM Keyword k " +
             "JOIN k.category c " +
@@ -52,5 +52,10 @@ public interface KeywordRepository extends JpaRepository<Keyword, Long> {
     @Query("DELETE FROM Keyword k " +
             "WHERE k.category.client.id = :clientId")
     void deleteAllByClientId(@Param("clientId") Long clientId);
+
+    @Query("SELECT k FROM Keyword k " +
+            "JOIN k.category c " +
+            "WHERE c.categoryType = :categoryType")
+    List<Keyword> findKeywordsByCategoryType(@Param("categoryType") CategoryType categoryType);
 
 }

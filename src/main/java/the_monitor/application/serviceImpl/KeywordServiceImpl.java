@@ -17,6 +17,7 @@ import the_monitor.domain.enums.CategoryType;
 import the_monitor.domain.model.Account;
 import the_monitor.domain.model.Client;
 import the_monitor.domain.model.Keyword;
+import the_monitor.domain.repository.ArticleRepository;
 import the_monitor.domain.repository.ClientRepository;
 import the_monitor.domain.repository.KeywordRepository;
 import the_monitor.infrastructure.security.CustomUserDetails;
@@ -34,6 +35,7 @@ public class KeywordServiceImpl implements KeywordService {
     private final ClientRepository clientRepository;
     private final CategoryServiceImpl categoryServiceImpl;
     private final AccountService accountService;
+    private final ArticleRepository articleRepository;
 
 
     @Override
@@ -69,27 +71,26 @@ public class KeywordServiceImpl implements KeywordService {
     @Transactional
     @Override
     public KeywordResponse updateKeywords(KeywordUpdateRequest keywordUpdateRequest) {
-
         Long clientId = getClientIdFromAuthentication();
-
-        Map<CategoryType, List<String>> keywordsByCategory = keywordUpdateRequest.getKeywordsByCategory();
-
-        Long accountId = getAccountIdFromAuthentication(); // JWT에서 accountId 추출
+        Long accountId = getAccountIdFromAuthentication();
 
         // accountId와 clientId를 함께 검증
         Client client = clientRepository.findByIdAndAccountId(clientId, accountId)
                 .orElseThrow(() -> new ApiException(ErrorStatus._CLIENT_FORBIDDEN));
 
-        // 기존 키워드 삭제
+        // Step 1: 참조 데이터 삭제 (articles 테이블에서 참조된 키워드 제거)
+        articleRepository.deleteByClientId(clientId);
+
+        // Step 2: 기존 키워드 삭제
         keywordRepository.deleteAllByClientId(clientId);
 
-        // 새로운 키워드 저장
+        // Step 3: 새로운 키워드 저장
+        Map<CategoryType, List<String>> keywordsByCategory = keywordUpdateRequest.getKeywordsByCategory();
         for (Map.Entry<CategoryType, List<String>> entry : keywordsByCategory.entrySet()) {
             categoryServiceImpl.saveCategoryWithKeywords(entry.getKey(), entry.getValue(), client);
         }
 
         return getKeywordResponses(accountId, clientId);
-
     }
 
     private Long getAccountIdFromAuthentication() {
