@@ -72,10 +72,7 @@ public class ArticleServiceImpl implements ArticleService {
         ArticleResponse articleResponse = googleSearchService.toDto(keyword.getKeyword());
 
         for (ArticleGoogleDto dto : articleResponse.getGoogleArticles()) {
-//            articleRepository.save(dto.toEntity(keyword));
-            Article article = dto.toEntity(keyword);
-            System.out.println("Saving article: " + article);
-            articleRepository.save(article);
+            articleRepository.save(dto.toEntity(keyword));
         }
 
     }
