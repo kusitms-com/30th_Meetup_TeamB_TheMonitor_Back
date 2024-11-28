@@ -23,6 +23,7 @@ import the_monitor.infrastructure.security.CustomUserDetails;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @Service
@@ -77,7 +78,7 @@ public class ReportServiceImpl implements ReportService {
         // 각 카테고리별로 ReportArticle 생성 및 저장
         createAndSaveReportArticlesByCategories(report, request);
 
-        unScrapArticles(request, clientId);
+        scrapService.unScrapArticle();
 
         updateAdded(request);
 
@@ -573,26 +574,6 @@ public class ReportServiceImpl implements ReportService {
 
     }
 
-    private void unScrapArticles(ReportCreateRequest request, Long clientId) {
-
-        List<Long> articleIds = getArticleIdsByReportCreateRequest(request);
-
-        for (Long articleId : articleIds) {
-            Article article = articleService.findArticleById(articleId);
-            article.setScrapStatus(false);
-        }
-
-        List<Scrap> scraps = scrapService.findAllByClientId(clientId);
-
-        List<Long> scrapIds = scraps.stream()
-                .map(Scrap::getId)
-                .toList();
-
-        scrapService.deleteScraps(scrapIds);
-
-
-    }
-
     private void updateAdded(ReportCreateRequest request) {
 
         List<Long> articleIds = getArticleIdsByReportCreateRequest(request);
@@ -607,11 +588,21 @@ public class ReportServiceImpl implements ReportService {
 
     private List<Long> getArticleIdsByReportCreateRequest(ReportCreateRequest request) {
 
-        return request.getReportCategoryTypeRequest().getReportCategorySelfRequests().stream()
-                .map(ReportCategoryRequest::getArticleId)
-                .flatMap(Collection::stream)
+        // 각 카테고리의 articleId 리스트를 스트림으로 병합
+        return Stream.concat(
+                        Stream.concat(
+                                request.getReportCategoryTypeRequest().getReportCategorySelfRequests().stream()
+                                        .map(ReportCategoryRequest::getArticleId)
+                                        .flatMap(Collection::stream),
+                                request.getReportCategoryTypeRequest().getReportCategoryCompetitorRequests().stream()
+                                        .map(ReportCategoryRequest::getArticleId)
+                                        .flatMap(Collection::stream)
+                        ),
+                        request.getReportCategoryTypeRequest().getReportCategoryIndustryRequests().stream()
+                                .map(ReportCategoryRequest::getArticleId)
+                                .flatMap(Collection::stream)
+                )
                 .toList();
-
     }
 
 }
