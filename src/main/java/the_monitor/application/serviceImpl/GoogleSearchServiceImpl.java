@@ -19,6 +19,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -141,12 +143,14 @@ public class GoogleSearchServiceImpl implements GoogleSearchService {
                 JsonNode metatagsNode = item.path("pagemap").path("metatags");
                 if (metatagsNode.isArray() && metatagsNode.has(0)) {
                     publisher = metatagsNode.get(0).path("og:site_name").asText("");
-                    publishDate = metatagsNode.get(0).path("article:published_time").asText("");
+                    publishDate = OffsetDateTime.parse(
+                            metatagsNode.get(0).path("article:published_time").asText("")
+                    ).format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
                     reporter = metatagsNode.get(0).path("dable:author").asText("");
                 }
 
                 // publisher와 publishDate가 null이면 추가하지 않음.
-                if ((publisher == null || publisher.isEmpty()) && (publishDate == null || publishDate.isEmpty())) {
+                if ((publisher == null || publisher.isEmpty()) && publishDate.isEmpty()) {
                     continue;
                 }
 
