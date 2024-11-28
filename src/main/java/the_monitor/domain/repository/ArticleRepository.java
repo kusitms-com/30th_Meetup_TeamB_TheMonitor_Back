@@ -30,4 +30,9 @@ public interface ArticleRepository extends JpaArticleRepository {
     @Modifying
     @Query("DELETE FROM Article a WHERE a.keyword.category.client.id = :clientId")
     void deleteByClientId(@Param("clientId") Long clientId);
+
+    @Modifying
+    @Query("UPDATE Article a SET a.scrapped = false WHERE a.id IN :articleIds")
+    void updateScrappedStatusToFalse(@Param("articleIds") List<Long> articleIds);
+
 }
