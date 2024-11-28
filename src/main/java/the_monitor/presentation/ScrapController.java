@@ -30,8 +30,8 @@ public class ScrapController {
 
     @Operation(summary = "스크랩한 기사 조회", description = "스크랩한 기사들을 조회합니다.")
     @GetMapping
-    public ApiResponse<List<ScrapArticleDto>> getScrapedArticlesByClientId() {
-        return ApiResponse.onSuccessData("스크랩 기사 조회 성공", scrapService.getScrapedArticlesByClientId());
+    public ApiResponse<List<ScrapArticleDto>> getScrappedArticlesByClientId() {
+        return ApiResponse.onSuccessData("스크랩 기사 조회 성공", scrapService.getScrappedArticlesByClientId());
     }
 
     @Operation(summary = "스크랩 삭제", description = "스크랩을 삭제합니다")

@@ -44,7 +44,7 @@ public class Article extends BaseTimeEntity {
     @Column(name = "article_is_added", nullable = false)
     private boolean isAdded = false;
 
-    @Column(name = "article_is_scraped", nullable = false)
+    @Column(name = "article_is_scrapped", nullable = false)
     private boolean isScrapped = false;
 
     @ManyToOne
@@ -77,7 +77,7 @@ public class Article extends BaseTimeEntity {
         this.keyword = keyword;
 
     }
-    public void setScrapStatus(boolean isScraped) {
-        this.isScrapped = isScraped;
+    public void setScrapStatus(boolean isScrapped) {
+        this.isScrapped = isScrapped;
     }
 }

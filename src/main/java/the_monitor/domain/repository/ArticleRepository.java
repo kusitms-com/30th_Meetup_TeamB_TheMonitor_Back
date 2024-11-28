@@ -25,7 +25,7 @@ public interface ArticleRepository extends JpaArticleRepository {
                                                 @Param("categoryType") CategoryType categoryType,
                                                 Pageable pageable);
 
-    List<Article> findAllByKeyword_Category_Client_IdAndIsScrapedTrue(Long clientId);
+    List<Article> findAllByKeyword_Category_Client_IdAndIsScrappedTrue(Long clientId);
 
     @Modifying
     @Query("DELETE FROM Article a WHERE a.keyword.category.client.id = :clientId")
