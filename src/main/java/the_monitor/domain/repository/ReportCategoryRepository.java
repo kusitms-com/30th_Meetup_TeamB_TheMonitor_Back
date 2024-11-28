@@ -8,6 +8,7 @@ import the_monitor.domain.model.Report;
 import the_monitor.domain.model.ReportCategory;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ReportCategoryRepository extends JpaRepository<ReportCategory, Long> {
@@ -17,5 +18,7 @@ public interface ReportCategoryRepository extends JpaRepository<ReportCategory, 
     ReportCategory findByIdAndReportId(@Param("reportCategoryId") Long reportCategoryId, @Param("reportId") Long reportId);
 
     ReportCategory findByReportAndCategoryTypeAndIsDefault(Report report, CategoryType categoryType, boolean isDefault);
+
+    Optional<ReportCategory> findByReportAndCategoryTypeAndName(Report report, CategoryType categoryType, String reportCategoryName);
 
 }

@@ -602,11 +602,17 @@ public class ReportServiceImpl implements ReportService {
 
     private void setReportArticleDefaultCategory(Report report, ReportArticle reportArticle, CategoryType categoryType) {
 
-        ReportCategory defaultCategory = reportCategoryRepository.findByReportAndCategoryTypeAndIsDefault(report, categoryType, true);
+        ReportCategory defaultCategory = findReportCategoryDefault(report, categoryType);
 
-        // 기본 ReportCategory 설정
-        reportArticle.setReportCategory(defaultCategory);
-        reportArticleRepository.save(reportArticle);
+//        // 기본 ReportCategory 설정
+//        reportArticle.setReportCategory(defaultCategory);
+//        reportArticleRepository.save(reportArticle);
+
+        defaultCategory.addReportArticle(reportArticle);
+
+        report.addReportCategory(defaultCategory);
+        reportRepository.save(report);
+
 
     }
 
@@ -640,6 +646,11 @@ public class ReportServiceImpl implements ReportService {
                 )
                 .toList();
 
+    }
+
+    private ReportCategory findReportCategoryDefault(Report report, CategoryType categoryType) {
+        return reportCategoryRepository.findByReportAndCategoryTypeAndName(report, categoryType, "default")
+                .orElseThrow(() -> new ApiException(ErrorStatus._REPORT_CATEGORY_NOT_FOUND));
     }
 
 }
