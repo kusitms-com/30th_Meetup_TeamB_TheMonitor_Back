@@ -9,16 +9,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ReportArticleUpdateOptionsRequest {
 
-    @JsonProperty("isMedia")
-    private boolean isMedia;
-    @JsonProperty("isReporter")
-    private boolean isReporter;
+    private boolean media;
+    private boolean reporter;
 
     @Builder
-    public ReportArticleUpdateOptionsRequest(boolean isMedia,
-                                             boolean isReporter) {
-        this.isMedia = isMedia;
-        this.isReporter = isReporter;
+    public ReportArticleUpdateOptionsRequest(boolean media,
+                                             boolean reporter) {
+        this.media = media;
+        this.reporter = reporter;
 
     }
 

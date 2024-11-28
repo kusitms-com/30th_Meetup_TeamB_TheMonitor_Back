@@ -339,8 +339,8 @@ public class ReportServiceImpl implements ReportService {
         validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
 
         return ReportOptionsResponse.builder()
-                .isMedia(report.isMedia())
-                .isReporter(report.isReporter())
+                .media(report.isMedia())
+                .reporter(report.isReporter())
                 .build();
 
     }

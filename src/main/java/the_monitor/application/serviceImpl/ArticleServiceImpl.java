@@ -77,6 +77,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     }
 
+    // 클라이언트가 선택한 카테고리의 기사들을 조회
     @Override
     public PageResponse<ArticleResponse> getArticlesByClientAndCategoryType(CategoryType categoryType, int page) {
 
@@ -93,7 +94,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     }
 
-
+    // 클라이언트가 선택한 키워드의 기사들을 조회
     @Override
     public PageResponse<ArticleResponse> getArticlesByKeyword(CategoryType categoryType, Long keywordId, int page) {
 
@@ -124,6 +125,7 @@ public class ArticleServiceImpl implements ArticleService {
                         .publisherName(article.getPublisherName())
                         .publishDate(article.getPublishDate())
                         .reporterName(article.getReporterName())
+                        .scrapped(article.isScrapped())
                         .build())
                 .toList();
 
