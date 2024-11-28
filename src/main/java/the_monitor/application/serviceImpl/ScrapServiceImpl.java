@@ -7,9 +7,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import the_monitor.application.dto.ScrapArticleDto;
-import the_monitor.application.dto.response.ReportArticlesResponse;
-import the_monitor.application.dto.response.ReportCategoryResponse;
-import the_monitor.application.dto.response.ReportCategoryTypeResponse;
 import the_monitor.application.dto.response.ScrapCategoryTypeResponse;
 import the_monitor.application.service.ClientService;
 import the_monitor.application.service.ScrapService;
@@ -53,7 +50,7 @@ public class ScrapServiceImpl implements ScrapService {
         // 3. Article 조회
         Article article = findArticleById(articleId);
 
-        String responseMsg = "";
+        String responseMsg;
 
         if (article.isScrapped()) {
             findAndDeleteByClientAndTitleAndUrl(client, article);

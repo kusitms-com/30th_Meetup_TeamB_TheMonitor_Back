@@ -385,10 +385,6 @@ public class ReportServiceImpl implements ReportService {
                 .orElseThrow(() -> new ApiException(ErrorStatus._REPORT_ARTICLE_NOT_FOUND));
     }
 
-    private List<ReportArticle> findReportArticleByReportId(Long reportId) {
-        return reportArticleRepository.findByReportId(reportId);
-    }
-
     // Client ID와 Report ID로 Report 조회
     private Report findByClientIdAndReportId(Long clientId, Long reportId) {
         return reportRepository.findReportByClientIdAndReportId(clientId, reportId);
@@ -531,7 +527,7 @@ public class ReportServiceImpl implements ReportService {
         return ReportArticlesResponse.builder()
                 .ReportArticleId(article.getId())
                 .keyword(article.getKeyword())
-                .publishedDate(article.getPublishDate() != null ? article.getPublishDate().toString() : null)
+                .publishedDate(article.getPublishDate() != null ? article.getPublishDate() : null)
                 .headLine(article.getTitle())
                 .url(article.getUrl())
                 .media(article.getPublisherName())

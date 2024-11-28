@@ -8,8 +8,6 @@ import the_monitor.application.dto.response.ScrapCategoryTypeResponse;
 import the_monitor.application.service.ScrapService;
 import the_monitor.common.ApiResponse;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/scrap")

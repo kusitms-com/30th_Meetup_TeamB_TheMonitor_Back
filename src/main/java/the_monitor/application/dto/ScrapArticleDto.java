@@ -1,6 +1,5 @@
 package the_monitor.application.dto;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

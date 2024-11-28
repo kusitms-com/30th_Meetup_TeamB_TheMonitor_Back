@@ -12,18 +12,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 import the_monitor.application.dto.ArticleGoogleDto;
 import the_monitor.application.dto.response.ArticleResponse;
 import the_monitor.application.service.GoogleSearchService;
-import the_monitor.domain.model.Keyword;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 @Slf4j
 @Service
