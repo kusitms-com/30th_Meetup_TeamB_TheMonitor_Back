@@ -37,11 +37,12 @@ public class ScrapController {
 
     }
 
-//    @PatchMapping("/unscrap")
-//    public ApiResponse<String> unscrapArticle() {
-//
-//        return ApiResponse.onSuccess("기사 스크랩 변경", scrapService.unscrapArticle());
-//
-//    }
+    @Operation(summary = "스크랩 취소", description = "스크랩한 기사를 취소합니다. (임시저장(X) 시 사용)")
+    @PatchMapping("/unscrap")
+    public ApiResponse<String> unScrapArticle() {
+
+        return ApiResponse.onSuccess(scrapService.unScrapArticle());
+
+    }
 
 }

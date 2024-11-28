@@ -74,7 +74,7 @@ public class ScrapServiceImpl implements ScrapService {
         Long clientId = getClientIdFromAuthentication();
 
         // clientId와 isScraped = true 조건으로 Article 조회
-        List<Article> scrappedArticles = articleRepository.findAllByKeyword_Category_Client_IdAndIsScrappedTrue(clientId);
+        List<Article> scrappedArticles = articleRepository.findAllByKeyword_Category_Client_IdAndScrappedTrue(clientId);
 
         // Article 데이터를 ScrapArticleDto로 변환하여 CategoryType별로 그룹화
         Map<CategoryType, List<ScrapArticleDto>> groupedByCategory = groupedByCategory(scrappedArticles);
@@ -84,12 +84,36 @@ public class ScrapServiceImpl implements ScrapService {
 
     }
 
+    // 스크랩 상세보기
     @Override
     public ScrapArticleDto getScrapArticleInfo(Long scrapId) {
 
         Scrap scrap = findScrapById(scrapId);
 
         return buildScrapArticleDto(scrap);
+
+    }
+
+    @Override
+    @Transactional
+    public String unScrapArticle() {
+
+        Long clientId = getClientIdFromAuthentication();
+
+        List<Scrap> scraps = scrapRepository.findAllByClientId(clientId);
+
+        List<Long> originalArticleIds = scraps.stream()
+                .map(Scrap::getOriginalArticleId)
+                .toList();
+
+        scrapRepository.deleteAll(scraps);
+
+        List<Article> articles = articleRepository.findAllById(originalArticleIds);
+        articles.forEach(article -> article.setScrapStatus(false));
+
+        articleRepository.saveAll(articles);
+
+        return "스크랩 취소 완료";
 
     }
 
@@ -188,6 +212,7 @@ public class ScrapServiceImpl implements ScrapService {
     private ScrapArticleDto buildScrapArticleDto(Scrap scrap) {
         return ScrapArticleDto.builder()
                 .originalArticleId(scrap.getOriginalArticleId())
+                .scrapId(scrap.getId())
                 .keyword(scrap.getKeyword())
                 .title(scrap.getTitle())
                 .url(scrap.getUrl())
