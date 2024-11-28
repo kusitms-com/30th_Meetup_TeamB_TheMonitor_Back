@@ -24,7 +24,8 @@ public class ExcelServiceImpl implements ExcelService {
 
     private final ReportRepository reportRepository;
 
-    private static final String TEMPLATE_PATH = "/templates/template.xlsx";
+    // 엑셀 경로 수정
+    private static final String TEMPLATE_PATH = "/templates/templates.xlsx";
 
     @Override
     public File createExcelFile(Long reportId) {
