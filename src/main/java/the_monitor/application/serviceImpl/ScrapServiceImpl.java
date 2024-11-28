@@ -6,27 +6,24 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import the_monitor.application.dto.ReportArticleDto;
 import the_monitor.application.dto.ScrapArticleDto;
-import the_monitor.application.dto.request.ScrapIdsRequest;
-import the_monitor.application.dto.request.ScrapReportArticleRequest;
-import the_monitor.application.dto.response.ScrapArticleListResponse;
-import the_monitor.application.dto.response.ScrapReportArticeResponse;
+import the_monitor.application.dto.response.ReportArticlesResponse;
+import the_monitor.application.dto.response.ReportCategoryResponse;
+import the_monitor.application.dto.response.ReportCategoryTypeResponse;
+import the_monitor.application.dto.response.ScrapCategoryTypeResponse;
 import the_monitor.application.service.ClientService;
 import the_monitor.application.service.ScrapService;
 import the_monitor.common.ApiException;
 import the_monitor.common.ErrorStatus;
 import the_monitor.domain.enums.CategoryType;
-import the_monitor.domain.model.Account;
-import the_monitor.domain.model.Article;
-import the_monitor.domain.model.Client;
-import the_monitor.domain.model.Scrap;
+import the_monitor.domain.model.*;
 import the_monitor.domain.repository.AccountRepository;
 import the_monitor.domain.repository.ArticleRepository;
 import the_monitor.domain.repository.ClientRepository;
 import the_monitor.domain.repository.ScrapRepository;
 import the_monitor.infrastructure.security.CustomUserDetails;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -52,108 +49,49 @@ public class ScrapServiceImpl implements ScrapService {
 
     @Override
     @Transactional
-    public ScrapReportArticeResponse scrapArticle(Long articleId) {
+    public String scrapArticle(Long articleId) {
         // 1. Client 인증 정보 가져오기
         Long clientId = getClientIdFromAuthentication();
 
         // 2. Client 조회
-        Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new ApiException(ErrorStatus._CLIENT_NOT_FOUND));
-
-        // 3. Article 조회 및 상태 업데이트
-        Article article = articleRepository.findById(articleId)
-                .orElseThrow(() -> new ApiException(ErrorStatus._ARTICLE_NOT_FOUND));
-
-        // Article의 isScraped 필드 업데이트
-        article.setScrapStatus(true);
-
-        // 4. Scrap 엔티티 생성 및 저장
-        Scrap scrap = Scrap.builder()
-                .client(client)
-                .title(article.getTitle())
-                .url(article.getUrl())
-                .keyword(article.getKeyword() != null ? article.getKeyword().getKeyword() : null)
-                .publisherName(article.getPublisherName())
-                .reporterName(article.getReporterName())
-                .publishDate(article.getPublishDate())
-                .categoryType(article.getKeyword() != null ? article.getKeyword().getCategory().getCategoryType() : null)
-                .build();
-
-        Scrap savedScrap = scrapRepository.save(scrap);
-
-        // 5. 저장된 Scrap ID 반환
-        return ScrapReportArticeResponse.builder()
-                .scrapIds(List.of(savedScrap.getId()))
-                .build();
-    }
-
-    @Override
-    @Transactional
-    public String unscrapArticle(Long articleId) {
-        // 1. Client 인증 정보 가져오기
-        Long clientId = getClientIdFromAuthentication();
-
-        // 2. Client 조회
-        Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new ApiException(ErrorStatus._CLIENT_NOT_FOUND));
+        Client client = findClientById(clientId);
 
         // 3. Article 조회
-        Article article = articleRepository.findById(articleId)
-                .orElseThrow(() -> new ApiException(ErrorStatus._ARTICLE_NOT_FOUND));
+        Article article = findArticleById(articleId);
 
-        // 4. Scrap 조회 및 삭제
-        Scrap scrap = scrapRepository.findByClientAndTitleAndUrl(client, article.getTitle(), article.getUrl())
-                .orElseThrow(() -> new ApiException(ErrorStatus._SCRAP_NOT_FOUND));
+        String responseMsg = "";
 
-        scrapRepository.delete(scrap);
+        if (article.isScrapped()) {
+            findAndDeleteByClientAndTitleAndUrl(client, article);
+            article.setScrapStatus(false);
+            responseMsg = "스크랩 취소 완료";
+        } else {
+            buildAndSaveScrap(article, client);
+            article.setScrapStatus(true);
+            responseMsg = "스크랩 완료";
+        }
 
-        // 5. Article의 isScrapped 필드 업데이트
-        article.setScrapStatus(false);
+        // 5. 저장된 Scrap ID 반환
+        return responseMsg;
 
-        return "스크랩 취소했습니다.";
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public List<ScrapArticleDto> getScrappedArticlesByClientId() {
-        Long clientId = getClientIdFromAuthentication();
+    public ScrapCategoryTypeResponse getScrappedArticlesByClientId() {
 
-        // clientId가 해당 accountId에 속해 있는지 확인
-        Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new ApiException(ErrorStatus._CLIENT_NOT_FOUND));
+        Long clientId = getClientIdFromAuthentication();
 
         // clientId와 isScraped = true 조건으로 Article 조회
         List<Article> scrappedArticles = articleRepository.findAllByKeyword_Category_Client_IdAndIsScrappedTrue(clientId);
 
-        // 조회된 Article 데이터를 ScrapArticleDto로 변환
-        return scrappedArticles.stream()
-                .map(article -> ScrapArticleDto.builder()
-                        .articleId(article.getId())
-                        .title(article.getTitle())
-                        .url(article.getUrl())
-                        .publisherName(article.getPublisherName())
-                        .reporterName(article.getReporterName())
-                        .publishDate(article.getPublishDate())
-                        .categoryType(article.getKeyword() != null ? article.getKeyword().getCategory().getCategoryType() : null)
-                        .build())
-                .collect(Collectors.toList());
+        // Article 데이터를 ScrapArticleDto로 변환하여 CategoryType별로 그룹화
+        Map<CategoryType, List<ScrapArticleDto>> groupedByCategory = groupedByCategory(scrappedArticles);
+
+        // CategoryType별로 ScrapArticleDto를 담은 ScrapCategoryTypeResponse 생성
+        return buildScrapCategoryTypeResponse(groupedByCategory);
+
     }
 
-    private Client findClientById(Long clientId) {
-        return clientService.findClientById(clientId);
-    }
-
-    // Scrap -> ReportArticleDto 변환
-//    private ReportArticleDto convertToReportArticleDto(Scrap scrap) {
-//        return ReportArticleDto.builder()
-//                .publishedDate(scrap.getPublishDate())
-//                .keyword(scrap.getCategoryType().name())  // CategoryType을 문자열로 변환
-//                .headLine(scrap.getTitle())
-//                .url(scrap.getUrl())
-//                .media(scrap.getPublisherName())
-//                .reporter(scrap.getReporterName())
-//                .build();
-//    }
     private Long getAccountId() {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -170,41 +108,75 @@ public class ScrapServiceImpl implements ScrapService {
         Account account = findAccountById();
         return account.getSelectedClientId();
     }
+
+    private Client findClientById(Long clientId) {
+        return clientService.findClientById(clientId);
+    }
+
+    private Article findArticleById(Long articleId) {
+        return articleRepository.findById(articleId)
+                .orElseThrow(() -> new ApiException(ErrorStatus._ARTICLE_NOT_FOUND));
+    }
+
+    private void findAndDeleteByClientAndTitleAndUrl(Client client, Article article) {
+
+        Scrap scrap = scrapRepository.findByClientAndTitleAndUrl(client, article.getTitle(), article.getUrl())
+                .orElseThrow(() -> new ApiException(ErrorStatus._SCRAP_NOT_FOUND));
+
+        scrapRepository.delete(scrap);
+
+    }
+
+    private void buildAndSaveScrap(Article article, Client client) {
+
+        Scrap scrap = Scrap.builder()
+                .client(client)
+                .title(article.getTitle())
+                .url(article.getUrl())
+                .keyword(article.getKeyword() != null ? article.getKeyword().getKeyword() : null)
+                .publisherName(article.getPublisherName())
+                .reporterName(article.getReporterName())
+                .publishDate(article.getPublishDate())
+                .categoryType(article.getKeyword() != null ? article.getKeyword().getCategory().getCategoryType() : null)
+                .build();
+
+        scrapRepository.save(scrap);
+
+    }
+
+    private Map<CategoryType, List<ScrapArticleDto>> groupedByCategory(List<Article> scrappedArticles) {
+
+        return scrappedArticles.stream()
+                .map(article -> ScrapArticleDto.builder()
+                        .articleId(article.getId())
+                        .title(article.getTitle())
+                        .body(article.getBody())
+                        .url(article.getUrl())
+                        .imageUrl(article.getImageUrl())
+                        .publisherName(article.getPublisherName())
+                        .publishDate(article.getPublishDate())
+                        .reporterName(article.getReporterName())
+                        .categoryType(article.getKeyword() != null ? article.getKeyword().getCategory().getCategoryType() : null)
+                        .build())
+                .filter(dto -> dto.getCategoryType() != null) // categoryType이 null이 아닌 경우만 포함
+                .collect(Collectors.groupingBy(ScrapArticleDto::getCategoryType));
+
+    }
+
+    private ScrapCategoryTypeResponse buildScrapCategoryTypeResponse(Map<CategoryType, List<ScrapArticleDto>> groupedByCategory) {
+
+        List<ScrapArticleDto> selfArticles = groupedByCategory.getOrDefault(CategoryType.SELF, new ArrayList<>());
+        List<ScrapArticleDto> competitorArticles = groupedByCategory.getOrDefault(CategoryType.COMPETITOR, new ArrayList<>());
+        List<ScrapArticleDto> industryArticles = groupedByCategory.getOrDefault(CategoryType.INDUSTRY, new ArrayList<>());
+
+        return ScrapCategoryTypeResponse.builder()
+                .scrapSelfResponses(selfArticles)
+                .scrapCompetitorResponses(competitorArticles)
+                .scrapIndustryResponses(industryArticles)
+                .build();
+
+    }
+
 }
 
-//    private Client findClientById(Long clientId) {
-//        return clientService.findClientById(clientId);
-//    }
-//
-//    // Article -> Scrap 저장
-//    private List<Scrap> convertAndSaveScrap(List<ScrapArticleDto> reportArticles, Client client) {
-//
-//        return reportArticles.stream()
-//                .map((articleDto) -> {
-//                    Scrap scrap = Scrap.builder()
-//                            .client(client)
-//                            .categoryType(articleDto.getCategoryType())
-//                            .title(articleDto.getTitle())
-//                            .url(articleDto.getUrl())
-//                            .publishDate(articleDto.getPublishDate())
-//                            .publisherName(articleDto.getPublisherName())
-//                            .reporterName(articleDto.getReporterName())
-//                            .build();
-//                    return scrapRepository.save(scrap);
-//                })
-//                .collect(Collectors.toList());
-//
-//    }
-
-//    // Scrap -> ReportArticleDto 변환
-//    private ReportArticleDto convertToReportArticleDto(Scrap scrap) {
-//        return ReportArticleDto.builder()
-//                .publishedDate(scrap.getPublishDate())
-//                .keyword(scrap.getCategoryType().name())  // CategoryType을 문자열로 변환
-//                .headLine(scrap.getTitle())
-//                .url(scrap.getUrl())
-//                .media(scrap.getPublisherName())
-//                .reporter(scrap.getReporterName())
-//                .build();
-//    }
 
