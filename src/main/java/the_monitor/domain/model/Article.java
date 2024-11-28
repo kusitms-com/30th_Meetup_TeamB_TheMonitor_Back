@@ -77,7 +77,13 @@ public class Article extends BaseTimeEntity {
         this.keyword = keyword;
 
     }
+
     public void setScrapStatus(boolean scrapped) {
         this.scrapped = scrapped;
     }
+
+    public void setAddedStatus(boolean added) {
+        this.added = added;
+    }
+
 }

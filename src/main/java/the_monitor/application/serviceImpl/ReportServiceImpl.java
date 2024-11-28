@@ -14,6 +14,7 @@ import the_monitor.common.ApiException;
 import the_monitor.common.ErrorStatus;
 import the_monitor.domain.enums.CategoryType;
 import the_monitor.domain.model.*;
+import the_monitor.domain.repository.ArticleRepository;
 import the_monitor.domain.repository.ReportArticleRepository;
 import the_monitor.domain.repository.ReportCategoryRepository;
 import the_monitor.domain.repository.ReportRepository;
@@ -42,6 +43,7 @@ public class ReportServiceImpl implements ReportService {
     private final S3Service s3Service;
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private final ArticleRepository articleRepository;
 
     @Override
     public List<ReportListResponse> getReports() {
@@ -76,6 +78,8 @@ public class ReportServiceImpl implements ReportService {
         createAndSaveReportArticlesByCategories(report, request);
 
         unScrapArticles(request, clientId);
+
+        updateAdded(request);
 
         return ReportCreateResponse.builder()
                 .reportId(report.getId())
@@ -571,10 +575,7 @@ public class ReportServiceImpl implements ReportService {
 
     private void unScrapArticles(ReportCreateRequest request, Long clientId) {
 
-        List<Long> articleIds = request.getReportCategoryTypeRequest().getReportCategorySelfRequests().stream()
-                .map(ReportCategoryRequest::getArticleId)
-                .flatMap(Collection::stream)
-                .toList();
+        List<Long> articleIds = getArticleIdsByReportCreateRequest(request);
 
         for (Long articleId : articleIds) {
             Article article = articleService.findArticleById(articleId);
@@ -591,4 +592,26 @@ public class ReportServiceImpl implements ReportService {
 
 
     }
+
+    private void updateAdded(ReportCreateRequest request) {
+
+        List<Long> articleIds = getArticleIdsByReportCreateRequest(request);
+
+        for (Long articleId : articleIds) {
+            Article article = articleService.findArticleById(articleId);
+            article.setAddedStatus(true);
+            articleRepository.save(article);
+        }
+
+    }
+
+    private List<Long> getArticleIdsByReportCreateRequest(ReportCreateRequest request) {
+
+        return request.getReportCategoryTypeRequest().getReportCategorySelfRequests().stream()
+                .map(ReportCategoryRequest::getArticleId)
+                .flatMap(Collection::stream)
+                .toList();
+
+    }
+
 }
