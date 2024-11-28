@@ -16,4 +16,7 @@ public interface ArticleService {
     PageResponse<ArticleResponse> getArticlesByKeyword(CategoryType categoryType, Long keywordId, int page);
 
     Article findArticleById(Long articleId);
+
+    String readArticle(Long articleId);
+
 }

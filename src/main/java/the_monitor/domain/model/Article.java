@@ -86,4 +86,8 @@ public class Article extends BaseTimeEntity {
         this.added = added;
     }
 
+    public void setReadStatus(boolean read) {
+        this.read = read;
+    }
+
 }

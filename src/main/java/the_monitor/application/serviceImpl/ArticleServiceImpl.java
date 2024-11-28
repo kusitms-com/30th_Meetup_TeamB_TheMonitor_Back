@@ -110,6 +110,17 @@ public class ArticleServiceImpl implements ArticleService {
         return getArticleResponsePageResponse(articlePage);
     }
 
+    @Override
+    @Transactional
+    public String readArticle(Long articleId) {
+
+        Article article = findArticleById(articleId);
+        article.setReadStatus(true);
+
+        return "기사 읽기 변경";
+
+    }
+
     private PageResponse<ArticleResponse> getArticleResponsePageResponse(Page<Article> articlePage) {
         List<ArticleGoogleDto> articleDtos = articlePage.getContent().stream()
                 .map(article -> ArticleGoogleDto.builder()
