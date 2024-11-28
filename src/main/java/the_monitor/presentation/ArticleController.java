@@ -35,4 +35,11 @@ public class ArticleController {
 
     }
 
+    @PatchMapping("/read")
+    public ApiResponse<String> readArticle(@RequestParam("articleId") Long articleId) {
+
+        return ApiResponse.onSuccess(articleService.readArticle(articleId));
+
+    }
+
 }
