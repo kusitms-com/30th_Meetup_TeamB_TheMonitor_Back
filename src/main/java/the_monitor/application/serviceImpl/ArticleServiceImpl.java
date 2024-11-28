@@ -133,6 +133,8 @@ public class ArticleServiceImpl implements ArticleService {
                         .publishDate(article.getPublishDate())
                         .reporterName(article.getReporterName())
                         .scrapped(article.isScrapped())
+                        .added(article.isAdded())
+                        .read(article.isRead())
                         .build())
                 .toList();
 

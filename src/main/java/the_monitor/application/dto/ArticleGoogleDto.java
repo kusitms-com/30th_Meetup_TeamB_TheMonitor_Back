@@ -19,6 +19,8 @@ public class ArticleGoogleDto {
     private String publishDate;
     private String reporterName;
     private boolean scrapped = false;
+    private boolean added;
+    private boolean read;
 
     @Builder
     public ArticleGoogleDto(Long articleId,
@@ -29,7 +31,9 @@ public class ArticleGoogleDto {
                             String publisherName,
                             String publishDate,
                             String reporterName,
-                            boolean scrapped) {
+                            boolean scrapped,
+                            boolean added,
+                            boolean read) {
 
         this.articleId = articleId;
         this.title = title;
@@ -40,6 +44,8 @@ public class ArticleGoogleDto {
         this.publishDate = publishDate;
         this.reporterName = reporterName;
         this.scrapped = scrapped;
+        this.added = added;
+        this.read = read;
 
     }
 
