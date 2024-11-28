@@ -13,6 +13,8 @@ import the_monitor.domain.model.*;
 import the_monitor.domain.repository.ReportRepository;
 
 import java.io.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -47,7 +49,6 @@ public class ExcelServiceImpl implements ExcelService {
 
             int currentRow = 6; // SELF 기사 시작 위치 (B7)
 
-            // 각 카테고리 기사 추가 및 병합
             for (CategoryType categoryType : CategoryType.values()) {
                 List<ReportCategory> categories = reportCategories.stream()
                         .filter(category -> category.getCategoryType() == categoryType)
@@ -55,6 +56,7 @@ public class ExcelServiceImpl implements ExcelService {
 
                 if (categories.isEmpty()) continue;
 
+                // 카테고리 타이틀 삽입
                 if (categoryType != CategoryType.SELF) {
                     currentRow++;
                     mergeCells(sheet, currentRow, currentRow, 1, 7);
@@ -66,21 +68,25 @@ public class ExcelServiceImpl implements ExcelService {
                         default -> categoryType.name();
                     };
                     setCellValue(sheet, currentRow, 1, categoryTitle);
-                    currentRow++;
+
+                    currentRow++; // 카테고리 타이틀 아래로 이동
                 }
 
+                // 각 카테고리에서 번호 초기화
                 int categoryNumber = 1;
 
                 // 카테고리 기사 데이터 삽입
                 for (ReportCategory category : categories) {
                     for (ReportArticle article : category.getReportArticles()) {
-                        setCellValue(sheet, currentRow, 1, String.valueOf(currentRow - 5)); // 번호
-                        setCellValue(sheet, currentRow, 2, article.getPublishDate());      // 날짜
-                        setCellValue(sheet, currentRow, 3, article.getKeyword());
-                        setCellValue(sheet, currentRow, 4, article.getTitle());           // 제목
-                        setCellValue(sheet, currentRow, 5, article.getUrl());             // URL
-                        setCellValue(sheet, currentRow, 6, article.getPublisherName());   // Publisher
+                        // 기사 삽입
+                        setCellValue(sheet, currentRow, 1, String.valueOf(categoryNumber)); // 번호
+                        setCellValue(sheet, currentRow, 2, formatDate(article.getPublishDate())); // 날짜
+                        setCellValue(sheet, currentRow, 3, article.getKeyword());          // 키워드
+                        setCellValue(sheet, currentRow, 4, article.getTitle());            // 제목
+                        setCellValue(sheet, currentRow, 5, article.getUrl());              // URL
+                        setCellValue(sheet, currentRow, 6, article.getPublisherName());    // Publisher
                         currentRow++;
+                        categoryNumber++; // 번호 증가
                     }
                 }
             }
@@ -164,5 +170,10 @@ public class ExcelServiceImpl implements ExcelService {
             cell = row.createCell(columnNumber);
         }
         cell.setCellValue(value);
+    }
+
+    private String formatDate(String dateTime) {
+        // 입력 날짜를 LocalDateTime으로 변환 후 yyyy-MM-dd 형식으로 포맷
+        return LocalDateTime.parse(dateTime.substring(0, 19)).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     }
 }
