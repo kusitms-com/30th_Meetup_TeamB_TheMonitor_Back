@@ -24,11 +24,6 @@ public class ExcelServiceImpl implements ExcelService {
 
     private static final String TEMPLATE_PATH = "/templates/template.xlsx";
 
-    /**
-     * 엑셀 파일 생성 (로컬에 저장)
-     * @param reportId 보고서 ID
-     * @return 생성된 파일 객체
-     */
     @Override
     public File createExcelFile(Long reportId) {
         Report report = reportRepository.findById(reportId)
@@ -60,20 +55,28 @@ public class ExcelServiceImpl implements ExcelService {
 
                 if (categories.isEmpty()) continue;
 
-                // 카테고리 타이틀 삽입 (셀 병합)
                 if (categoryType != CategoryType.SELF) {
                     currentRow++;
-                    mergeCells(sheet, currentRow, currentRow, 1, 5);
-                    setCellValue(sheet, currentRow, 1, categoryType.name());
+                    mergeCells(sheet, currentRow, currentRow, 1, 7);
+
+                    // 카테고리명 설정
+                    String categoryTitle = switch (categoryType) {
+                        case COMPETITOR -> "경쟁사";
+                        case INDUSTRY -> "산업";
+                        default -> categoryType.name();
+                    };
+                    setCellValue(sheet, currentRow, 1, categoryTitle);
                     currentRow++;
                 }
+
+                int categoryNumber = 1;
 
                 // 카테고리 기사 데이터 삽입
                 for (ReportCategory category : categories) {
                     for (ReportArticle article : category.getReportArticles()) {
                         setCellValue(sheet, currentRow, 1, String.valueOf(currentRow - 5)); // 번호
                         setCellValue(sheet, currentRow, 2, article.getPublishDate());      // 날짜
-                        setCellValue(sheet, currentRow, 3, article.getKeyword());         // 키워드
+                        setCellValue(sheet, currentRow, 3, article.getKeyword());
                         setCellValue(sheet, currentRow, 4, article.getTitle());           // 제목
                         setCellValue(sheet, currentRow, 5, article.getUrl());             // URL
                         setCellValue(sheet, currentRow, 6, article.getPublisherName());   // Publisher
@@ -95,11 +98,6 @@ public class ExcelServiceImpl implements ExcelService {
         }
     }
 
-    /**
-     * 엑셀 파일 다운로드 (HTTP 응답)
-     * @param reportId 보고서 ID
-     * @param response HTTP 응답 객체
-     */
     @Override
     public void generateExcel(Long reportId, HttpServletResponse response) {
         try {
@@ -135,8 +133,14 @@ public class ExcelServiceImpl implements ExcelService {
 
         Workbook workbook = sheet.getWorkbook();
         CellStyle style = workbook.createCellStyle();
-        style.setAlignment(HorizontalAlignment.CENTER);
-        style.setVerticalAlignment(VerticalAlignment.CENTER);
+//        style.setAlignment(HorizontalAlignment.CENTER);
+//        style.setVerticalAlignment(VerticalAlignment.CENTER);
+
+        Font font = workbook.createFont();
+        font.setBold(true); // Bold 처리
+        font.setFontHeightInPoints((short) 14);
+        font.setFontName("맑은 고딕");
+        style.setFont(font);
 
         Row row = sheet.getRow(firstRow);
         if (row == null) {
