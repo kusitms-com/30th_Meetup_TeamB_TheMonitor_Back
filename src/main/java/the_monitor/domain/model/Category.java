@@ -37,11 +37,9 @@ public class Category extends BaseTimeEntity {
 
     @Builder
     public Category(CategoryType categoryType,
-                    List<Keyword> keywords,
                     Client client) {
 
         this.categoryType = categoryType;
-        this.keywords = keywords;
         this.client = client;
 
     }
