@@ -107,10 +107,7 @@ public class ScrapServiceImpl implements ScrapService {
 
         scrapRepository.deleteAll(scraps);
 
-        List<Article> articles = articleRepository.findAllById(originalArticleIds);
-        articles.forEach(article -> article.setScrapStatus(false));
-
-        articleRepository.saveAll(articles);
+        articleRepository.updateScrappedStatusToFalse(originalArticleIds);
 
         return "스크랩 취소 완료";
 
