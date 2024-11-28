@@ -12,7 +12,7 @@ public class ExcelController {
 
     private final ExcelService excelService;
 
-    @PostMapping("/generate")
+    @GetMapping("/generate")
     public void generateExcel(@RequestParam("reportId") Long reportId, HttpServletResponse response) {
         excelService.generateExcel(reportId, response);
     }
