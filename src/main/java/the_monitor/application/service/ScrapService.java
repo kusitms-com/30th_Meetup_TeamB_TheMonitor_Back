@@ -10,4 +10,6 @@ public interface ScrapService {
 
     ScrapArticleDto getScrapArticleInfo(Long scrapId);
 
+    String unScrapArticle();
+
 }

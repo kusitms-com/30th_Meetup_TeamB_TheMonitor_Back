@@ -476,6 +476,8 @@ public class ReportServiceImpl implements ReportService {
 
         Article article = articleService.findArticleById(articleId);
 
+        article.setScrapStatus(false);
+
         return ReportArticle.builder()
                 .title(article.getTitle())
                 .url(article.getUrl())

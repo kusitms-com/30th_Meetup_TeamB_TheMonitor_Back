@@ -6,9 +6,6 @@ import lombok.NoArgsConstructor;
 import the_monitor.domain.model.Article;
 import the_monitor.domain.model.Keyword;
 
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
-
 @Getter
 @NoArgsConstructor
 public class ArticleGoogleDto {
@@ -55,14 +52,9 @@ public class ArticleGoogleDto {
                 .publisherName(publisherName)
                 .publishDate(publishDate)
                 .reporterName(reporterName)
-                .isScrapped(scrapped)
+                .scrapped(scrapped)
                 .keyword(keyword)
                 .build();
     }
-
-    public void setArticleId(Long articleId) {
-        this.articleId = articleId;
-    }
-
 
 }

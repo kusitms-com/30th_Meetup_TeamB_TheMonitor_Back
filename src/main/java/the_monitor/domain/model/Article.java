@@ -39,15 +39,15 @@ public class Article extends BaseTimeEntity {
     private String reporterName;
 
     @Column(name = "article_is_read", nullable = false)
-    private boolean isRead = false;
+    private boolean read = false;
 
     @Column(name = "article_is_added", nullable = false)
-    private boolean isAdded = false;
+    private boolean added = false;
 
     @Column(name = "article_is_scrapped", nullable = false)
-    private boolean isScrapped = false;
+    private boolean scrapped = false;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "keyword_id")
     private Keyword keyword;
 
@@ -59,9 +59,9 @@ public class Article extends BaseTimeEntity {
                    String publisherName,
                    String publishDate,
                    String reporterName,
-                   boolean isRead,
-                   boolean isAdded,
-                   boolean isScrapped,
+                   boolean read,
+                   boolean added,
+                   boolean scrapped,
                    Keyword keyword) {
 
         this.title = title;
@@ -71,13 +71,13 @@ public class Article extends BaseTimeEntity {
         this.publisherName = publisherName;
         this.publishDate = publishDate;
         this.reporterName = reporterName;
-        this.isRead = isRead;
-        this.isAdded = isAdded;
-        this.isScrapped = isScrapped;
+        this.read = read;
+        this.added = added;
+        this.scrapped = scrapped;
         this.keyword = keyword;
 
     }
-    public void setScrapStatus(boolean isScrapped) {
-        this.isScrapped = isScrapped;
+    public void setScrapStatus(boolean scrapped) {
+        this.scrapped = scrapped;
     }
 }
