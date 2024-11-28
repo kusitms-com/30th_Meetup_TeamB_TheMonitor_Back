@@ -17,7 +17,7 @@ public interface ScrapService {
 
 //    ScrapArticleListResponse getScrapArticleList(Long clientId, ScrapIdsRequest request);
 
-    List<ScrapArticleDto> getScrapedArticlesByClientId();
+    List<ScrapArticleDto> getScrappedArticlesByClientId();
 
     String unscrapArticle(Long articleId);
 

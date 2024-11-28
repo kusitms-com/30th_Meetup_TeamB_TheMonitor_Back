@@ -115,7 +115,7 @@ public class ScrapServiceImpl implements ScrapService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ScrapArticleDto> getScrapedArticlesByClientId() {
+    public List<ScrapArticleDto> getScrappedArticlesByClientId() {
         Long clientId = getClientIdFromAuthentication();
 
         // clientId가 해당 accountId에 속해 있는지 확인
@@ -123,10 +123,10 @@ public class ScrapServiceImpl implements ScrapService {
                 .orElseThrow(() -> new ApiException(ErrorStatus._CLIENT_NOT_FOUND));
 
         // clientId와 isScraped = true 조건으로 Article 조회
-        List<Article> scrapedArticles = articleRepository.findAllByKeyword_Category_Client_IdAndIsScrapedTrue(clientId);
+        List<Article> scrappedArticles = articleRepository.findAllByKeyword_Category_Client_IdAndIsScrappedTrue(clientId);
 
         // 조회된 Article 데이터를 ScrapArticleDto로 변환
-        return scrapedArticles.stream()
+        return scrappedArticles.stream()
                 .map(article -> ScrapArticleDto.builder()
                         .articleId(article.getId())
                         .title(article.getTitle())
