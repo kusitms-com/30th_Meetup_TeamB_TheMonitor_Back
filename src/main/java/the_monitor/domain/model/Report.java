@@ -84,4 +84,8 @@ public class Report extends BaseTimeEntity {
         reportCategories.forEach(reportCategory -> reportCategory.setReport(this));
     }
 
+    public void addReportCategory(ReportCategory category) {
+        this.reportCategories.add(category);
+    }
+
 }

@@ -420,48 +420,57 @@ public class ReportServiceImpl implements ReportService {
         // ReportCategory 리스트 생성
         List<ReportCategory> reportCategoryList = new ArrayList<>();
 
-        reportCategoryRepository.save(setDefaultCategory(report, CategoryType.SELF.name()));
-        reportCategoryRepository.save(setDefaultCategory(report, CategoryType.COMPETITOR.name()));
-        reportCategoryRepository.save(setDefaultCategory(report, CategoryType.INDUSTRY.name()));
-
+        // 기본 카테고리 생성 및 저장
+        ReportCategory selfDefaultCategory = reportCategoryRepository.save(setDefaultCategory(report, CategoryType.SELF.name()));
+        ReportCategory competitorDefault = reportCategoryRepository.save(setDefaultCategory(report, CategoryType.COMPETITOR.name()));
+        ReportCategory industryDefault = reportCategoryRepository.save(setDefaultCategory(report, CategoryType.INDUSTRY.name()));
 
         // 유형별 카테고리 처리
         ReportCategoryTypeRequest categoryTypeRequest = request.getReportCategoryTypeRequest();
 
         // SELF 유형 처리
-        processCategoryType(report, categoryTypeRequest.getReportCategorySelfRequests(), CategoryType.SELF, reportCategoryList);
+        processCategoryType(report, categoryTypeRequest.getReportCategorySelfRequests(), CategoryType.SELF, reportCategoryList, selfDefaultCategory);
 
         // COMPETITOR 유형 처리
-        processCategoryType(report, categoryTypeRequest.getReportCategoryCompetitorRequests(), CategoryType.COMPETITOR, reportCategoryList);
+        processCategoryType(report, categoryTypeRequest.getReportCategoryCompetitorRequests(), CategoryType.COMPETITOR, reportCategoryList, competitorDefault);
 
         // INDUSTRY 유형 처리
-        processCategoryType(report, categoryTypeRequest.getReportCategoryIndustryRequests(), CategoryType.INDUSTRY, reportCategoryList);
+        processCategoryType(report, categoryTypeRequest.getReportCategoryIndustryRequests(), CategoryType.INDUSTRY, reportCategoryList, industryDefault);
 
-        // Report에 모든 ReportCategory 추가
+        // 추가된 ReportCategory 리스트를 Report에 연결
         report.addReportCategories(reportCategoryList);
+
+        // 기본 카테고리를 Report에 추가
+        report.addReportCategory(selfDefaultCategory);
+        report.addReportCategory(competitorDefault);
+        report.addReportCategory(industryDefault);
 
     }
 
     private void processCategoryType(Report report,
                                      List<ReportCategoryRequest> categoryRequests,
                                      CategoryType categoryType,
-                                     List<ReportCategory> reportCategoryList) {
+                                     List<ReportCategory> reportCategoryList,
+                                     ReportCategory defaultCategory) {
 
         categoryRequests.forEach(categoryRequest -> {
-            // ReportCategory 생성
-            ReportCategory reportCategory = createReportCategory(report, categoryRequest, categoryType);
 
-            // ReportArticle 생성 및 연결
-            List<ReportArticle> reportArticles = createReportArticles(categoryRequest, reportCategory);
+            if (Objects.equals(categoryRequest.getReportCategoryName(), "default")) {
 
-            // ReportCategory에 ReportArticles 추가
-            reportCategory.addReportArticles(reportArticles);
+                List<ReportArticle> reportArticles = createReportArticles(categoryRequest, defaultCategory);
 
-            // ReportCategory 리스트에 추가
-            reportCategoryList.add(reportCategory);
+                defaultCategory.addReportArticles(reportArticles);
 
+            } else {
+                ReportCategory reportCategory = createReportCategory(report, categoryRequest, categoryType);
+
+                List<ReportArticle> reportArticles = createReportArticles(categoryRequest, reportCategory);
+
+                reportCategory.addReportArticles(reportArticles);
+
+                reportCategoryList.add(reportCategory);
+            }
         });
-
     }
 
     private ReportCategory createReportCategory(Report report, ReportCategoryRequest categoryRequest, CategoryType categoryType) {
