@@ -37,6 +37,7 @@ public class ReportServiceImpl implements ReportService {
     private final AccountService accountService;
     private final ArticleService articleService;
     private final ClientService clientService;
+    private final ScrapService scrapService;
 
     private final S3Service s3Service;
 
@@ -73,6 +74,8 @@ public class ReportServiceImpl implements ReportService {
         Report report = reportRepository.save(request.toEntity(client, logoUrl));
         // 각 카테고리별로 ReportArticle 생성 및 저장
         createAndSaveReportArticlesByCategories(report, request);
+
+        unScrapArticles(request, clientId);
 
         return ReportCreateResponse.builder()
                 .reportId(report.getId())
@@ -476,8 +479,6 @@ public class ReportServiceImpl implements ReportService {
 
         Article article = articleService.findArticleById(articleId);
 
-        article.setScrapStatus(false);
-
         return ReportArticle.builder()
                 .title(article.getTitle())
                 .url(article.getUrl())
@@ -568,4 +569,26 @@ public class ReportServiceImpl implements ReportService {
 
     }
 
+    private void unScrapArticles(ReportCreateRequest request, Long clientId) {
+
+        List<Long> articleIds = request.getReportCategoryTypeRequest().getReportCategorySelfRequests().stream()
+                .map(ReportCategoryRequest::getArticleId)
+                .flatMap(Collection::stream)
+                .toList();
+
+        for (Long articleId : articleIds) {
+            Article article = articleService.findArticleById(articleId);
+            article.setScrapStatus(false);
+        }
+
+        List<Scrap> scraps = scrapService.findAllByClientId(clientId);
+
+        List<Long> scrapIds = scraps.stream()
+                .map(Scrap::getId)
+                .toList();
+
+        scrapService.deleteScraps(scrapIds);
+
+
+    }
 }
