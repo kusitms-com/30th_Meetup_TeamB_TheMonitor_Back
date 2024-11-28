@@ -37,12 +37,15 @@ public class Category extends BaseTimeEntity {
 
     @Builder
     public Category(CategoryType categoryType,
+                    List<Keyword> keywords,
                     Client client) {
 
         this.categoryType = categoryType;
+        this.keywords = keywords;
         this.client = client;
 
     }
+
     public void addKeywords(List<Keyword> newKeywords) {
         this.keywords.addAll(newKeywords); // Category의 keywords 리스트에 추가
         for (Keyword keyword : newKeywords) {

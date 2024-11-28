@@ -25,4 +25,9 @@ public class BaseTimeEntity {
     @Column(name = "updated_at", nullable = false)
     @JsonFormat(pattern = "yyyy.MM.dd")
     private LocalDateTime updatedAt;
+
+    public void setUpdatedAt() {
+        this.updatedAt = LocalDateTime.now();
+    }
+
 }

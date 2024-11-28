@@ -32,10 +32,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ArticleServiceImpl implements ArticleService {
 
+    private final ArticleRepository articleRepository;
+
+    private final KeywordService keywordService;
     private final GoogleSearchService googleSearchService;
     private final AccountService accountService;
-    private final ArticleRepository articleRepository;
-    private final KeywordService keywordService;
 
     @Override
     public Article findArticleById(Long articleId) {
@@ -45,9 +46,11 @@ public class ArticleServiceImpl implements ArticleService {
 
     }
 
+    // 기사 저장
     @Override
     @Transactional
     public String saveArticles(Long clientId) {
+
         Long accountId = getAccountIdFromAuthentication();
 
         for (CategoryType categoryType : CategoryType.values()) {
@@ -108,8 +111,10 @@ public class ArticleServiceImpl implements ArticleService {
 
         // 조회된 기사들을 ArticleResponse로 변환
         return getArticleResponsePageResponse(articlePage);
+
     }
 
+    // 기사 읽음 표시
     @Override
     @Transactional
     public String readArticle(Long articleId) {
@@ -122,6 +127,7 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     private PageResponse<ArticleResponse> getArticleResponsePageResponse(Page<Article> articlePage) {
+
         List<ArticleGoogleDto> articleDtos = articlePage.getContent().stream()
                 .map(article -> ArticleGoogleDto.builder()
                         .articleId(article.getId())
@@ -148,6 +154,7 @@ public class ArticleServiceImpl implements ArticleService {
                 .totalCount(articlePage.getTotalElements())
                 .size(articlePage.getSize())
                 .build();
+
     }
 
     private Long getAccountIdFromAuthentication() {

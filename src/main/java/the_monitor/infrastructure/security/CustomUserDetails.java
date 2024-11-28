@@ -13,9 +13,11 @@ public class CustomUserDetails implements UserDetails {
     private final Collection<? extends GrantedAuthority> authorities;
 
     public CustomUserDetails(Long accountId, String email, Collection<? extends GrantedAuthority> authorities) {
+
         this.accountId = accountId;
         this.email = email;
         this.authorities = authorities;
+
     }
 
     @Override

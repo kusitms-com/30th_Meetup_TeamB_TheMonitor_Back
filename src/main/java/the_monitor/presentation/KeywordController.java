@@ -7,10 +7,6 @@ import the_monitor.application.dto.request.KeywordUpdateRequest;
 import the_monitor.application.dto.response.KeywordResponse;
 import the_monitor.application.service.KeywordService;
 import the_monitor.common.ApiResponse;
-import the_monitor.domain.enums.CategoryType;
-
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor

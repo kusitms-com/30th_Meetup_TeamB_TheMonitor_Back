@@ -28,6 +28,7 @@ public class EmailController {
     public ApiResponse<EmailResponse> getEmails() {
 
         return ApiResponse.onSuccessData("이메일 조회 성공", emailService.getEmails());
+
     }
 
     @Operation(summary = "이메일 수정", description = "clientId에 따른 이메일 리스트를 수정합니다.")
@@ -36,11 +37,16 @@ public class EmailController {
                                                    @RequestPart(value = "signatureImage", required = false) MultipartFile signatureImage) {
 
         return ApiResponse.onSuccessData("이메일 수정 성공", emailService.updateEmails(emailUpdateRequest, signatureImage));
+
     }
 
     @Operation(summary = "이메일 전송", description = "완성된 보고서를 고객사에게 전송합니다.")
     @PostMapping(value = "/send")
-    public ApiResponse<EmailSendResponse> sendReport(@RequestParam("reportId") Long reportId, @RequestBody @Valid EmailSendRequest emailSendRequest) throws MessagingException, UnsupportedEncodingException {
+    public ApiResponse<EmailSendResponse> sendReport(@RequestParam("reportId") Long reportId,
+                                                     @RequestBody @Valid EmailSendRequest emailSendRequest) throws MessagingException, UnsupportedEncodingException {
+
         return ApiResponse.onSuccessData("이메일 전송 성공", emailService.sendReportEmailWithAttachment(reportId,emailSendRequest.getSubject(), emailSendRequest.getContent()));
+
     }
+
 }

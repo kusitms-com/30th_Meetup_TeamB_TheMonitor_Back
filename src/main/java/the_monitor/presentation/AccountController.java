@@ -6,14 +6,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import the_monitor.application.dto.request.*;
 import the_monitor.application.service.AccountService;
 import the_monitor.common.ApiResponse;
-import the_monitor.infrastructure.jwt.JwtProvider;
 
 import java.io.UnsupportedEncodingException;
 
@@ -71,6 +67,7 @@ public class AccountController {
 
     }
 
+    @Operation(summary = "client id 설정", description = "client id 설정")
     @PostMapping("set-client")
     public ApiResponse<String> setClient(@RequestParam("clientId") Long clientId) {
 

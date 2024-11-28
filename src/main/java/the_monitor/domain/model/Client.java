@@ -29,10 +29,10 @@ public class Client extends BaseTimeEntity {
     @Column(name = "client_manager_name", nullable = false)
     private String managerName;
 
-    @Column(name = "client_logo", nullable = true)
+    @Column(name = "client_logo")
     private String logo;
 
-    @Column(name = "signature_url",  nullable = true)
+    @Column(name = "signature_url")
     private String signatureUrl;
 
     @ManyToOne
@@ -61,13 +61,17 @@ public class Client extends BaseTimeEntity {
     public Client(String name,
                   String managerName,
                   String logo,
-                  Account account) {
+                  Account account,
+                  List<Scrap> scraps,
+                  List<Report> reports) {
 
         this.name = name;
         this.managerName = managerName;
         this.logo = logo;
         this.account = account;
         this.categories = new ArrayList<>();
+        this.scraps = scraps;
+        this.reports = reports;
 
     }
 
@@ -96,7 +100,9 @@ public class Client extends BaseTimeEntity {
             this.logo = logoUrl;
         }
     }
+
     public void updateImageUrl(String newImageUrl) {
         this.signatureUrl = newImageUrl;
     }
+
 }

@@ -1,19 +1,15 @@
 package the_monitor.application.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
 import the_monitor.domain.enums.CategoryType;
-import the_monitor.domain.enums.KeywordType;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import java.util.List;
 import java.util.Map;
@@ -37,5 +33,19 @@ public class ClientRequest {
 
     private List<String> ccEmails; // 참조인 이메일 (선택)
 
+    @Builder
+    public ClientRequest(String name,
+                         String managerName,
+                         Map<CategoryType, List<String>> categoryKeywords,
+                         List<String> recipientEmails,
+                         List<String> ccEmails) {
+
+        this.name = name;
+        this.managerName = managerName;
+        this.categoryKeywords = categoryKeywords;
+        this.recipientEmails = recipientEmails;
+        this.ccEmails = ccEmails;
+
+    }
 
 }

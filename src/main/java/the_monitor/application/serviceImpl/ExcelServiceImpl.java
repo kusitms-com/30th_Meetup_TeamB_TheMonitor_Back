@@ -29,6 +29,7 @@ public class ExcelServiceImpl implements ExcelService {
 
     @Override
     public File createExcelFile(Long reportId) {
+
         Report report = reportRepository.findById(reportId)
                 .orElseThrow(() -> new IllegalArgumentException("Report not found"));
 
@@ -103,10 +104,12 @@ public class ExcelServiceImpl implements ExcelService {
         } catch (Exception e) {
             throw new RuntimeException("엑셀 파일 생성 중 오류 발생", e);
         }
+
     }
 
     @Override
     public void generateExcel(Long reportId, HttpServletResponse response) {
+
         try {
             File excelFile = createExcelFile(reportId); // 파일 생성
 
@@ -131,17 +134,17 @@ public class ExcelServiceImpl implements ExcelService {
         } catch (Exception e) {
             throw new RuntimeException("엑셀 파일 다운로드 중 오류 발생", e);
         }
+
     }
 
     // 셀 병합 유틸리티
     private void mergeCells(Sheet sheet, int firstRow, int lastRow, int firstCol, int lastCol) {
+
         CellRangeAddress cellRangeAddress = new CellRangeAddress(firstRow, lastRow, firstCol, lastCol);
         sheet.addMergedRegion(cellRangeAddress);
 
         Workbook workbook = sheet.getWorkbook();
         CellStyle style = workbook.createCellStyle();
-//        style.setAlignment(HorizontalAlignment.CENTER);
-//        style.setVerticalAlignment(VerticalAlignment.CENTER);
 
         Font font = workbook.createFont();
         font.setBold(true); // Bold 처리
@@ -177,4 +180,5 @@ public class ExcelServiceImpl implements ExcelService {
         // 입력 날짜를 LocalDateTime으로 변환 후 yyyy-MM-dd 형식으로 포맷
         return LocalDateTime.parse(dateTime.substring(0, 19)).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     }
+
 }

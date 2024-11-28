@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -81,6 +80,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public String verifyCode(AccountEmailCertifyRequest request) {
+
         String email = request.getEmail();
 
         // 이메일 검증
@@ -110,6 +110,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public ApiResponse<String> accountSignIn(AccountSignInRequest request, HttpServletResponse response, HttpSession session) {
+
         Account account = accountRepository.findAccountByEmail(request.getEmail());
 
         if (account == null) {
@@ -121,12 +122,13 @@ public class AccountServiceImpl implements AccountService {
 
         // AccessToken 발급 및 응답 헤더에 추가
         String accessToken = jwtProvider.generateAccessToken(account);
-        jwtProvider.setAccessTokenInCookie(account, accessToken, response);
+        jwtProvider.setAccessTokenInCookie(accessToken, response);
 
         // RefreshToken 발급 및 세션에 저장
         jwtProvider.storeRefreshTokenInSession(account, session);
 
         return ApiResponse.onSuccessData("로그인 성공", accessToken);
+
     }
 
     @Override
@@ -236,7 +238,7 @@ public class AccountServiceImpl implements AccountService {
                         .orElseThrow(() -> new ApiException(ErrorStatus._ACCOUNT_NOT_EXIST));
 
                 String newAccessToken = jwtProvider.generateAccessToken(account);
-                jwtProvider.setAccessTokenInCookie(account, newAccessToken, response);
+                jwtProvider.setAccessTokenInCookie(newAccessToken, response);
                 return ApiResponse.onSuccessData("토큰이 갱신되었습니다.", newAccessToken);
             } else {
                 throw new ApiException(ErrorStatus._JWT_EXPIRED);
@@ -244,6 +246,7 @@ public class AccountServiceImpl implements AccountService {
         } else {
            throw new ApiException(ErrorStatus._JWT_INVALID);
         }
+
     }
 
     private Long getAccountId() {
@@ -272,6 +275,5 @@ public class AccountServiceImpl implements AccountService {
         return "클라이언트 ID 설정 완료";
 
     }
-
 
 }

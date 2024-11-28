@@ -57,17 +57,8 @@ public class GoogleSearchServiceImpl implements GoogleSearchService {
 
     }
 
-    @Override
-    public ArticleResponse searchArticlesWithoutSaving(String keyword, int page, int size) {
-
-        int start = (page - 1) * size + 1;
-
-        ArticleResponse articleResponse = searchArticles(keyword, start);
-        return mapToArticleResponseList(keyword,articleResponse.getGoogleArticles(), articleResponse.getTotalResults());
-
-    }
-
     public ArticleResponse searchArticles(String query, int start) {
+
         int retryCount = 3; // 최대 재시도 횟수
         int attempt = 0;
         while (true) {
@@ -100,6 +91,7 @@ public class GoogleSearchServiceImpl implements GoogleSearchService {
                 System.out.println("Retrying... Attempt " + attempt);
             }
         }
+
     }
 
     private ArticleResponse parseResponse(String jsonResponse) {
@@ -163,16 +155,6 @@ public class GoogleSearchServiceImpl implements GoogleSearchService {
 
         return ArticleResponse.builder()
                 .googleArticles(searchDetails)
-                .totalResults(totalResults)
-                .build();
-
-    }
-
-    private ArticleResponse mapToArticleResponseList(String keyword, List<ArticleGoogleDto> articleDtos, int totalResults) {
-
-        return ArticleResponse.builder()
-                .keyword(keyword)
-                .googleArticles(articleDtos)
                 .totalResults(totalResults)
                 .build();
 

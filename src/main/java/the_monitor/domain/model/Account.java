@@ -1,7 +1,6 @@
 package the_monitor.domain.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -9,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import the_monitor.common.BaseTimeEntity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -42,7 +42,7 @@ public class Account extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
-    private List<Client> clients;
+    private List<Client> clients = new ArrayList<>();
 
     @Column(name = "account_selected_client_id")
     private Long selectedClientId;
@@ -53,7 +53,8 @@ public class Account extends BaseTimeEntity {
                    String companyName,
                    String managerName,
                    String managerPhone,
-                   boolean agreement ) {
+                   boolean agreement,
+                   List<Client> clients) {
 
         this.email = email;
         this.password = password;
@@ -61,6 +62,7 @@ public class Account extends BaseTimeEntity {
         this.managerName = managerName;
         this.managerPhone = managerPhone;
         this.agreement = agreement;
+        this.clients = clients;
 
     }
 

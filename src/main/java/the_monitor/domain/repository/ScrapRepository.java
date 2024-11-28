@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ScrapRepository extends JpaScrapRepository {
+
     @Query("SELECT s FROM Scrap s WHERE s.client = :client AND s.title = :title AND s.url = :url")
     Optional<Scrap> findByClientAndTitleAndUrl(@Param("client") Client client,
                                                @Param("title") String title,

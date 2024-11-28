@@ -71,5 +71,4 @@ public class Scrap extends BaseTimeEntity {
 
     }
 
-
 }

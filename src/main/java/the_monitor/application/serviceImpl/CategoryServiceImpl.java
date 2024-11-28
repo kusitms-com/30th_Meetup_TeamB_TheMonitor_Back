@@ -22,8 +22,12 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     private final KeywordRepository keywordRepository;
 
+    // 카테고리와 키워드 저장
     @Override
-    public void saveCategoryWithKeywords(CategoryType categoryType, List<String> keywords, Client client) {
+    public void saveCategoryWithKeywords(CategoryType categoryType,
+                                         List<String> keywords,
+                                         Client client) {
+
         // 카테고리 생성
         Category category = Category.builder()
                 .categoryType(categoryType)
@@ -36,11 +40,13 @@ public class CategoryServiceImpl implements CategoryService {
         keywordRepository.saveAll(keywordEntities);
 
         category.addKeywords(keywordEntities);
+
     }
 
-
+    // 키워드 리스트를 Keyword 엔티티로 변환
     @Override
     public List<Keyword> createKeywords(List<String> keywords, Category category) {
+
         // 키워드 리스트를 Keyword 엔티티로 변환
         return keywords.stream()
                 .map(keyword -> Keyword.builder()
@@ -49,5 +55,7 @@ public class CategoryServiceImpl implements CategoryService {
                         .resultCount(0) // 초기 resultCount 설정
                         .build())
                 .collect(Collectors.toList());
+
     }
+
 }

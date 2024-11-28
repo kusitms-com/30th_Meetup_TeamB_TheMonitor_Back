@@ -17,4 +17,5 @@ public interface ClientMailRecipientRepository extends JpaRepository<ClientMailR
     @Modifying
     @Query("DELETE FROM ClientMailRecipient cmr WHERE cmr.client = :client")
     void deleteAllByClient(@Param("client") Client client);
+
 }
