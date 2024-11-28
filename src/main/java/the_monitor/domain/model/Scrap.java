@@ -25,7 +25,7 @@ public class Scrap extends BaseTimeEntity {
     @Column(name = "scrap_title", nullable = false)
     private String title;
 
-    @Column(name = "scrap_url", nullable = false)
+    @Column(name = "scrap_url", nullable = false, length = 1024)
     private String url;
 
     @Column(name = "scrap_keyword", nullable = false)
