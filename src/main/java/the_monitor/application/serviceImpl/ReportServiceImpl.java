@@ -70,9 +70,6 @@ public class ReportServiceImpl implements ReportService {
 
         String logoUrl = getLogoUrl(logo, client.getLogo());
 
-        System.out.println("Media: " + request.isMedia());
-        System.out.println("Reporter: " + request.isReporter());
-
         Report report = reportRepository.save(request.toEntity(client, logoUrl));
         // 각 카테고리별로 ReportArticle 생성 및 저장
         createAndSaveReportArticlesByCategories(report, request);
@@ -80,6 +77,7 @@ public class ReportServiceImpl implements ReportService {
         return ReportCreateResponse.builder()
                 .reportId(report.getId())
                 .build();
+
     }
 
     @Override
@@ -387,10 +385,6 @@ public class ReportServiceImpl implements ReportService {
                 .orElseThrow(() -> new ApiException(ErrorStatus._REPORT_ARTICLE_NOT_FOUND));
     }
 
-    private List<ReportArticle> findReportArticleByReportId(Long reportId) {
-        return reportArticleRepository.findByReportId(reportId);
-    }
-
     // Client ID와 Report ID로 Report 조회
     private Report findByClientIdAndReportId(Long clientId, Long reportId) {
         return reportRepository.findReportByClientIdAndReportId(clientId, reportId);
@@ -490,7 +484,7 @@ public class ReportServiceImpl implements ReportService {
                 .publishDate(article.getPublishDate())
                 .categoryType(reportCategory.getCategoryType())
                 .reportCategory(reportCategory)
-                .keyword(article.getKeyword().toString())
+                .keyword(article.getKeyword().getKeyword())
                 .build();
 
     }
@@ -533,7 +527,7 @@ public class ReportServiceImpl implements ReportService {
         return ReportArticlesResponse.builder()
                 .ReportArticleId(article.getId())
                 .keyword(article.getKeyword())
-                .publishedDate(article.getPublishDate() != null ? article.getPublishDate().toString() : null)
+                .publishedDate(article.getPublishDate() != null ? article.getPublishDate() : null)
                 .headLine(article.getTitle())
                 .url(article.getUrl())
                 .media(article.getPublisherName())

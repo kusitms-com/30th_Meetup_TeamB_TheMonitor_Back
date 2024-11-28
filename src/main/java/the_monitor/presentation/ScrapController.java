@@ -8,8 +8,6 @@ import the_monitor.application.dto.response.ScrapCategoryTypeResponse;
 import the_monitor.application.service.ScrapService;
 import the_monitor.common.ApiResponse;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/scrap")
@@ -21,7 +19,7 @@ public class ScrapController {
     @PostMapping()
     public ApiResponse<String> scrapArticle(@RequestParam("articleId") Long articleId) {
 
-        return ApiResponse.onSuccessData("기사 스크랩 변경 => ", scrapService.scrapArticle(articleId));
+        return ApiResponse.onSuccessData("기사 스크랩 변경", scrapService.scrapArticle(articleId));
 
     }
 
@@ -29,6 +27,13 @@ public class ScrapController {
     @GetMapping
     public ApiResponse<ScrapCategoryTypeResponse> getScrappedArticlesByClientId() {
         return ApiResponse.onSuccessData("스크랩 기사 조회 성공", scrapService.getScrappedArticlesByClientId());
+    }
+
+    @GetMapping("info")
+    public ApiResponse<ScrapArticleDto> getScrapArticleInfo(@RequestParam("scrapId") Long scrapId) {
+
+        return ApiResponse.onSuccessData("스크랩 기사 상세 조회 성공", scrapService.getScrapArticleInfo(scrapId));
+
     }
 
 }
