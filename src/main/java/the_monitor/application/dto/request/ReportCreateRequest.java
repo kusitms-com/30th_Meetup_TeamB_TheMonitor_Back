@@ -17,12 +17,8 @@ public class ReportCreateRequest {
 
     private String reportTitle;
     private String color;
-
-    @JsonProperty("isMedia")
-    private boolean isMedia;
-
-    @JsonProperty("isReporter")
-    private boolean isReporter;
+    private boolean media;
+    private boolean reporter;
 
     @JsonProperty("articles")
     private ReportCategoryTypeRequest reportCategoryTypeRequest;
@@ -31,14 +27,14 @@ public class ReportCreateRequest {
     public ReportCreateRequest(String reportTitle,
                                String color,
                                ReportCategoryTypeRequest reportCategoryTypeRequest,
-                               boolean isMedia,
-                               boolean isReporter) {
+                               boolean media,
+                               boolean reporter) {
 
         this.reportTitle = reportTitle;
         this.color = color;
         this.reportCategoryTypeRequest = reportCategoryTypeRequest;
-        this.isMedia = isMedia;
-        this.isReporter = isReporter;
+        this.media = media;
+        this.reporter = reporter;
 
     }
 
@@ -48,8 +44,8 @@ public class ReportCreateRequest {
                 .title(reportTitle)
                 .color(color)
                 .logo(logoUrl)
-                .isMedia(isMedia)
-                .isReporter(isReporter)
+                .media(media)
+                .reporter(reporter)
                 .build();
     }
 
