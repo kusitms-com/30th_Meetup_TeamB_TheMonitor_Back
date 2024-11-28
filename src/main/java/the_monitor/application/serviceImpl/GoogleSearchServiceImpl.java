@@ -14,8 +14,6 @@ import the_monitor.application.dto.response.ArticleResponse;
 import the_monitor.application.service.GoogleSearchService;
 
 import java.io.IOException;
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -137,9 +135,7 @@ public class GoogleSearchServiceImpl implements GoogleSearchService {
                 JsonNode metatagsNode = item.path("pagemap").path("metatags");
                 if (metatagsNode.isArray() && metatagsNode.has(0)) {
                     publisher = metatagsNode.get(0).path("og:site_name").asText("");
-                    publishDate = OffsetDateTime.parse(
-                            metatagsNode.get(0).path("article:published_time").asText("")
-                    ).format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
+                    publishDate = metatagsNode.get(0).path("article:published_time").asText("");
                     reporter = metatagsNode.get(0).path("dable:author").asText("");
                 }
 

@@ -29,11 +29,19 @@ public class ScrapController {
         return ApiResponse.onSuccessData("스크랩 기사 조회 성공", scrapService.getScrappedArticlesByClientId());
     }
 
+    @Operation(summary = "스크랩한 기사 상세 조회", description = "스크랩한 기사 하나의 상세 정보를 조회합니다.")
     @GetMapping("info")
     public ApiResponse<ScrapArticleDto> getScrapArticleInfo(@RequestParam("scrapId") Long scrapId) {
 
         return ApiResponse.onSuccessData("스크랩 기사 상세 조회 성공", scrapService.getScrapArticleInfo(scrapId));
 
     }
+
+//    @PatchMapping("/unscrap")
+//    public ApiResponse<String> unscrapArticle() {
+//
+//        return ApiResponse.onSuccess("기사 스크랩 변경", scrapService.unscrapArticle());
+//
+//    }
 
 }
