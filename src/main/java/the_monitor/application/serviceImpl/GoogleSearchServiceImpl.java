@@ -12,16 +12,10 @@ import org.springframework.web.util.UriComponentsBuilder;
 import the_monitor.application.dto.ArticleGoogleDto;
 import the_monitor.application.dto.response.ArticleResponse;
 import the_monitor.application.service.GoogleSearchService;
-import the_monitor.domain.model.Keyword;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 @Slf4j
 @Service
@@ -146,7 +140,7 @@ public class GoogleSearchServiceImpl implements GoogleSearchService {
                 }
 
                 // publisher와 publishDate가 null이면 추가하지 않음.
-                if ((publisher == null || publisher.isEmpty()) && (publishDate == null || publishDate.isEmpty())) {
+                if ((publisher == null || publisher.isEmpty()) && publishDate.isEmpty()) {
                     continue;
                 }
 

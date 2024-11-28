@@ -20,16 +20,11 @@ import the_monitor.common.PageResponse;
 import the_monitor.domain.enums.CategoryType;
 import the_monitor.domain.model.Account;
 import the_monitor.domain.model.Article;
-import the_monitor.domain.model.Category;
+
 import the_monitor.domain.model.Keyword;
 import the_monitor.domain.repository.ArticleRepository;
-import the_monitor.domain.repository.ReportArticleRepository;
-import the_monitor.infrastructure.jwt.JwtProvider;
 import the_monitor.infrastructure.security.CustomUserDetails;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -72,6 +67,7 @@ public class ArticleServiceImpl implements ArticleService {
         ArticleResponse articleResponse = googleSearchService.toDto(keyword.getKeyword());
 
         for (ArticleGoogleDto dto : articleResponse.getGoogleArticles()) {
+
             articleRepository.save(dto.toEntity(keyword));
         }
 
@@ -114,6 +110,17 @@ public class ArticleServiceImpl implements ArticleService {
         return getArticleResponsePageResponse(articlePage);
     }
 
+    @Override
+    @Transactional
+    public String readArticle(Long articleId) {
+
+        Article article = findArticleById(articleId);
+        article.setReadStatus(true);
+
+        return "기사 읽기 변경";
+
+    }
+
     private PageResponse<ArticleResponse> getArticleResponsePageResponse(Page<Article> articlePage) {
         List<ArticleGoogleDto> articleDtos = articlePage.getContent().stream()
                 .map(article -> ArticleGoogleDto.builder()
@@ -126,6 +133,8 @@ public class ArticleServiceImpl implements ArticleService {
                         .publishDate(article.getPublishDate())
                         .reporterName(article.getReporterName())
                         .scrapped(article.isScrapped())
+                        .added(article.isAdded())
+                        .read(article.isRead())
                         .build())
                 .toList();
 

@@ -19,10 +19,13 @@ public class Scrap extends BaseTimeEntity {
     @Column(name = "scrap_id")
     private Long id;
 
+    @Column(name = "scrap_original_article_id", nullable = false)
+    private Long originalArticleId;
+
     @Column(name = "scrap_title", nullable = false)
     private String title;
 
-    @Column(name = "scrap_url", nullable = false)
+    @Column(name = "scrap_url", nullable = false, length = 1024)
     private String url;
 
     @Column(name = "scrap_keyword", nullable = false)
@@ -46,7 +49,8 @@ public class Scrap extends BaseTimeEntity {
     private Client client;
 
     @Builder
-    public Scrap(String title,
+    public Scrap(Long originalArticleId,
+                 String title,
                  String url,
                  String keyword,
                  String publisherName,
@@ -55,6 +59,7 @@ public class Scrap extends BaseTimeEntity {
                  CategoryType categoryType,
                  Client client) {
 
+        this.originalArticleId = originalArticleId;
         this.title = title;
         this.url = url;
         this.keyword = keyword;

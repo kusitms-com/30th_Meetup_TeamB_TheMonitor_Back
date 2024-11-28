@@ -3,9 +3,7 @@ package the_monitor.presentation;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import the_monitor.application.dto.request.ScrapReportArticleRequest;
 import the_monitor.application.dto.response.ArticleResponse;
-import the_monitor.application.dto.response.ScrapReportArticeResponse;
 import the_monitor.application.service.ArticleService;
 import the_monitor.common.ApiResponse;
 import the_monitor.common.PageResponse;
@@ -34,6 +32,13 @@ public class ArticleController {
                                                                           @RequestParam("page") int page) {
 
         return ApiResponse.onSuccessData("검색 기사", articleService.getArticlesByKeyword(categoryType, keywordId, page));
+
+    }
+
+    @PatchMapping("/read")
+    public ApiResponse<String> readArticle(@RequestParam("articleId") Long articleId) {
+
+        return ApiResponse.onSuccess(articleService.readArticle(articleId));
 
     }
 

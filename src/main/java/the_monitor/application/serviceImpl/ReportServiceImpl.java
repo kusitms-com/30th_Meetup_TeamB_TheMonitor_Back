@@ -14,6 +14,7 @@ import the_monitor.common.ApiException;
 import the_monitor.common.ErrorStatus;
 import the_monitor.domain.enums.CategoryType;
 import the_monitor.domain.model.*;
+import the_monitor.domain.repository.ArticleRepository;
 import the_monitor.domain.repository.ReportArticleRepository;
 import the_monitor.domain.repository.ReportCategoryRepository;
 import the_monitor.domain.repository.ReportRepository;
@@ -22,6 +23,7 @@ import the_monitor.infrastructure.security.CustomUserDetails;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @Service
@@ -37,10 +39,12 @@ public class ReportServiceImpl implements ReportService {
     private final AccountService accountService;
     private final ArticleService articleService;
     private final ClientService clientService;
+    private final ScrapService scrapService;
 
     private final S3Service s3Service;
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private final ArticleRepository articleRepository;
 
     @Override
     public List<ReportListResponse> getReports() {
@@ -70,16 +74,18 @@ public class ReportServiceImpl implements ReportService {
 
         String logoUrl = getLogoUrl(logo, client.getLogo());
 
-        System.out.println("Media: " + request.isMedia());
-        System.out.println("Reporter: " + request.isReporter());
-
         Report report = reportRepository.save(request.toEntity(client, logoUrl));
         // 각 카테고리별로 ReportArticle 생성 및 저장
         createAndSaveReportArticlesByCategories(report, request);
 
+        scrapService.unScrapArticle();
+
+        updateAdded(request);
+
         return ReportCreateResponse.builder()
                 .reportId(report.getId())
                 .build();
+
     }
 
     @Override
@@ -387,10 +393,6 @@ public class ReportServiceImpl implements ReportService {
                 .orElseThrow(() -> new ApiException(ErrorStatus._REPORT_ARTICLE_NOT_FOUND));
     }
 
-    private List<ReportArticle> findReportArticleByReportId(Long reportId) {
-        return reportArticleRepository.findByReportId(reportId);
-    }
-
     // Client ID와 Report ID로 Report 조회
     private Report findByClientIdAndReportId(Long clientId, Long reportId) {
         return reportRepository.findReportByClientIdAndReportId(clientId, reportId);
@@ -490,7 +492,7 @@ public class ReportServiceImpl implements ReportService {
                 .publishDate(article.getPublishDate())
                 .categoryType(reportCategory.getCategoryType())
                 .reportCategory(reportCategory)
-                .keyword(article.getKeyword().toString())
+                .keyword(article.getKeyword().getKeyword())
                 .build();
 
     }
@@ -533,7 +535,7 @@ public class ReportServiceImpl implements ReportService {
         return ReportArticlesResponse.builder()
                 .ReportArticleId(article.getId())
                 .keyword(article.getKeyword())
-                .publishedDate(article.getPublishDate() != null ? article.getPublishDate().toString() : null)
+                .publishedDate(article.getPublishDate() != null ? article.getPublishDate() : null)
                 .headLine(article.getTitle())
                 .url(article.getUrl())
                 .media(article.getPublisherName())
@@ -570,6 +572,37 @@ public class ReportServiceImpl implements ReportService {
         reportArticle.setReportCategory(defaultCategory);
         reportArticleRepository.save(reportArticle);
 
+    }
+
+    private void updateAdded(ReportCreateRequest request) {
+
+        List<Long> articleIds = getArticleIdsByReportCreateRequest(request);
+
+        for (Long articleId : articleIds) {
+            Article article = articleService.findArticleById(articleId);
+            article.setAddedStatus(true);
+            articleRepository.save(article);
+        }
+
+    }
+
+    private List<Long> getArticleIdsByReportCreateRequest(ReportCreateRequest request) {
+
+        // 각 카테고리의 articleId 리스트를 스트림으로 병합
+        return Stream.concat(
+                        Stream.concat(
+                                request.getReportCategoryTypeRequest().getReportCategorySelfRequests().stream()
+                                        .map(ReportCategoryRequest::getArticleId)
+                                        .flatMap(Collection::stream),
+                                request.getReportCategoryTypeRequest().getReportCategoryCompetitorRequests().stream()
+                                        .map(ReportCategoryRequest::getArticleId)
+                                        .flatMap(Collection::stream)
+                        ),
+                        request.getReportCategoryTypeRequest().getReportCategoryIndustryRequests().stream()
+                                .map(ReportCategoryRequest::getArticleId)
+                                .flatMap(Collection::stream)
+                )
+                .toList();
     }
 
 }

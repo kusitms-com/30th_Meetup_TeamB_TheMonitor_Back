@@ -6,6 +6,7 @@ import the_monitor.domain.model.Client;
 import the_monitor.domain.model.Scrap;
 import the_monitor.infrastructure.persistence.JpaScrapRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ScrapRepository extends JpaScrapRepository {
@@ -13,4 +14,9 @@ public interface ScrapRepository extends JpaScrapRepository {
     Optional<Scrap> findByClientAndTitleAndUrl(@Param("client") Client client,
                                                @Param("title") String title,
                                                @Param("url") String url);
+
+    @Query("SELECT s FROM Scrap s " +
+            "WHERE s.client.id = :clientId")
+    List<Scrap> findAllByClientId(@Param("clientId") Long clientId);
+
 }

@@ -8,12 +8,16 @@ import java.util.List;
 
 public interface ScrapService {
 
-    Scrap findById(Long scrapId);
-
     String scrapArticle(Long articleId);
 
-//    ScrapArticleListResponse getScrapArticleList(Long clientId, ScrapIdsRequest request);
-
     ScrapCategoryTypeResponse getScrappedArticlesByClientId();
+
+    ScrapArticleDto getScrapArticleInfo(Long scrapId);
+
+    String unScrapArticle();
+
+    List<Scrap> findAllByClientId(Long clientId);
+
+    void deleteScraps(List<Long> scrapIds);
 
 }

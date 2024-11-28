@@ -185,6 +185,7 @@ public class KeywordServiceImpl implements KeywordService {
         ArticleResponse articleResponse = googleSearchService.toDto(keyword.getKeyword());
 
         for (ArticleGoogleDto dto : articleResponse.getGoogleArticles()) {
+
             articleRepository.save(dto.toEntity(keyword));
         }
     }

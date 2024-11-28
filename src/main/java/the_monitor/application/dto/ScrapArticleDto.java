@@ -1,6 +1,5 @@
 package the_monitor.application.dto;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,7 +9,9 @@ import the_monitor.domain.enums.CategoryType;
 @NoArgsConstructor
 public class ScrapArticleDto {
 
-    private Long articleId;
+    private Long originalArticleId;
+    private Long scrapId;
+    private String keyword;
     private String title;
     private String body;
     private String url;
@@ -21,7 +22,9 @@ public class ScrapArticleDto {
     private CategoryType categoryType;
 
     @Builder
-    public ScrapArticleDto(Long articleId,
+    public ScrapArticleDto(Long originalArticleId,
+                           Long scrapId,
+                           String keyword,
                            String title,
                            String body,
                            String url,
@@ -31,7 +34,9 @@ public class ScrapArticleDto {
                            String reporterName,
                            CategoryType categoryType) {
 
-        this.articleId = articleId;
+        this.originalArticleId = originalArticleId;
+        this.scrapId = scrapId;
+        this.keyword = keyword;
         this.title = title;
         this.body = body;
         this.url = url;
