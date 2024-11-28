@@ -107,7 +107,10 @@ public class ScrapServiceImpl implements ScrapService {
 
         scrapRepository.deleteAll(scraps);
 
-        articleRepository.updateScrappedStatusToFalse(originalArticleIds);
+        for (Long originalArticleId : originalArticleIds) {
+            Article article = findArticleById(originalArticleId);
+            article.setScrapStatus(false);
+        }
 
         return "스크랩 취소 완료";
 
