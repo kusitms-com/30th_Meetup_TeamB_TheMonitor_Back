@@ -63,6 +63,11 @@ public class ReportCategory extends BaseTimeEntity {
         reportArticles.forEach(reportArticle -> reportArticle.setReportCategory(this)); // 양방향 연관 관계 설정
     }
 
+    public void addReportArticle(ReportArticle reportArticle) {
+        this.reportArticles.add(reportArticle); // 리스트에 개별 ReportArticle 추가
+        reportArticle.setReportCategory(this); // 양방향 연관 관계 설정
+    }
+
     public void setCategoryType(CategoryType categoryType) {
         this.categoryType = categoryType;
     }
