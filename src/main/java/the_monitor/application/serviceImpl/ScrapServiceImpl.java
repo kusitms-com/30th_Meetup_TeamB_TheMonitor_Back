@@ -41,6 +41,7 @@ public class ScrapServiceImpl implements ScrapService {
     @Override
     @Transactional
     public String scrapArticle(Long articleId) {
+
         // 1. Client 인증 정보 가져오기
         Long clientId = getClientIdFromAuthentication();
 
@@ -134,9 +135,8 @@ public class ScrapServiceImpl implements ScrapService {
 
     private void buildAndSaveScrap(Article article, Client client) {
 
-        System.out.println("스크랩 키워드" + article.getKeyword().getKeyword());
-
         Scrap scrap = Scrap.builder()
+                .originalArticleId(article.getId())
                 .client(client)
                 .title(article.getTitle())
                 .url(article.getUrl())
@@ -155,7 +155,7 @@ public class ScrapServiceImpl implements ScrapService {
 
         return scrappedArticles.stream()
                 .map(article -> ScrapArticleDto.builder()
-                        .articleId(article.getId())
+                        .originalArticleId(article.getId())
                         .keyword(article.getKeyword().getKeyword())
                         .title(article.getTitle())
                         .body(article.getBody())
@@ -187,7 +187,7 @@ public class ScrapServiceImpl implements ScrapService {
 
     private ScrapArticleDto buildScrapArticleDto(Scrap scrap) {
         return ScrapArticleDto.builder()
-                .articleId(scrap.getId())
+                .originalArticleId(scrap.getOriginalArticleId())
                 .keyword(scrap.getKeyword())
                 .title(scrap.getTitle())
                 .url(scrap.getUrl())
