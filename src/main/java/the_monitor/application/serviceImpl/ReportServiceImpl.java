@@ -46,6 +46,7 @@ public class ReportServiceImpl implements ReportService {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final ArticleRepository articleRepository;
 
+    // 보고서 목록 조회
     @Override
     public List<ReportListResponse> getReports() {
 
@@ -64,6 +65,7 @@ public class ReportServiceImpl implements ReportService {
 
     }
 
+    // 보고서 생성
     @Override
     @Transactional
     public ReportCreateResponse createReports(ReportCreateRequest request, MultipartFile logo) {
@@ -88,6 +90,7 @@ public class ReportServiceImpl implements ReportService {
 
     }
 
+    // 보고서 삭제
     @Override
     @Transactional
     public String deleteReports(Long reportId) {
@@ -100,6 +103,7 @@ public class ReportServiceImpl implements ReportService {
 
     }
 
+    // 보고서 상세보기
     @Override
     public ReportDetailResponse getReportDetail(Long reportId) {
 
@@ -117,7 +121,7 @@ public class ReportServiceImpl implements ReportService {
 
     }
 
-    // 수정 요망
+    // 보고서 기사 수동 추가
     @Override
     @Transactional
     public String updateReportArticle(Long reportId, ReportArticleUpdateRequest request) {
@@ -132,10 +136,13 @@ public class ReportServiceImpl implements ReportService {
 
         setReportArticleDefaultCategory(report, reportArticle, CategoryType.valueOf(request.getCategoryType()));
 
+        report.setUpdatedAt();
+
         return "보고서 기사 추가 완료";
 
     }
 
+    // 보고서 기사 삭제
     @Override
     @Transactional
     public String deleteReportArticle(Long reportId, Long reportArticleId) {
@@ -143,14 +150,15 @@ public class ReportServiceImpl implements ReportService {
         Long clientId = getClientIdFromAuthentication();
 
         Report report = findByClientIdAndReportId(clientId, reportId);
-            validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
+        validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
 
-            reportArticleRepository.deleteById(reportArticleId);
+        reportArticleRepository.deleteById(reportArticleId);
 
-            return "보고서 기사 삭제 완료";
-
+        report.setUpdatedAt();
+        return "보고서 기사 삭제 완료";
     }
 
+    // 보고서 기사 한 줄 요약 수정
     @Override
     @Transactional
     public String updateReportArticleSummary(Long reportId, Long reportArticleId, ReportUpdateSummaryRequest request) {
@@ -167,10 +175,13 @@ public class ReportServiceImpl implements ReportService {
 
         reportArticle.updateSummary(request.getSummary());
 
+        report.setUpdatedAt();
+
         return "보고서 기사 요약 수정 완료";
 
     }
 
+    // 보고서 제목 수정
     @Override
     @Transactional
     public String updateReportTitle(Long reportId, ReportUpdateTitleRequest request) {
@@ -186,6 +197,7 @@ public class ReportServiceImpl implements ReportService {
 
     }
 
+    // 보고서 색상 수정
     @Override
     @Transactional
     public String updateReportColor(Long reportId, ReportUpdateColorRequest request) {
@@ -201,6 +213,7 @@ public class ReportServiceImpl implements ReportService {
 
     }
 
+    // 보고서 로고 수정
     @Override
     @Transactional
     public String updateReportLogo(Long reportId, MultipartFile logo) {
@@ -217,6 +230,7 @@ public class ReportServiceImpl implements ReportService {
 
     }
 
+    // 보고서 검색
     @Override
     public List<ReportListResponse> searchReport(ReportSearchTitleRequest request) {
 
@@ -258,6 +272,7 @@ public class ReportServiceImpl implements ReportService {
                 .reportCategoryCompetitorResponses(categoryMap.getOrDefault(CategoryType.COMPETITOR, List.of()))
                 .reportCategoryIndustryResponses(categoryMap.getOrDefault(CategoryType.INDUSTRY, List.of()))
                 .build();
+
     }
 
     // 보고서 기사 카테고리 수정
@@ -276,6 +291,8 @@ public class ReportServiceImpl implements ReportService {
 
         reportArticle.updateCategory(newCategory);
 
+        report.setUpdatedAt();
+
         return "보고서 기사 카테고리 수정 완료";
 
     }
@@ -285,25 +302,28 @@ public class ReportServiceImpl implements ReportService {
     @Transactional
     public String deleteReportCategory(Long reportId, Long categoryId) {
 
-            Long clientId = getClientIdFromAuthentication();
+        Long clientId = getClientIdFromAuthentication();
 
-            Report report = findByClientIdAndReportId(clientId, reportId);
-            validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
+        Report report = findByClientIdAndReportId(clientId, reportId);
+        validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
 
-            ReportCategory reportCategory = findReportCategoryByIdAndReportId(categoryId, reportId);
+        ReportCategory reportCategory = findReportCategoryByIdAndReportId(categoryId, reportId);
 
-            List<ReportArticle> articles = reportCategory.getReportArticles();
+        List<ReportArticle> articles = reportCategory.getReportArticles();
 
-            for (ReportArticle article : articles) {
-                setReportArticleDefaultCategory(report, article, article.getCategoryType());
-            }
+        for (ReportArticle article : articles) {
+            setReportArticleDefaultCategory(report, article, article.getCategoryType());
+        }
 
-            reportCategoryRepository.delete(reportCategory);
+        reportCategoryRepository.delete(reportCategory);
 
-            return "보고서 카테고리 삭제 완료";
+        report.setUpdatedAt();
+
+        return "보고서 카테고리 삭제 완료";
 
     }
 
+    // 보고서 카테고리 생성
     @Override
     @Transactional
     public String createReportCategory(Long reportId, ReportCategoryCreateRequest request) {
@@ -314,6 +334,8 @@ public class ReportServiceImpl implements ReportService {
         validIsAccountAuthorizedForReport(getAccountFromId(getAccountId()), report);
 
         reportCategoryRepository.save(request.toEntity(report));
+
+        report.setUpdatedAt();
 
         return "보고서 카테고리 생성 완료";
 
@@ -471,6 +493,7 @@ public class ReportServiceImpl implements ReportService {
                 reportCategoryList.add(reportCategory);
             }
         });
+
     }
 
     private ReportCategory createReportCategory(Report report, ReportCategoryRequest categoryRequest, CategoryType categoryType) {
@@ -508,6 +531,7 @@ public class ReportServiceImpl implements ReportService {
 
     // 보고서 상세조회
     private ReportCategoryTypeResponse buildCategoryTypeResponse(List<ReportCategory> reportCategories) {
+
         // 유형별로 분류
         Map<CategoryType, List<ReportCategoryResponse>> categoryMap = reportCategories.stream()
                 .collect(Collectors.groupingBy(
@@ -555,15 +579,18 @@ public class ReportServiceImpl implements ReportService {
     }
 
     private ReportCategoryListResponse buildCategoryListResponse(ReportCategory category) {
+
         return ReportCategoryListResponse.builder()
                 .reportCategoryId(category.getId())
                 .reportCategoryName(category.getName())
                 .reportCategoryDescription(category.getDescription())
                 .isDefault(category.isDefault())
                 .build();
+
     }
 
     private ReportCategory setDefaultCategory(Report report, String categoryType) {
+
         return ReportCategory.builder()
                 .categoryType(CategoryType.valueOf(categoryType))
                 .name("default")
@@ -612,6 +639,7 @@ public class ReportServiceImpl implements ReportService {
                                 .flatMap(Collection::stream)
                 )
                 .toList();
+
     }
 
 }

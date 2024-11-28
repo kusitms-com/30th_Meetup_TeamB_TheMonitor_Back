@@ -10,10 +10,12 @@ import the_monitor.domain.model.ClientMailCC;
 import java.util.List;
 
 public interface ClientMailCCRepository extends JpaRepository<ClientMailCC, Long> {
+
     @Query("SELECT cmc FROM ClientMailCC cmc WHERE cmc.client = :client")
     List<ClientMailCC> findAllByClient(@Param("client") Client client);
 
     @Modifying
     @Query("DELETE FROM ClientMailCC cmc WHERE cmc.client = :client")
     void deleteAllByClient(@Param("client") Client client);
+
 }

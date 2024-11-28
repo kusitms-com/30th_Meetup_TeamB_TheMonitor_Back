@@ -41,6 +41,7 @@ public class ReportController {
     @Operation(summary = "보고서 삭제", description = "보고서를 삭제합니다.")
     @DeleteMapping()
     public ApiResponse<String> deleteReports(@RequestParam("reportId") Long reportId) {
+
         return ApiResponse.onSuccess(reportService.deleteReports(reportId));
 
     }
@@ -49,6 +50,7 @@ public class ReportController {
     @Operation(summary = "보고서 상세 조회", description = "보고서 상세 정보를 조회합니다.")
     @GetMapping("/details")
     public ApiResponse<ReportDetailResponse> getReportDetail(@RequestParam("reportId") Long reportId) {
+
         return ApiResponse.onSuccessData("보고서 상세 조회", reportService.getReportDetail(reportId));
 
     }
@@ -162,6 +164,7 @@ public class ReportController {
 
     }
 
+    @Operation(summary = "보고서 기사 옵션 조회", description = "보고서 기사 옵션을 조회합니다.")
     @GetMapping("/articles/options")
     public ApiResponse<ReportOptionsResponse> getReportOptions(@RequestParam("reportId") Long reportId) {
 

@@ -9,12 +9,9 @@ import the_monitor.domain.enums.CategoryType;
 import the_monitor.domain.model.Keyword;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface KeywordRepository extends JpaRepository<Keyword, Long> {
-
-    Keyword findKeywordById(Long id);
 
     @Query("SELECT k FROM Keyword k " +
             "JOIN k.category c " +
@@ -46,10 +43,5 @@ public interface KeywordRepository extends JpaRepository<Keyword, Long> {
     @Query("DELETE FROM Keyword k " +
             "WHERE k.category.client.id = :clientId")
     void deleteAllByClientId(@Param("clientId") Long clientId);
-
-    @Query("SELECT k FROM Keyword k " +
-            "JOIN k.category c " +
-            "WHERE c.categoryType = :categoryType")
-    List<Keyword> findKeywordsByCategoryType(@Param("categoryType") CategoryType categoryType);
 
 }

@@ -13,7 +13,6 @@ import org.springframework.web.multipart.MultipartFile;
 import the_monitor.application.dto.request.EmailUpdateRequest;
 import the_monitor.application.dto.response.EmailResponse;
 import the_monitor.application.dto.response.EmailSendResponse;
-import the_monitor.application.service.AccountService;
 import the_monitor.application.service.EmailService;
 import the_monitor.application.service.ExcelService;
 import the_monitor.application.service.S3Service;
@@ -43,12 +42,11 @@ public class EmailServiceImpl implements EmailService {
     private final ClientMailRecipientRepository clientMailRecipientRepository;
     private final ClientMailCCRepository clientMailCCRepository;
     private final ClientRepository clientRepository;
-    private final ReportRepository reportRepository;
+    private final AccountRepository accountRepository;
+
     private final ExcelService excelService;
     private final S3Service s3Service;
-    private final JavaMailSender mailSender;
 
-    private final AccountRepository accountRepository;
 
     @Override
     public void sendEmail(String toEmail, String subject, String body) throws MessagingException, UnsupportedEncodingException {
@@ -67,6 +65,7 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void saveEmails(List<String> recipientEmails, List<String> ccEmails, Client client) {
+
         // 수신자 이메일 저장
         List<ClientMailRecipient> recipients = new ArrayList<>();
         for (String email : recipientEmails) {
@@ -90,6 +89,7 @@ public class EmailServiceImpl implements EmailService {
         }
         clientMailCCRepository.saveAll(ccs);
         client.setClientMailCCs(ccs);
+
     }
 
     @Override
@@ -177,8 +177,8 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public EmailSendResponse sendReportEmailWithAttachment(Long reportId, String subject, String content)
-            throws MessagingException, UnsupportedEncodingException {
+    public EmailSendResponse sendReportEmailWithAttachment(Long reportId, String subject, String content) {
+
         File excelFile = null;
         try {
             Long clientId = getClientIdFromAuthentication();
@@ -236,7 +236,9 @@ public class EmailServiceImpl implements EmailService {
                 excelFile.delete();
             }
         }
+
     }
+
     private Long getAccountId() {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

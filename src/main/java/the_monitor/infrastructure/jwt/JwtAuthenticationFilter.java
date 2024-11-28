@@ -1,6 +1,5 @@
 package the_monitor.infrastructure.jwt;
 
-import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -14,8 +13,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import the_monitor.application.service.AccountService;
-import the_monitor.common.ApiException;
-import the_monitor.common.ErrorStatus;
 import the_monitor.domain.model.Account;
 import the_monitor.infrastructure.security.SecurityConfig;
 

@@ -8,8 +8,6 @@ import lombok.NoArgsConstructor;
 import the_monitor.common.BaseTimeEntity;
 import the_monitor.domain.enums.CategoryType;
 
-import java.util.List;
-
 @Entity
 @Getter
 @Table(name = "report_articles")
@@ -30,16 +28,16 @@ public class ReportArticle extends BaseTimeEntity {
     @Column(name = "report_article_url", nullable = false, length = 1024)
     private String url;
 
-    @Column(name = "report_article_publisher_name", nullable = true)
+    @Column(name = "report_article_publisher_name")
     private String publisherName;
 
-    @Column(name = "report_article_reporter_name", nullable = true)
+    @Column(name = "report_article_reporter_name")
     private String reporterName;
 
     @Column(name = "report_article_publish_date", nullable = false)
     private String publishDate;
 
-    @Column(name = "report_article_summary", nullable = true)
+    @Column(name = "report_article_summary")
     private String summary;
 
     @Column(name = "report_article_category_type", nullable = false)
@@ -47,7 +45,7 @@ public class ReportArticle extends BaseTimeEntity {
     private CategoryType categoryType;
 
     @ManyToOne
-    @JoinColumn(name = "report_category_id", nullable = true)
+    @JoinColumn(name = "report_category_id")
     private ReportCategory reportCategory;
 
     @Builder
@@ -71,10 +69,6 @@ public class ReportArticle extends BaseTimeEntity {
         this.categoryType = categoryType;
         this.reportCategory = reportCategory;
 
-    }
-
-    public void updateCategoryType(CategoryType categoryType) {
-        this.categoryType = categoryType;
     }
 
     public void updateSummary(String summary) {

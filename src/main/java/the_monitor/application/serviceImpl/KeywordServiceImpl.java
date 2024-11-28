@@ -26,7 +26,6 @@ import the_monitor.domain.repository.KeywordRepository;
 import the_monitor.infrastructure.security.CustomUserDetails;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -41,7 +40,7 @@ public class KeywordServiceImpl implements KeywordService {
     private final AccountService accountService;
     private final ArticleRepository articleRepository;
 
-
+    // 키워드 조회
     @Override
     public KeywordResponse getKeywords() {
 
@@ -53,6 +52,7 @@ public class KeywordServiceImpl implements KeywordService {
 
     }
 
+    // AccountId, ClientId, CategoryType에 해당하는 키워드 조회
     @Override
     public List<Keyword> getKeywordByAccountIdAndClientIdAndCategoryType(Long accountId, Long clientId, CategoryType categoryType) {
 
@@ -60,6 +60,7 @@ public class KeywordServiceImpl implements KeywordService {
 
     }
 
+    // 키워드 ID, CategoryType에 해당하는 키워드 조회
     @Override
     public Keyword findKeywordByIdAndCategoryType(Long keywordId, CategoryType categoryType) {
 
@@ -67,9 +68,11 @@ public class KeywordServiceImpl implements KeywordService {
 
     }
 
-    @Transactional
+    // 키워드 업데이트
     @Override
+    @Transactional
     public KeywordResponse updateKeywords(KeywordUpdateRequest keywordUpdateRequest) {
+
         Long clientId = getClientIdFromAuthentication();
         Long accountId = getAccountIdFromAuthentication();
 
@@ -100,6 +103,7 @@ public class KeywordServiceImpl implements KeywordService {
 
         // 업데이트된 키워드 응답 반환
         return getKeywordResponses(accountId, clientId);
+
     }
 
     private Long getAccountIdFromAuthentication() {
@@ -176,9 +180,8 @@ public class KeywordServiceImpl implements KeywordService {
     }
 
     @Transactional
-    public String saveArticlesForKeyword(Keyword keyword) {
+    public void saveArticlesForKeyword(Keyword keyword) {
         saveArticlesFromGoogle(keyword);
-        return "키워드에 대한 기사 저장 완료";
     }
 
     private void saveArticlesFromGoogle(Keyword keyword) {
@@ -189,7 +192,5 @@ public class KeywordServiceImpl implements KeywordService {
             articleRepository.save(dto.toEntity(keyword));
         }
     }
-
-
 
 }

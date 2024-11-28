@@ -53,9 +53,5 @@ public class Keyword extends BaseTimeEntity {
     public String getKeyword() {
         return this.keyword;
     }
-    @Override
-    public String toString() {
-        return this.keyword;
-    }
 
 }

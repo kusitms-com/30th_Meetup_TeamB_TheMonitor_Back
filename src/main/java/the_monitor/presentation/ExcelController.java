@@ -16,4 +16,5 @@ public class ExcelController {
     public void generateExcel(@RequestParam("reportId") Long reportId, HttpServletResponse response) {
         excelService.generateExcel(reportId, response);
     }
+
 }

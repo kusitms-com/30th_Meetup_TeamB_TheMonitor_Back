@@ -35,6 +35,7 @@ public class ArticleController {
 
     }
 
+    @Operation(summary = "기사 읽음 표시", description = "기사를 읽음 표시합니다.")
     @PatchMapping("/read")
     public ApiResponse<String> readArticle(@RequestParam("articleId") Long articleId) {
 

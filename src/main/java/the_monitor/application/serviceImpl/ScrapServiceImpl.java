@@ -38,6 +38,7 @@ public class ScrapServiceImpl implements ScrapService {
     private final ClientRepository clientRepository;
     private final AccountRepository accountRepository;
 
+    // 스크랩하기
     @Override
     @Transactional
     public String scrapArticle(Long articleId) {
@@ -68,6 +69,7 @@ public class ScrapServiceImpl implements ScrapService {
 
     }
 
+    // 스크랩한 기사 조회
     @Override
     public ScrapCategoryTypeResponse getScrappedArticlesByClientId() {
 
@@ -93,6 +95,7 @@ public class ScrapServiceImpl implements ScrapService {
 
     }
 
+    // 스크랩 취소
     @Override
     @Transactional
     public String unScrapArticle() {
@@ -116,11 +119,13 @@ public class ScrapServiceImpl implements ScrapService {
 
     }
 
+    // ClientId의 스크랩한 기사 조회
     @Override
     public List<Scrap> findAllByClientId(Long clientId) {
         return scrapRepository.findAllByClientId(clientId);
     }
 
+    // 스크랩한 기사 삭제
     @Override
     @Transactional
     public void deleteScraps(List<Long> scrapIds) {
@@ -219,6 +224,7 @@ public class ScrapServiceImpl implements ScrapService {
     }
 
     private ScrapArticleDto buildScrapArticleDto(Scrap scrap) {
+
         return ScrapArticleDto.builder()
                 .originalArticleId(scrap.getOriginalArticleId())
                 .scrapId(scrap.getId())
@@ -230,6 +236,7 @@ public class ScrapServiceImpl implements ScrapService {
                 .reporterName(scrap.getReporterName())
                 .categoryType(scrap.getCategoryType())
                 .build();
+
     }
 
 }

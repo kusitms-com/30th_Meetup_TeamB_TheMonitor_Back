@@ -15,12 +15,10 @@ import java.util.Date;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import the_monitor.application.service.AccountService;
 import the_monitor.common.ApiException;
@@ -49,6 +47,7 @@ public class JwtProvider {
     }
 
     public String generateAccessToken(Account account) {
+
         Date expiredAt = new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRE_TIME);
         return Jwts.builder()
                 .claim("account_id", account.getId())
@@ -57,9 +56,11 @@ public class JwtProvider {
                 .setExpiration(expiredAt)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
+
     }
 
     public String generateRefreshToken(Account account) {
+
         Date expiredAt = new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRE_TIME);
         return Jwts.builder()
                 .claim("account_id", account.getId())
@@ -68,14 +69,18 @@ public class JwtProvider {
                 .setExpiration(expiredAt)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
+
     }
 
     public Long getAccountId(String token) {
+
         Claims claims = getClaimsFromToken(token);
         return claims.get("account_id", Long.class);
+
     }
 
-    public void setAccessTokenInCookie(Account account, String accessToken, HttpServletResponse response) {
+    public void setAccessTokenInCookie(String accessToken, HttpServletResponse response) {
+
         // accessToken을 쿠키에 설정
         Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
         accessTokenCookie.setHttpOnly(true);   // 클라이언트 측 접근 방지
@@ -108,11 +113,8 @@ public class JwtProvider {
         }
     }
 
-    public boolean isTokenValid(String token) {
-        return "VALID".equals(validateToken(token));
-    }
-
     public Claims getClaimsFromToken(String token) {
+
         try {
             return Jwts.parserBuilder()
                     .setSigningKey(key)
@@ -122,15 +124,18 @@ public class JwtProvider {
         } catch (ExpiredJwtException e) {
             throw new ApiException(ErrorStatus._JWT_EXPIRED);
         }
+
     }
 
     public Authentication getAuthenticationFromToken(String token) {
+
         Claims claims = getClaimsFromToken(token);
         Long accountId = claims.get("account_id", Long.class);
         String email = claims.get("email", String.class);
 
         CustomUserDetails userDetails = new CustomUserDetails(accountId, email, new ArrayList<>());
         return new UsernamePasswordAuthenticationToken(userDetails, token, userDetails.getAuthorities());
+
     }
 
 
@@ -140,7 +145,7 @@ public class JwtProvider {
 
             // 새 accessToken 생성
             String newAccessToken = generateAccessToken(account);
-            setAccessTokenInCookie(account, newAccessToken, response);
+            setAccessTokenInCookie(newAccessToken, response);
 
             // 인증 객체 생성 및 반환
             return getAuthenticationFromToken(newAccessToken);

@@ -8,19 +8,14 @@ import the_monitor.application.dto.request.ClientRequest;
 import the_monitor.application.dto.request.ClientUpdateRequest;
 import the_monitor.application.dto.response.ClientGetResponse;
 import the_monitor.application.dto.response.ClientResponse;
-import the_monitor.application.dto.response.EmailSendResponse;
-import the_monitor.application.dto.response.ReportListResponse;
 import the_monitor.application.service.*;
 import org.springframework.stereotype.Service;
 import the_monitor.common.ApiException;
 import the_monitor.common.ErrorStatus;
 import the_monitor.domain.enums.CategoryType;
-import the_monitor.domain.enums.KeywordType;
 import the_monitor.domain.model.*;
 import the_monitor.domain.repository.*;
 import the_monitor.infrastructure.jwt.JwtProvider;
-import io.jsonwebtoken.Claims;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import the_monitor.infrastructure.security.CustomUserDetails;
@@ -40,20 +35,19 @@ public class ClientServiceImpl implements ClientService {
     private final ClientRepository clientRepository;
     private final CategoryService categoryService;
     private final AccountRepository accountRepository;
-    private final KeywordRepository keywordRepository;
 
-    private final ClientMailRecipientRepository clientMailRecipientRepository;
-    private final ClientMailCCRepository clientMailCCRepository;
-
-    private final JwtProvider jwtProvider;
     private final S3Service s3Service;
-    private final EmailServiceImpl emailServiceImpl;
     private final ArticleService articleService;
     private final AccountService accountService;
+    private final EmailService emailService;
+
+    private final JwtProvider jwtProvider;
 
     @Value("${cloud.aws.s3.default-logo-url}")
     private String defaultLogoUrl;
 
+    // 클라이언트 생성
+    @Override
     @Transactional
     public ClientResponse createClient(ClientRequest clientRequest, MultipartFile logo) {
 
@@ -82,7 +76,7 @@ public class ClientServiceImpl implements ClientService {
         }
 
         // 이메일 수신자와 참조인 저장
-        emailServiceImpl.saveEmails(clientRequest.getRecipientEmails(), clientRequest.getCcEmails(), client);
+        emailService.saveEmails(clientRequest.getRecipientEmails(), clientRequest.getCcEmails(), client);
 
         // 기사 저장
         articleService.saveArticles(client.getId());
@@ -94,7 +88,9 @@ public class ClientServiceImpl implements ClientService {
                 .managerName(client.getManagerName())
                 .logoUrl(client.getLogo())
                 .build();
+
     }
+
     @Override
     public List<ClientResponse> getClientsByAccountId() {
         Long accountId = getAccountIdFromJwt(); // JWT에서 accountId 추출
@@ -135,24 +131,6 @@ public class ClientServiceImpl implements ClientService {
                 .name(client.getName())
                 .logoUrl(client.getLogo())
                 .build();
-    }
-
-    private String saveLogo(MultipartFile logo) {
-        // 로고 파일 저장 처리
-        String directoryPath = "/logo";
-        File directory = new File(directoryPath);
-        if (!directory.exists()) {
-            directory.mkdirs();
-        }
-
-        try {
-            String fileName = System.currentTimeMillis() + "_" + logo.getOriginalFilename();
-            Path filePath = Paths.get(directoryPath, fileName);
-            Files.copy(logo.getInputStream(), filePath);
-            return filePath.toString();
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to save logo", e);
-        }
     }
 
     private Long getAccountIdFromJwt() {
