@@ -42,12 +42,6 @@ public class ScrapServiceImpl implements ScrapService {
     private final AccountRepository accountRepository;
 
     @Override
-    public Scrap findById(Long scrapId) {
-        return scrapRepository.findById(scrapId)
-                .orElseThrow(() -> new ApiException(ErrorStatus._SCRAP_NOT_FOUND));
-    }
-
-    @Override
     @Transactional
     public String scrapArticle(Long articleId) {
         // 1. Client 인증 정보 가져오기
@@ -92,6 +86,15 @@ public class ScrapServiceImpl implements ScrapService {
 
     }
 
+    @Override
+    public ScrapArticleDto getScrapArticleInfo(Long scrapId) {
+
+        Scrap scrap = findScrapById(scrapId);
+
+        return buildScrapArticleDto(scrap);
+
+    }
+
     private Long getAccountId() {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -118,6 +121,11 @@ public class ScrapServiceImpl implements ScrapService {
                 .orElseThrow(() -> new ApiException(ErrorStatus._ARTICLE_NOT_FOUND));
     }
 
+    private Scrap findScrapById(Long scrapId) {
+        return scrapRepository.findById(scrapId)
+                .orElseThrow(() -> new ApiException(ErrorStatus._SCRAP_NOT_FOUND));
+    }
+
     private void findAndDeleteByClientAndTitleAndUrl(Client client, Article article) {
 
         Scrap scrap = scrapRepository.findByClientAndTitleAndUrl(client, article.getTitle(), article.getUrl())
@@ -128,6 +136,8 @@ public class ScrapServiceImpl implements ScrapService {
     }
 
     private void buildAndSaveScrap(Article article, Client client) {
+
+        System.out.println("스크랩 키워드" + article.getKeyword().getKeyword());
 
         Scrap scrap = Scrap.builder()
                 .client(client)
@@ -149,6 +159,7 @@ public class ScrapServiceImpl implements ScrapService {
         return scrappedArticles.stream()
                 .map(article -> ScrapArticleDto.builder()
                         .articleId(article.getId())
+                        .keyword(article.getKeyword().getKeyword())
                         .title(article.getTitle())
                         .body(article.getBody())
                         .url(article.getUrl())
@@ -175,6 +186,19 @@ public class ScrapServiceImpl implements ScrapService {
                 .scrapIndustryResponses(industryArticles)
                 .build();
 
+    }
+
+    private ScrapArticleDto buildScrapArticleDto(Scrap scrap) {
+        return ScrapArticleDto.builder()
+                .articleId(scrap.getId())
+                .keyword(scrap.getKeyword())
+                .title(scrap.getTitle())
+                .url(scrap.getUrl())
+                .publisherName(scrap.getPublisherName())
+                .publishDate(scrap.getPublishDate())
+                .reporterName(scrap.getReporterName())
+                .categoryType(scrap.getCategoryType())
+                .build();
     }
 
 }

@@ -11,6 +11,7 @@ import the_monitor.domain.enums.CategoryType;
 public class ScrapArticleDto {
 
     private Long articleId;
+    private String keyword;
     private String title;
     private String body;
     private String url;
@@ -22,6 +23,7 @@ public class ScrapArticleDto {
 
     @Builder
     public ScrapArticleDto(Long articleId,
+                           String keyword,
                            String title,
                            String body,
                            String url,
@@ -32,6 +34,7 @@ public class ScrapArticleDto {
                            CategoryType categoryType) {
 
         this.articleId = articleId;
+        this.keyword = keyword;
         this.title = title;
         this.body = body;
         this.url = url;

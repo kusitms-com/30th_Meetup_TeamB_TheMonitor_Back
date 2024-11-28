@@ -3,6 +3,7 @@ package the_monitor.presentation;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import the_monitor.application.dto.ArticleGoogleDto;
 import the_monitor.application.dto.request.ScrapReportArticleRequest;
 import the_monitor.application.dto.response.ArticleResponse;
 import the_monitor.application.dto.response.ScrapReportArticeResponse;

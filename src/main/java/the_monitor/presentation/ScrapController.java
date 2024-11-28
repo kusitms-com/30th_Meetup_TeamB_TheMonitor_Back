@@ -21,7 +21,7 @@ public class ScrapController {
     @PostMapping()
     public ApiResponse<String> scrapArticle(@RequestParam("articleId") Long articleId) {
 
-        return ApiResponse.onSuccessData("기사 스크랩 변경 => ", scrapService.scrapArticle(articleId));
+        return ApiResponse.onSuccessData("기사 스크랩 변경", scrapService.scrapArticle(articleId));
 
     }
 
@@ -29,6 +29,13 @@ public class ScrapController {
     @GetMapping
     public ApiResponse<ScrapCategoryTypeResponse> getScrappedArticlesByClientId() {
         return ApiResponse.onSuccessData("스크랩 기사 조회 성공", scrapService.getScrappedArticlesByClientId());
+    }
+
+    @GetMapping("info")
+    public ApiResponse<ScrapArticleDto> getScrapArticleInfo(@RequestParam("scrapId") Long scrapId) {
+
+        return ApiResponse.onSuccessData("스크랩 기사 상세 조회 성공", scrapService.getScrapArticleInfo(scrapId));
+
     }
 
 }

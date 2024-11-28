@@ -70,9 +70,6 @@ public class ReportServiceImpl implements ReportService {
 
         String logoUrl = getLogoUrl(logo, client.getLogo());
 
-        System.out.println("Media: " + request.isMedia());
-        System.out.println("Reporter: " + request.isReporter());
-
         Report report = reportRepository.save(request.toEntity(client, logoUrl));
         // 각 카테고리별로 ReportArticle 생성 및 저장
         createAndSaveReportArticlesByCategories(report, request);
@@ -80,6 +77,7 @@ public class ReportServiceImpl implements ReportService {
         return ReportCreateResponse.builder()
                 .reportId(report.getId())
                 .build();
+
     }
 
     @Override
@@ -490,7 +488,7 @@ public class ReportServiceImpl implements ReportService {
                 .publishDate(article.getPublishDate())
                 .categoryType(reportCategory.getCategoryType())
                 .reportCategory(reportCategory)
-                .keyword(article.getKeyword().toString())
+                .keyword(article.getKeyword().getKeyword())
                 .build();
 
     }
