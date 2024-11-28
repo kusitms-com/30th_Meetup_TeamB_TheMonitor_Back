@@ -604,10 +604,6 @@ public class ReportServiceImpl implements ReportService {
 
         ReportCategory defaultCategory = findReportCategoryDefault(report, categoryType);
 
-//        // 기본 ReportCategory 설정
-//        reportArticle.setReportCategory(defaultCategory);
-//        reportArticleRepository.save(reportArticle);
-
         defaultCategory.addReportArticle(reportArticle);
 
         report.addReportCategory(defaultCategory);
