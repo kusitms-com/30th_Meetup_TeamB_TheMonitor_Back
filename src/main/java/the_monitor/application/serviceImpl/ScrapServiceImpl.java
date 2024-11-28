@@ -190,6 +190,7 @@ public class ScrapServiceImpl implements ScrapService {
         return scrappedArticles.stream()
                 .map(scrap -> ScrapArticleDto.builder()
                         .originalArticleId(scrap.getId())
+                        .scrapId(scrap.getId())
                         .keyword(scrap.getKeyword())
                         .title(scrap.getTitle())
                         .url(scrap.getUrl())
