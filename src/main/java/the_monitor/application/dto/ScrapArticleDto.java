@@ -9,7 +9,7 @@ import the_monitor.domain.enums.CategoryType;
 @NoArgsConstructor
 public class ScrapArticleDto {
 
-    private Long articleId;
+    private Long originalArticleId;
     private String keyword;
     private String title;
     private String body;
@@ -21,7 +21,7 @@ public class ScrapArticleDto {
     private CategoryType categoryType;
 
     @Builder
-    public ScrapArticleDto(Long articleId,
+    public ScrapArticleDto(Long originalArticleId,
                            String keyword,
                            String title,
                            String body,
@@ -32,7 +32,7 @@ public class ScrapArticleDto {
                            String reporterName,
                            CategoryType categoryType) {
 
-        this.articleId = articleId;
+        this.originalArticleId = originalArticleId;
         this.keyword = keyword;
         this.title = title;
         this.body = body;
