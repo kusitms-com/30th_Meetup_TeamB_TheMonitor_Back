@@ -18,7 +18,7 @@ public class ArticleGoogleDto {
     private String publisherName;
     private String publishDate;
     private String reporterName;
-    private boolean scrapped;
+    private boolean scrapped = false;
 
     @Builder
     public ArticleGoogleDto(Long articleId,
@@ -52,6 +52,7 @@ public class ArticleGoogleDto {
                 .publisherName(publisherName)
                 .publishDate(publishDate)
                 .reporterName(reporterName)
+                .isScrapped(scrapped)
                 .keyword(keyword)
                 .build();
     }

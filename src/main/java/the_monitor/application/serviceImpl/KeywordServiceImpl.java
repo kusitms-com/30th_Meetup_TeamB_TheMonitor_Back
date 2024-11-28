@@ -6,10 +6,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import the_monitor.application.dto.ArticleGoogleDto;
 import the_monitor.application.dto.request.KeywordUpdateRequest;
+import the_monitor.application.dto.response.ArticleResponse;
 import the_monitor.application.dto.response.KeywordAndIdResponse;
 import the_monitor.application.dto.response.KeywordResponse;
 import the_monitor.application.service.AccountService;
+import the_monitor.application.service.GoogleSearchService;
 import the_monitor.application.service.KeywordService;
 import the_monitor.common.ApiException;
 import the_monitor.common.ErrorStatus;
@@ -31,6 +34,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class KeywordServiceImpl implements KeywordService {
 
+    private final GoogleSearchService googleSearchService;
     private final KeywordRepository keywordRepository;
     private final ClientRepository clientRepository;
     private final CategoryServiceImpl categoryServiceImpl;
@@ -73,7 +77,7 @@ public class KeywordServiceImpl implements KeywordService {
         Client client = clientRepository.findByIdAndAccountId(clientId, accountId)
                 .orElseThrow(() -> new ApiException(ErrorStatus._CLIENT_FORBIDDEN));
 
-        // Step 1: 참조 데이터 삭제 (articles 테이블에서 참조된 키워드 제거)
+        // Step 1: 기존 키워드와 연관된 기사 삭제
         articleRepository.deleteByClientId(clientId);
 
         // Step 2: 기존 키워드 삭제
@@ -82,9 +86,19 @@ public class KeywordServiceImpl implements KeywordService {
         // Step 3: 새로운 키워드 저장
         Map<CategoryType, List<String>> keywordsByCategory = keywordUpdateRequest.getKeywordsByCategory();
         for (Map.Entry<CategoryType, List<String>> entry : keywordsByCategory.entrySet()) {
+            // 새로운 키워드 저장
             categoryServiceImpl.saveCategoryWithKeywords(entry.getKey(), entry.getValue(), client);
         }
 
+        // Step 4: 저장된 키워드를 다시 조회
+        List<Keyword> savedKeywords = keywordRepository.findKeywordByAccountIdAndClientId(accountId, clientId);
+
+        // Step 5: 새로운 키워드에 대한 기사 저장
+        for (Keyword keyword : savedKeywords) {
+            saveArticlesForKeyword(keyword);
+        }
+
+        // 업데이트된 키워드 응답 반환
         return getKeywordResponses(accountId, clientId);
     }
 
@@ -159,6 +173,20 @@ public class KeywordServiceImpl implements KeywordService {
                         .categoryType(CategoryType.INDUSTRY)
                         .build())
                 .toList();
+    }
+
+    @Transactional
+    public String saveArticlesForKeyword(Keyword keyword) {
+        saveArticlesFromGoogle(keyword);
+        return "키워드에 대한 기사 저장 완료";
+    }
+
+    private void saveArticlesFromGoogle(Keyword keyword) {
+        ArticleResponse articleResponse = googleSearchService.toDto(keyword.getKeyword());
+
+        for (ArticleGoogleDto dto : articleResponse.getGoogleArticles()) {
+            articleRepository.save(dto.toEntity(keyword));
+        }
     }
 
 
