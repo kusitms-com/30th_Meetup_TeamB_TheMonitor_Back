@@ -6,6 +6,9 @@ import lombok.NoArgsConstructor;
 import the_monitor.domain.model.Article;
 import the_monitor.domain.model.Keyword;
 
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+
 @Getter
 @NoArgsConstructor
 public class ArticleGoogleDto {
@@ -60,5 +63,6 @@ public class ArticleGoogleDto {
     public void setArticleId(Long articleId) {
         this.articleId = articleId;
     }
+
 
 }
